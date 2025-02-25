@@ -4,12 +4,13 @@ import { FileUpload } from "../components/FileUpload";
 import { TokenDisplay } from "../components/TokenDisplay";
 import { TokenInput } from "../components/TokenInput";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, Download, Shield, Share2 } from "lucide-react";
+import { Upload, Download, Shield, Share2, Wifi } from "lucide-react";
 import { toast } from "sonner";
+import Peer from "peerjs";
 
-// Generate a random token of length between 4 and 6 characters
-const generateToken = () => {
-  const length = Math.floor(Math.random() * 3) + 4; // Random length between 4 and 6
+// Generate a random peer ID of length between 4 and 6 characters
+const generatePeerId = () => {
+  const length = Math.floor(Math.random() * 3) + 4;
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let result = '';
   for (let i = 0; i < length; i++) {
@@ -26,71 +27,115 @@ interface FileData {
 }
 
 const Index = () => {
-  const [token, setToken] = useState<string | null>(null);
+  const [peerId, setPeerId] = useState<string | null>(null);
+  const [peer, setPeer] = useState<Peer | null>(null);
   const [currentFile, setCurrentFile] = useState<File | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
 
-  // Store file data when uploading
-  const handleFileSelect = (file: File) => {
-    const newToken = generateToken();
-    setToken(newToken);
-    setCurrentFile(file);
-    
-    // Store file metadata in localStorage
-    const fileData: FileData = {
-      name: file.name,
-      type: file.type,
-      size: file.size,
-      lastModified: file.lastModified,
+  // Initialize PeerJS connection
+  useEffect(() => {
+    const newPeerId = generatePeerId();
+    const newPeer = new Peer(newPeerId, {
+      host: '/',
+      port: 9000,
+    });
+
+    newPeer.on('open', (id) => {
+      console.log('My peer ID is:', id);
+      setPeerId(id);
+      setIsConnected(true);
+      toast.success("Connected to P2P network!");
+    });
+
+    newPeer.on('error', (error) => {
+      console.error('PeerJS error:', error);
+      toast.error("Connection error. Please try again.");
+      setIsConnected(false);
+    });
+
+    newPeer.on('connection', (conn) => {
+      conn.on('data', (data: { type: string, requestedFile?: string }) => {
+        if (data.type === 'request-file' && currentFile) {
+          conn.send({
+            type: 'file',
+            file: currentFile,
+            name: currentFile.name,
+            size: currentFile.size,
+          });
+        }
+      });
+    });
+
+    setPeer(peer);
+
+    return () => {
+      newPeer.destroy();
     };
-    localStorage.setItem(newToken, JSON.stringify(fileData));
+  }, []);
+
+  // Store file when uploading
+  const handleFileSelect = (file: File) => {
+    setCurrentFile(file);
+    toast.success(`File ready to share: ${file.name}`);
   };
 
-  // Handle token verification and file download
-  const handleTokenSubmit = (submittedToken: string) => {
-    const fileData = localStorage.getItem(submittedToken);
-    
-    if (!fileData) {
-      toast.error("Invalid token. Please check and try again.");
+  // Handle peer ID submission for downloading
+  const handlePeerConnect = async (remotePeerId: string) => {
+    if (!peer || !remotePeerId) {
+      toast.error("Connection not ready. Please try again.");
       return;
     }
 
-    const parsedFileData: FileData = JSON.parse(fileData);
-    
-    // Create and trigger download
-    if (currentFile) {
-      const url = URL.createObjectURL(currentFile);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = parsedFileData.name;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      toast.success("File download started!");
-    } else {
-      toast.info(`File "${parsedFileData.name}" is ready for download`);
+    try {
+      const conn = peer.connect(remotePeerId);
+      
+      conn.on('open', () => {
+        toast.info("Requesting file from peer...");
+        conn.send({ type: 'request-file' });
+      });
+
+      conn.on('data', (data: { type: string, file: Blob, name: string }) => {
+        if (data.type === 'file') {
+          const url = URL.createObjectURL(data.file);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = data.name;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          toast.success("File download started!");
+        }
+      });
+
+      conn.on('error', (error) => {
+        console.error('Connection error:', error);
+        toast.error("Failed to connect to peer");
+      });
+    } catch (error) {
+      console.error('Failed to connect:', error);
+      toast.error("Failed to connect to peer");
     }
   };
-
-  // Cleanup localStorage when component unmounts
-  useEffect(() => {
-    return () => {
-      if (token) {
-        localStorage.removeItem(token);
-      }
-    };
-  }, [token]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       <div className="container max-w-6xl mx-auto px-4 py-16">
+        {/* Connection Status */}
+        <div className="flex items-center justify-center gap-2 mb-8">
+          <Wifi className={`w-5 h-5 ${isConnected ? 'text-success' : 'text-gray-400'}`} />
+          <span className={`text-sm ${isConnected ? 'text-success' : 'text-gray-400'}`}>
+            {isConnected ? 'Connected to P2P Network' : 'Connecting...'}
+          </span>
+        </div>
+
         {/* Hero Section */}
         <div className="text-center mb-16 space-y-6 animate-fade-in">
           <h1 className="text-5xl font-bold text-gray-900 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
-            Secure File Sharing Made Simple
+            Local Network File Sharing
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Upload files and share them securely with a unique token. Perfect for sharing across devices and with others.
+            Share files securely with peers on your local network. No internet required!
           </p>
           
           {/* Features Grid */}
@@ -98,17 +143,17 @@ const Index = () => {
             <div className="p-6 bg-white/50 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 hover:scale-105 transition-transform">
               <Upload className="w-8 h-8 text-indigo-500 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Easy Upload</h3>
-              <p className="text-gray-600">Drag and drop your files or click to upload</p>
+              <p className="text-gray-600">Drag and drop your files to share</p>
             </div>
             <div className="p-6 bg-white/50 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 hover:scale-105 transition-transform">
               <Shield className="w-8 h-8 text-indigo-500 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Secure Sharing</h3>
-              <p className="text-gray-600">Protected with unique access tokens</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Local Network</h3>
+              <p className="text-gray-600">Direct peer-to-peer sharing</p>
             </div>
             <div className="p-6 bg-white/50 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 hover:scale-105 transition-transform">
               <Share2 className="w-8 h-8 text-indigo-500 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Cross-Device</h3>
-              <p className="text-gray-600">Access your files from any device</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Secure Transfer</h3>
+              <p className="text-gray-600">Direct device-to-device transfer</p>
             </div>
           </div>
         </div>
@@ -119,30 +164,30 @@ const Index = () => {
             <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
               <TabsTrigger value="upload" className="flex items-center gap-2">
                 <Upload className="h-4 w-4" />
-                Upload File
+                Share File
               </TabsTrigger>
               <TabsTrigger value="download" className="flex items-center gap-2">
                 <Download className="h-4 w-4" />
-                Download File
+                Receive File
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="upload" className="mt-0">
               <div className="space-y-8">
                 <FileUpload onFileSelect={handleFileSelect} />
-                {token && <TokenDisplay token={token} />}
+                {peerId && <TokenDisplay token={peerId} />}
               </div>
             </TabsContent>
 
             <TabsContent value="download" className="mt-0">
-              <TokenInput onSubmit={handleTokenSubmit} />
+              <TokenInput onSubmit={handlePeerConnect} />
             </TabsContent>
           </Tabs>
         </div>
 
         {/* Footer */}
         <footer className="mt-24 text-center text-gray-500 text-sm">
-          <p>Secure file sharing application. Share responsibly.</p>
+          <p>Local network file sharing application. Share responsibly.</p>
         </footer>
       </div>
     </div>
