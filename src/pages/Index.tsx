@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FileUpload } from "../components/FileUpload";
 import { TokenDisplay } from "../components/TokenDisplay";
 import { TokenInput } from "../components/TokenInput";
@@ -7,24 +7,79 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Upload, Download } from "lucide-react";
 import { toast } from "sonner";
 
+// Generate a random token of length between 4 and 6 characters
 const generateToken = () => {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  const length = Math.floor(Math.random() * 3) + 4; // Random length between 4 and 6
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
 };
+
+interface FileData {
+  name: string;
+  type: string;
+  size: number;
+  lastModified: number;
+}
 
 const Index = () => {
   const [token, setToken] = useState<string | null>(null);
+  const [currentFile, setCurrentFile] = useState<File | null>(null);
 
+  // Store file data when uploading
   const handleFileSelect = (file: File) => {
-    // Here we would normally upload the file to a server
-    // For now, we'll just generate a token
     const newToken = generateToken();
     setToken(newToken);
+    setCurrentFile(file);
+    
+    // Store file metadata in localStorage
+    const fileData: FileData = {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      lastModified: file.lastModified,
+    };
+    localStorage.setItem(newToken, JSON.stringify(fileData));
   };
 
+  // Handle token verification and file download
   const handleTokenSubmit = (submittedToken: string) => {
-    // Here we would normally verify the token and download the file
-    toast.success("Token received! File download would start here.");
+    const fileData = localStorage.getItem(submittedToken);
+    
+    if (!fileData) {
+      toast.error("Invalid token. Please check and try again.");
+      return;
+    }
+
+    const parsedFileData: FileData = JSON.parse(fileData);
+    
+    // Create and trigger download
+    if (currentFile) {
+      const url = URL.createObjectURL(currentFile);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = parsedFileData.name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success("File download started!");
+    } else {
+      toast.info(`File "${parsedFileData.name}" is ready for download`);
+    }
   };
+
+  // Cleanup localStorage when component unmounts
+  useEffect(() => {
+    return () => {
+      if (token) {
+        localStorage.removeItem(token);
+      }
+    };
+  }, [token]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
