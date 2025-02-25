@@ -4,7 +4,7 @@ import { FileUpload } from "../components/FileUpload";
 import { TokenDisplay } from "../components/TokenDisplay";
 import { TokenInput } from "../components/TokenInput";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, Download } from "lucide-react";
+import { Upload, Download, Shield, Share2 } from "lucide-react";
 import { toast } from "sonner";
 
 // Generate a random token of length between 4 and 6 characters
@@ -82,40 +82,68 @@ const Index = () => {
   }, [token]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      <div className="container max-w-4xl mx-auto px-4 py-16">
-        <div className="text-center mb-12 animate-fade-up">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Secure File Sharing
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      <div className="container max-w-6xl mx-auto px-4 py-16">
+        {/* Hero Section */}
+        <div className="text-center mb-16 space-y-6 animate-fade-in">
+          <h1 className="text-5xl font-bold text-gray-900 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+            Secure File Sharing Made Simple
           </h1>
-          <p className="text-lg text-gray-600">
-            Upload, share, and access files securely with tokens
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Upload files and share them securely with a unique token. Perfect for sharing across devices and with others.
           </p>
+          
+          {/* Features Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+            <div className="p-6 bg-white/50 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 hover:scale-105 transition-transform">
+              <Upload className="w-8 h-8 text-indigo-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Easy Upload</h3>
+              <p className="text-gray-600">Drag and drop your files or click to upload</p>
+            </div>
+            <div className="p-6 bg-white/50 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 hover:scale-105 transition-transform">
+              <Shield className="w-8 h-8 text-indigo-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Secure Sharing</h3>
+              <p className="text-gray-600">Protected with unique access tokens</p>
+            </div>
+            <div className="p-6 bg-white/50 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 hover:scale-105 transition-transform">
+              <Share2 className="w-8 h-8 text-indigo-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Cross-Device</h3>
+              <p className="text-gray-600">Access your files from any device</p>
+            </div>
+          </div>
         </div>
 
-        <Tabs defaultValue="upload" className="w-full">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
-            <TabsTrigger value="upload" className="flex items-center gap-2">
-              <Upload className="h-4 w-4" />
-              Upload
-            </TabsTrigger>
-            <TabsTrigger value="download" className="flex items-center gap-2">
-              <Download className="h-4 w-4" />
-              Download
-            </TabsTrigger>
-          </TabsList>
+        {/* Main Content */}
+        <div className="max-w-3xl mx-auto">
+          <Tabs defaultValue="upload" className="w-full animate-fade-up">
+            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+              <TabsTrigger value="upload" className="flex items-center gap-2">
+                <Upload className="h-4 w-4" />
+                Upload File
+              </TabsTrigger>
+              <TabsTrigger value="download" className="flex items-center gap-2">
+                <Download className="h-4 w-4" />
+                Download File
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="upload" className="mt-0 animate-fade-up">
-            <div className="space-y-8">
-              <FileUpload onFileSelect={handleFileSelect} />
-              {token && <TokenDisplay token={token} />}
-            </div>
-          </TabsContent>
+            <TabsContent value="upload" className="mt-0">
+              <div className="space-y-8">
+                <FileUpload onFileSelect={handleFileSelect} />
+                {token && <TokenDisplay token={token} />}
+              </div>
+            </TabsContent>
 
-          <TabsContent value="download" className="mt-0 animate-fade-up">
-            <TokenInput onSubmit={handleTokenSubmit} />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="download" className="mt-0">
+              <TokenInput onSubmit={handleTokenSubmit} />
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {/* Footer */}
+        <footer className="mt-24 text-center text-gray-500 text-sm">
+          <p>Secure file sharing application. Share responsibly.</p>
+        </footer>
       </div>
     </div>
   );
