@@ -11,7 +11,7 @@ export const TokenInput = ({ onSubmit }: TokenInputProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (peerId.trim()) {
+    if (peerId.trim().length === 5) {
       onSubmit(peerId.trim().toUpperCase());
       setPeerId("");
     }
@@ -19,7 +19,7 @@ export const TokenInput = ({ onSubmit }: TokenInputProps) => {
 
   const handlePeerIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toUpperCase();
-    if (value.length <= 6) {
+    if (value.length <= 5) {
       setPeerId(value);
     }
   };
@@ -32,11 +32,11 @@ export const TokenInput = ({ onSubmit }: TokenInputProps) => {
             type="text"
             value={peerId}
             onChange={handlePeerIdChange}
-            placeholder="Enter peer ID to connect"
+            placeholder="Enter 5-character token"
             className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-success/50 transition-all uppercase"
-            minLength={4}
-            maxLength={6}
-            pattern="[A-Z0-9]{4,6}"
+            minLength={5}
+            maxLength={5}
+            pattern="[A-Z0-9]{5}"
             required
           />
           <button

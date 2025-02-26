@@ -8,12 +8,11 @@ import { Upload, Download, Shield, Share2, Wifi } from "lucide-react";
 import { toast } from "sonner";
 import Peer from "peerjs";
 
-// Generate a random peer ID of length between 4 and 6 characters
+// Generate a 5-character token
 const generatePeerId = () => {
-  const length = Math.floor(Math.random() * 3) + 4;
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let result = '';
-  for (let i = 0; i < length; i++) {
+  for (let i = 0; i < 5; i++) {
     result += characters.charAt(Math.floor(Math.random() * characters.length));
   }
   return result;
