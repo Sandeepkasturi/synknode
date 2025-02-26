@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { FileUpload } from "../components/FileUpload";
 import { TokenDisplay } from "../components/TokenDisplay";
@@ -42,18 +43,30 @@ const Index = () => {
     });
 
     newPeer.on('connection', (conn) => {
-      conn.on('data', (data: { type: string, requestedFile?: string }) => {
+      console.log('Incoming connection from:', conn.peer);
+      
+      conn.on('data', async (data: { type: string, requestedFile?: string }) => {
+        console.log('Received data:', data);
+        
         if (data.type === 'request-permission') {
           const isApproved = window.confirm(`User ${conn.peer} wants to download your file. Allow?`);
           
           if (isApproved && currentFile) {
-            conn.send({
-              type: 'permission-granted',
-              file: currentFile,
-              name: currentFile.name,
-              size: currentFile.size,
-            });
-            toast.success(`Granted access to ${conn.peer}`);
+            try {
+              // Convert file to ArrayBuffer for transfer
+              const buffer = await currentFile.arrayBuffer();
+              conn.send({
+                type: 'permission-granted',
+                fileData: buffer,
+                fileName: currentFile.name,
+                fileType: currentFile.type,
+                fileSize: currentFile.size,
+              });
+              toast.success(`Granted access to ${conn.peer}`);
+            } catch (error) {
+              console.error('Error sending file:', error);
+              toast.error("Error sending file");
+            }
           } else {
             conn.send({
               type: 'permission-denied'
@@ -80,19 +93,17 @@ const Index = () => {
     return () => {
       newPeer.destroy();
     };
-  }, []);
+  }, [currentFile]);
 
   // Store file and generate token when uploading
   const handleFileSelect = (file: File) => {
     setCurrentFile(file);
     const newPeerId = generatePeerId();
     
-    // Destroy existing peer connection
     if (peer) {
       peer.destroy();
     }
 
-    // Create new peer with the generated ID using cloud server
     const newPeer = new Peer(newPeerId);
 
     newPeer.on('open', () => {
@@ -101,20 +112,30 @@ const Index = () => {
       toast.success(`File ready to share! Your token is: ${newPeerId}`);
     });
 
-    // Set up the same event listeners for the new peer
     newPeer.on('connection', (conn) => {
-      conn.on('data', (data: { type: string, requestedFile?: string }) => {
+      console.log('New connection in handleFileSelect:', conn.peer);
+      
+      conn.on('data', async (data: { type: string, requestedFile?: string }) => {
+        console.log('Received data in handleFileSelect:', data);
+        
         if (data.type === 'request-permission') {
           const isApproved = window.confirm(`User ${conn.peer} wants to download your file. Allow?`);
           
-          if (isApproved && currentFile) {
-            conn.send({
-              type: 'permission-granted',
-              file: currentFile,
-              name: currentFile.name,
-              size: currentFile.size,
-            });
-            toast.success(`Granted access to ${conn.peer}`);
+          if (isApproved && file) {
+            try {
+              const buffer = await file.arrayBuffer();
+              conn.send({
+                type: 'permission-granted',
+                fileData: buffer,
+                fileName: file.name,
+                fileType: file.type,
+                fileSize: file.size,
+              });
+              toast.success(`Granted access to ${conn.peer}`);
+            } catch (error) {
+              console.error('Error sending file:', error);
+              toast.error("Error sending file");
+            }
           } else {
             conn.send({
               type: 'permission-denied'
@@ -147,24 +168,44 @@ const Index = () => {
     }
 
     try {
+      console.log('Connecting to peer:', remotePeerId);
       const conn = peer.connect(remotePeerId);
       
       conn.on('open', () => {
+        console.log('Connection opened to:', remotePeerId);
         toast.info("Requesting permission from sender...");
         conn.send({ type: 'request-permission' });
       });
 
-      conn.on('data', (data: { type: string, file?: Blob, name?: string }) => {
-        if (data.type === 'permission-granted' && data.file && data.name) {
-          const url = URL.createObjectURL(data.file);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = data.name;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-          toast.success("File download started!");
+      conn.on('data', (data: { 
+        type: string, 
+        fileData?: ArrayBuffer, 
+        fileName?: string,
+        fileType?: string,
+        fileSize?: number 
+      }) => {
+        console.log('Received data in receiver:', data);
+        
+        if (data.type === 'permission-granted' && data.fileData && data.fileName) {
+          try {
+            // Convert ArrayBuffer to Blob with the correct file type
+            const blob = new Blob([data.fileData], { type: data.fileType || 'application/octet-stream' });
+            
+            // Create download link
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = data.fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            toast.success("File download started!");
+          } catch (error) {
+            console.error('Error downloading file:', error);
+            toast.error("Error downloading file");
+          }
         } else if (data.type === 'permission-denied') {
           toast.error("File access denied by sender");
         }
@@ -175,7 +216,6 @@ const Index = () => {
         toast.error("Failed to connect to peer");
       });
 
-      // Store the connection
       setPendingConnections(prev => new Map(prev.set(remotePeerId, conn)));
     } catch (error) {
       console.error('Failed to connect:', error);
