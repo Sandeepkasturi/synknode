@@ -239,6 +239,7 @@ const Index = () => {
           <h1 className="text-5xl font-bold text-gray-900 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
             Synk Node Network File Sharing
           </h1>
+          <br></br>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Share files securely with peers on your local network.
           </p>
