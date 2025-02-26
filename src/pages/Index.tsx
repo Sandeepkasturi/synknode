@@ -31,16 +31,12 @@ const Index = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [pendingConnections, setPendingConnections] = useState<Map<string, any>>(new Map());
 
-  // Initialize PeerJS connection
+  // Initialize PeerJS connection with cloud server
   useEffect(() => {
-    const newPeer = new Peer({
-      host: 'localhost',  // Change this to your PeerJS server
-      port: 9000,
-      path: '/myapp'
-    });
+    const newPeer = new Peer();
 
-    newPeer.on('open', () => {
-      console.log('Connected to P2P network');
+    newPeer.on('open', (id) => {
+      console.log('Connected to P2P network with ID:', id);
       setIsConnected(true);
       toast.success("Connected to P2P network!");
     });
@@ -48,7 +44,6 @@ const Index = () => {
     newPeer.on('connection', (conn) => {
       conn.on('data', (data: { type: string, requestedFile?: string }) => {
         if (data.type === 'request-permission') {
-          // Show permission request to sender
           const isApproved = window.confirm(`User ${conn.peer} wants to download your file. Allow?`);
           
           if (isApproved && currentFile) {
@@ -97,12 +92,8 @@ const Index = () => {
       peer.destroy();
     }
 
-    // Create new peer with the generated ID
-    const newPeer = new Peer(newPeerId, {
-      host: 'localhost',
-      port: 9000,
-      path: '/myapp'
-    });
+    // Create new peer with the generated ID using cloud server
+    const newPeer = new Peer(newPeerId);
 
     newPeer.on('open', () => {
       setPeerId(newPeerId);
