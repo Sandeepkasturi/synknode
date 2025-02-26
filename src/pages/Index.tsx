@@ -237,10 +237,10 @@ const Index = () => {
         {/* Hero Section */}
         <div className="text-center mb-16 space-y-6 animate-fade-in">
           <h1 className="text-5xl font-bold text-gray-900 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
-            Local Network File Sharing
+            Synk Node Network File Sharing
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Share files securely with peers on your local network. No internet required!
+            Share files securely with peers on your local network.
           </p>
           
           {/* Features Grid */}
