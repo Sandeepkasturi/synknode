@@ -34,16 +34,14 @@ const Index = () => {
 
   // Initialize PeerJS connection
   useEffect(() => {
-    const newPeerId = generatePeerId();
-    const newPeer = new Peer(newPeerId, {
+    const newPeer = new Peer({
       host: 'localhost',  // Change this to your PeerJS server
       port: 9000,
       path: '/myapp'
     });
 
-    newPeer.on('open', (id) => {
-      console.log('My peer ID is:', id);
-      setPeerId(id);
+    newPeer.on('open', () => {
+      console.log('Connected to P2P network');
       setIsConnected(true);
       toast.success("Connected to P2P network!");
     });
@@ -90,10 +88,16 @@ const Index = () => {
     };
   }, []);
 
-  // Store file when uploading
+  // Store file and generate token when uploading
   const handleFileSelect = (file: File) => {
     setCurrentFile(file);
-    toast.success(`File ready to share: ${file.name}`);
+    const newPeerId = generatePeerId();
+    if (peer) {
+      peer.disconnect(); // Disconnect from any existing connections
+      peer.id = newPeerId; // Set new peer ID
+      setPeerId(newPeerId); // Update state with new ID
+      toast.success(`File ready to share! Your token is: ${newPeerId}`);
+    }
   };
 
   // Handle peer ID submission for downloading
@@ -197,7 +201,7 @@ const Index = () => {
             <TabsContent value="upload" className="mt-0">
               <div className="space-y-8">
                 <FileUpload onFileSelect={handleFileSelect} />
-                {peerId && <TokenDisplay token={peerId} />}
+                {peerId && currentFile && <TokenDisplay token={peerId} />}
               </div>
             </TabsContent>
 
