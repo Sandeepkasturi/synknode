@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { FileUpload } from "../components/FileUpload";
 import { TokenDisplay } from "../components/TokenDisplay";
@@ -92,12 +91,61 @@ const Index = () => {
   const handleFileSelect = (file: File) => {
     setCurrentFile(file);
     const newPeerId = generatePeerId();
+    
+    // Destroy existing peer connection
     if (peer) {
-      peer.disconnect(); // Disconnect from any existing connections
-      peer.id = newPeerId; // Set new peer ID
-      setPeerId(newPeerId); // Update state with new ID
-      toast.success(`File ready to share! Your token is: ${newPeerId}`);
+      peer.destroy();
     }
+
+    // Create new peer with the generated ID
+    const newPeer = new Peer(newPeerId, {
+      host: 'localhost',
+      port: 9000,
+      path: '/myapp'
+    });
+
+    newPeer.on('open', () => {
+      setPeerId(newPeerId);
+      setIsConnected(true);
+      toast.success(`File ready to share! Your token is: ${newPeerId}`);
+    });
+
+    // Set up the same event listeners for the new peer
+    newPeer.on('connection', (conn) => {
+      conn.on('data', (data: { type: string, requestedFile?: string }) => {
+        if (data.type === 'request-permission') {
+          const isApproved = window.confirm(`User ${conn.peer} wants to download your file. Allow?`);
+          
+          if (isApproved && currentFile) {
+            conn.send({
+              type: 'permission-granted',
+              file: currentFile,
+              name: currentFile.name,
+              size: currentFile.size,
+            });
+            toast.success(`Granted access to ${conn.peer}`);
+          } else {
+            conn.send({
+              type: 'permission-denied'
+            });
+            toast.info(`Denied access to ${conn.peer}`);
+          }
+        }
+      });
+
+      conn.on('error', (error) => {
+        console.error('Connection error:', error);
+        toast.error("Connection error occurred");
+      });
+    });
+
+    newPeer.on('error', (error) => {
+      console.error('PeerJS error:', error);
+      toast.error("Connection error. Please try again.");
+      setIsConnected(false);
+    });
+
+    setPeer(newPeer);
   };
 
   // Handle peer ID submission for downloading
