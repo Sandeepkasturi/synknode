@@ -1,41 +1,74 @@
 
 import React from 'react';
+import { Github, Globe, Mail } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="mt-24 py-8 border-t">
-      <div className="max-w-3xl mx-auto text-center">
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">About the Developer</h3>
-        <div className="space-y-2 text-gray-600">
-          <p className="font-medium">Sandeep Kasturi</p>
-          <p>
-            <a 
-              href="https://skavtechs.vercel.app" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-indigo-600 hover:text-indigo-700 transition-colors"
-            >
-              SKAV TECH
-            </a>
+    <footer className="mt-24 pt-10 border-t border-gray-200">
+      <div className="max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          <div className="text-center md:text-left">
+            <h3 className="text-lg font-bold mb-4 text-gray-900">SyncStream</h3>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              A modern peer-to-peer file sharing application that works across networks with end-to-end encryption.
+            </p>
+          </div>
+          
+          <div className="text-center">
+            <h3 className="text-lg font-bold mb-4 text-gray-900">Features</h3>
+            <ul className="space-y-2 text-sm text-gray-600">
+              <li>Multiple file upload</li>
+              <li>Cross-network sharing</li>
+              <li>End-to-end encryption</li>
+              <li>No file size limits</li>
+              <li>No account required</li>
+            </ul>
+          </div>
+          
+          <div className="text-center md:text-right">
+            <h3 className="text-lg font-bold mb-4 text-gray-900">Developer</h3>
+            <p className="font-medium text-gray-800">Sandeep Kasturi</p>
+            <div className="flex flex-col space-y-2 mt-4 items-center md:items-end">
+              <a 
+                href="https://skavtechs.vercel.app" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-brand-purple hover:text-brand-indigo transition-colors inline-flex items-center gap-1.5"
+              >
+                <Globe size={16} />
+                SKAV TECH
+              </a>
+              <a 
+                href="https://github.com/sandeepkasturi" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-brand-purple hover:text-brand-indigo transition-colors inline-flex items-center gap-1.5"
+              >
+                <Github size={16} />
+                GitHub
+              </a>
+              <a 
+                href="mailto:contact@example.com" 
+                className="text-brand-purple hover:text-brand-indigo transition-colors inline-flex items-center gap-1.5"
+              >
+                <Mail size={16} />
+                Contact
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="py-6 border-t border-gray-100 mt-8">
+        <div className="text-center">
+          <p className="text-sm text-gray-500">
+            © {new Date().getFullYear()} SKAV TECH. All rights reserved.
           </p>
-          <p>
-            <a 
-              href="https://github.com/sandeepkasturi" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-indigo-600 hover:text-indigo-700 transition-colors inline-flex items-center gap-1"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-              </svg>
-              GitHub
-            </a>
+          <p className="text-xs text-gray-400 mt-1">
+            Built with modern web technologies for secure file sharing.
           </p>
         </div>
       </div>
-      <p className="mt-8 text-center text-sm text-gray-500">
-        © {new Date().getFullYear()} SKAV TECH. All rights reserved.
-      </p>
     </footer>
   );
 };
