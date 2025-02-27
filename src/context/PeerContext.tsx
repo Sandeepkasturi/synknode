@@ -49,13 +49,24 @@ export const PeerProvider: React.FC<PeerProviderProps> = ({ children }) => {
     // Create a new peer with optional custom ID
     const newPeerId = customPeerId || generatePeerId();
     
-    // Create new peer instance
-    const newPeer = new Peer(newPeerId);
+    // Create new peer instance with configuration
+    const newPeer = new Peer(newPeerId, {
+      debug: 3, // For better logging
+      config: {
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" },
+          { urls: "stun:stun1.l.google.com:19302" },
+          { urls: "stun:stun2.l.google.com:19302" },
+          { urls: "stun:stun3.l.google.com:19302" },
+          { urls: "stun:stun4.l.google.com:19302" }
+        ]
+      }
+    });
 
     newPeer.on('open', (id) => {
       console.log('Connected to P2P network with ID:', id);
       
-      // If the id returned is not 5 characters, regenerate
+      // If the id returned is not 5 characters, use our generated one
       const finalId = id.length !== 5 ? newPeerId : id;
       
       setPeerId(finalId);
@@ -65,7 +76,7 @@ export const PeerProvider: React.FC<PeerProviderProps> = ({ children }) => {
 
     newPeer.on('error', (error) => {
       console.error('PeerJS error:', error);
-      toast.error("Connection error. Please try again.");
+      toast.error("Connection error: " + error.message);
       setIsConnected(false);
     });
 
