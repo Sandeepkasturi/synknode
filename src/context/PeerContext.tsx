@@ -48,11 +48,17 @@ export const PeerProvider: React.FC<PeerProviderProps> = ({ children }) => {
 
     // Create a new peer with optional custom ID
     const newPeerId = customPeerId || generatePeerId();
-    const newPeer = customPeerId ? new Peer(customPeerId) : new Peer();
+    
+    // Create new peer instance
+    const newPeer = new Peer(newPeerId);
 
     newPeer.on('open', (id) => {
       console.log('Connected to P2P network with ID:', id);
-      setPeerId(customPeerId || id);
+      
+      // If the id returned is not 5 characters, regenerate
+      const finalId = id.length !== 5 ? newPeerId : id;
+      
+      setPeerId(finalId);
       setIsConnected(true);
       toast.success("Connected to P2P network!");
     });

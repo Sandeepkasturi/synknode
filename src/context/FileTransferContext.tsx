@@ -1,7 +1,7 @@
-
 import React, { createContext, useState, useContext, ReactNode } from "react";
 import { toast } from "sonner";
 import { usePeer } from "./PeerContext";
+import { generatePeerId } from "./PeerContext";
 
 interface TransferStatus {
   active: boolean;
@@ -347,14 +347,4 @@ export const FileTransferProvider: React.FC<FileTransferProviderProps> = ({ chil
       {children}
     </FileTransferContext.Provider>
   );
-};
-
-// Helper function
-const generatePeerId = () => {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
-  for (let i = 0; i < 5; i++) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return result;
 };
