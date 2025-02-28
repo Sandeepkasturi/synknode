@@ -73,7 +73,11 @@ export const PeerProvider: React.FC<PeerProviderProps> = ({ children }) => {
       
       setPeerId(finalId);
       setIsConnected(true);
-      toast.success("Connected to P2P network!");
+      
+      // Only show toast if we're not already connected or if this is a custom peer ID
+      if (!isConnected || customPeerId) {
+        toast.success("Connected to P2P network!");
+      }
     });
 
     newPeer.on('error', (error) => {
