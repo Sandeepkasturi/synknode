@@ -1,5 +1,5 @@
 
-import React, { createContext, useState, useContext, ReactNode } from "react";
+import React, { createContext, useState, useContext, useEffect, ReactNode } from "react";
 import { toast } from "sonner";
 import { usePeer } from "./PeerContext";
 import { generatePeerId } from "./PeerContext";
@@ -53,18 +53,9 @@ export const FileTransferProvider: React.FC<FileTransferProviderProps> = ({ chil
     remotePeer: '',
   });
 
-  // Handle file selection and set up peer for sharing
-  const handleFileSelect = (files: File[]) => {
-    setCurrentFiles(files);
-    
-    // Generate a new peer ID if needed
-    const newPeerId = peerId || generatePeerId();
-    
-    // Create a new peer for file sharing
-    createNewPeer(newPeerId);
-    
-    // Set up connection handlers for the peer
-    if (peer) {
+  // Setup connection handlers whenever the peer changes
+  useEffect(() => {
+    if (peer && currentFiles.length > 0) {
       console.log("Setting up connection handlers for peer", peer.id);
       
       // Remove any existing listeners to prevent duplicates
@@ -83,7 +74,7 @@ export const FileTransferProvider: React.FC<FileTransferProviderProps> = ({ chil
           
           if (data.type === 'request-permission') {
             console.log('Permission requested by:', conn.peer);
-            setPendingPermission({ conn, files });
+            setPendingPermission({ conn, files: currentFiles });
             setShowPermissionDialog(true);
             toast.info(`File request from ${conn.peer}`);
           }
@@ -94,11 +85,22 @@ export const FileTransferProvider: React.FC<FileTransferProviderProps> = ({ chil
           toast.error("Connection error occurred");
         });
       });
-    } else {
-      console.warn("Peer not available for setting up connection handlers");
+    }
+  }, [peer, currentFiles]);
+
+  // Handle file selection and set up peer for sharing
+  const handleFileSelect = (files: File[]) => {
+    setCurrentFiles(files);
+    
+    // Generate a new peer ID if needed
+    const newPeerId = peerId || generatePeerId();
+    
+    // Create a new peer for file sharing if needed
+    if (!peer) {
+      createNewPeer(newPeerId);
     }
     
-    toast.success(`Files ready to share! Your token is: ${newPeerId}`);
+    toast.success(`Files ready to share! Your token is: ${newPeerId || 'loading...'}`);
   };
 
   // Handle permission response (approve/deny file sharing)
@@ -230,6 +232,19 @@ export const FileTransferProvider: React.FC<FileTransferProviderProps> = ({ chil
         serialization: 'binary'
       });
       
+      // If connection fails
+      setTimeout(() => {
+        if (conn.open === false && transferStatus.status === 'pending') {
+          toast.error(`Connection to ${remotePeerId} failed. Please check the token and try again.`);
+          setTransferStatus({
+            active: true,
+            status: 'error',
+            progress: 0,
+            remotePeer: remotePeerId
+          });
+        }
+      }, 15000); // 15 seconds timeout
+      
       let receivingFiles: Map<number, {
         name: string,
         type: string,
@@ -275,7 +290,7 @@ export const FileTransferProvider: React.FC<FileTransferProviderProps> = ({ chil
         }
         else if (data.type === 'file-chunk') {
           try {
-            const { fileIndex, chunkIndex, data: chunkData } = data;
+            const { fileIndex, chunkIndex, totalChunks, data: chunkData } = data;
             
             // Get file info
             const fileInfo = receivingFiles.get(fileIndex);
@@ -322,6 +337,10 @@ export const FileTransferProvider: React.FC<FileTransferProviderProps> = ({ chil
               });
               
               toast.success(`Received ${fileInfo.name}`);
+            } else {
+              // Update progress for this file
+              const fileProgress = Math.round((fileInfo.chunks.size / totalChunks) * 100);
+              console.log(`File ${fileIndex} progress: ${fileProgress}%`);
             }
           } catch (error) {
             console.error('Error processing file chunk:', error);

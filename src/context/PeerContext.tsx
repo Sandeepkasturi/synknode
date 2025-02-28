@@ -49,6 +49,8 @@ export const PeerProvider: React.FC<PeerProviderProps> = ({ children }) => {
     // Create a new peer with optional custom ID
     const newPeerId = customPeerId || generatePeerId();
     
+    console.log("Creating new peer with ID:", newPeerId);
+    
     // Create new peer instance with configuration
     const newPeer = new Peer(newPeerId, {
       debug: 3, // For better logging
@@ -78,6 +80,24 @@ export const PeerProvider: React.FC<PeerProviderProps> = ({ children }) => {
       console.error('PeerJS error:', error);
       toast.error("Connection error: " + error.message);
       setIsConnected(false);
+      
+      // If it's a peer unavailable error and we're trying to connect, not create a new ID
+      if (error.type === 'peer-unavailable' && customPeerId) {
+        toast.error(`Peer ${customPeerId} is not available. Check the token and try again.`);
+      }
+      
+      // If it's a network error, try to reconnect
+      if (error.type === 'network' || error.type === 'disconnected') {
+        toast.error("Network connection lost. Trying to reconnect...");
+        setTimeout(() => {
+          createNewPeer(customPeerId);
+        }, 3000);
+      }
+    });
+
+    // Listen for connection events for debugging
+    newPeer.on('connection', (conn) => {
+      console.log("PeerContext: New connection from", conn.peer);
     });
 
     setPeer(newPeer);
