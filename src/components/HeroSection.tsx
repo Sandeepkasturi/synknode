@@ -9,7 +9,7 @@ export const HeroSection: React.FC = () => {
         <div className="absolute inset-0 -z-10 bg-gradient-to-br from-brand-purple/30 via-transparent to-brand-pink/30 blur-3xl rounded-full opacity-70" />
         <div className="relative">
           <h1 className="text-5xl md:text-6xl font-bold mb-4 rainbow-text">
-            SyncStream
+            SyncNode
           </h1>
           <span className="text-lg text-brand-purple/90 font-medium flex items-center justify-center gap-1.5">
             <Zap size={18} className="text-brand-amber" /> 
