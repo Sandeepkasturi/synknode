@@ -6,7 +6,7 @@ export const InfoSection: React.FC = () => {
   return (
     <div className="mt-24 space-y-10">
       <h2 className="text-2xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-brand-indigo to-brand-purple">
-        Why Choose SyncStream?
+        Why Choose SyncNode?
       </h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
