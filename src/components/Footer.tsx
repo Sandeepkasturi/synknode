@@ -8,7 +8,7 @@ export const Footer: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div className="text-center md:text-left">
-            <h3 className="text-lg font-bold mb-4 text-gray-900">SyncStream</h3>
+            <h3 className="text-lg font-bold mb-4 text-gray-900">SynkNode</h3>
             <p className="text-sm text-gray-600 leading-relaxed">
               A modern peer-to-peer file sharing application that works across networks with end-to-end encryption.
             </p>
@@ -48,7 +48,7 @@ export const Footer: React.FC = () => {
                 GitHub
               </a>
               <a 
-                href="mailto:contact@example.com" 
+                href="mailto:skavtech.in@gmail.com" 
                 className="text-brand-purple hover:text-brand-indigo transition-colors inline-flex items-center gap-1.5"
               >
                 <Mail size={16} />
