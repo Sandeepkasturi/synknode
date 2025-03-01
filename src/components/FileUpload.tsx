@@ -14,7 +14,7 @@ export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isDraggingDirectory, setIsDraggingDirectory] = useState(false);
   const directoryInputRef = useRef<HTMLInputElement>(null);
-  const { handleDirectorySelect } = useFileTransfer();
+  const { handleDirectorySelect: contextHandleDirectorySelect } = useFileTransfer();
   
   const processFiles = (acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -57,7 +57,7 @@ export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
     }
   };
 
-  const handleDirectorySelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputDirectorySelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
       const fileArray = Array.from(files);
@@ -83,7 +83,7 @@ export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
       }
       
       if (entries.length > 0) {
-        handleDirectorySelect(entries);
+        contextHandleDirectorySelect(entries);
       }
     }
     
@@ -131,7 +131,7 @@ export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
           webkitdirectory="true"
           directory=""
           style={{ display: 'none' }}
-          onChange={handleDirectorySelect}
+          onChange={handleInputDirectorySelect}
         />
         
         {selectedFiles.length === 0 ? (
