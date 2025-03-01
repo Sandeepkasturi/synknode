@@ -9,7 +9,6 @@ import { InfoSection } from "../components/InfoSection";
 import { Footer } from "../components/Footer";
 import { PermissionDialog } from "@/components/PermissionDialog";
 import { useFileTransfer } from "../context/FileTransferContext";
-import { Toaster } from "@/components/ui/sonner";
 
 // Main content component
 const IndexContent: React.FC = () => {
@@ -34,9 +33,6 @@ const IndexContent: React.FC = () => {
           onCancel={() => handlePermissionResponse(false)}
         />
       )}
-      
-      {/* Single Toaster for notifications */}
-      <Toaster position="top-right" richColors closeButton />
     </div>
   );
 };
