@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, ChangeEvent } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, File, X, Folder } from "lucide-react";
 import { toast } from "sonner";
@@ -7,6 +7,12 @@ import { useFileTransfer } from "../context/FileTransferContext";
 
 interface FileUploadProps {
   onFileSelect: (files: File[]) => void;
+}
+
+// Add custom WebkitDirectoryAttributes interface to extend HTMLInputElement
+interface WebkitDirectoryAttributes {
+  webkitdirectory?: string;
+  directory?: string;
 }
 
 export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
@@ -128,8 +134,11 @@ export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
         <input
           type="file"
           ref={directoryInputRef}
-          webkitdirectory="true"
-          directory=""
+          // Use spread attribute to work around TypeScript limitations
+          {...{
+            webkitdirectory: "",
+            directory: "",
+          } as WebkitDirectoryAttributes}
           style={{ display: 'none' }}
           onChange={handleInputDirectorySelect}
         />
