@@ -8,6 +8,7 @@ import { FileTransferTabs } from "../components/FileTransferTabs";
 import { InfoSection } from "../components/InfoSection";
 import { Footer } from "../components/Footer";
 import { PermissionDialog } from "@/components/PermissionDialog";
+import { UsernameDialog } from "@/components/UsernameDialog";
 import { useFileTransfer } from "../context/FileTransferContext";
 
 // Main content component
@@ -24,7 +25,9 @@ const IndexContent: React.FC = () => {
         <Footer />
       </div>
       
-      {/* Permission Dialog */}
+      {/* Dialogs */}
+      <UsernameDialog />
+      
       {showPermissionDialog && (
         <PermissionDialog 
           requesterPeerId={pendingPermission.conn?.peer || ''}
