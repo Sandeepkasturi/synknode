@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   CircleCheck,
   CircleX,
@@ -11,6 +11,7 @@ import {
   FileCheck
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { FileTransferAnimation } from './FileTransferAnimation';
 
 interface TransferStatusProps {
   status: 'pending' | 'granted' | 'denied' | 'transferring' | 'completed' | 'error';
@@ -23,6 +24,16 @@ export const TransferStatus: React.FC<TransferStatusProps> = ({
   progress,
   remotePeer
 }) => {
+  const [showAnimation, setShowAnimation] = useState(false);
+  
+  useEffect(() => {
+    if (status === 'completed') {
+      setShowAnimation(true);
+    } else {
+      setShowAnimation(false);
+    }
+  }, [status]);
+
   const getStatusInfo = () => {
     switch (status) {
       case 'pending':
@@ -94,43 +105,50 @@ export const TransferStatus: React.FC<TransferStatusProps> = ({
   const statusInfo = getStatusInfo();
 
   return (
-    <div className={`mt-6 p-5 rounded-lg glass-card shadow-md animate-fade-in ${statusInfo.color}`}>
-      <div className="flex items-start gap-4">
-        <div className={`${statusInfo.iconContainer} rounded-full p-3 flex-shrink-0`}>
-          {status === 'transferring' ? (
-            <Loader2 className="h-5 w-5 text-brand-indigo animate-spin" />
-          ) : (
-            statusInfo.icon
-          )}
-        </div>
-        <div className="flex-1">
-          <h3 className="font-semibold text-lg">{statusInfo.title}</h3>
-          <p className="text-sm opacity-90 mt-1">{statusInfo.description}</p>
-          
-          {status === 'transferring' && (
-            <div className="mt-4 space-y-2">
-              <div className="flex justify-between text-xs mb-1">
-                <span>Progress</span>
-                <span className="font-medium">{progress}%</span>
+    <>
+      <div className={`mt-6 p-5 rounded-lg glass-card shadow-md animate-fade-in ${statusInfo.color}`}>
+        <div className="flex items-start gap-4">
+          <div className={`${statusInfo.iconContainer} rounded-full p-3 flex-shrink-0`}>
+            {status === 'transferring' ? (
+              <Loader2 className="h-5 w-5 text-brand-indigo animate-spin" />
+            ) : (
+              statusInfo.icon
+            )}
+          </div>
+          <div className="flex-1">
+            <h3 className="font-semibold text-lg">{statusInfo.title}</h3>
+            <p className="text-sm opacity-90 mt-1">{statusInfo.description}</p>
+            
+            {status === 'transferring' && (
+              <div className="mt-4 space-y-2">
+                <div className="flex justify-between text-xs mb-1">
+                  <span>Progress</span>
+                  <span className="font-medium">{progress}%</span>
+                </div>
+                <Progress 
+                  value={progress} 
+                  className="h-2 bg-indigo-100" 
+                  indicatorClassName={statusInfo.progressColor}
+                />
               </div>
-              <Progress 
-                value={progress} 
-                className="h-2 bg-indigo-100" 
-                indicatorClassName={statusInfo.progressColor}
-              />
-            </div>
-          )}
-          
-          {status === 'completed' && (
-            <div className="mt-3 flex justify-center">
-              <span className="text-xs bg-green-200 text-green-800 px-3 py-1 rounded-full font-medium inline-flex items-center gap-1">
-                <CircleCheck size={12} />
-                Files saved to downloads
-              </span>
-            </div>
-          )}
+            )}
+            
+            {status === 'completed' && (
+              <div className="mt-3 flex justify-center">
+                <span className="text-xs bg-green-200 text-green-800 px-3 py-1 rounded-full font-medium inline-flex items-center gap-1">
+                  <CircleCheck size={12} />
+                  Files saved to downloads
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+      
+      <FileTransferAnimation 
+        show={showAnimation} 
+        onComplete={() => setShowAnimation(false)} 
+      />
+    </>
   );
 };

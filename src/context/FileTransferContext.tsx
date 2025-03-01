@@ -4,6 +4,10 @@ import { toast } from "sonner";
 import { usePeer } from "./PeerContext";
 import { generatePeerId } from "./PeerContext";
 
+// Increasing max file size to 2GB
+const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
+const CHUNK_SIZE = 64 * 1024; // 64KB for better performance
+
 interface TransferStatus {
   active: boolean;
   status: 'pending' | 'granted' | 'denied' | 'transferring' | 'completed' | 'error';
@@ -30,6 +34,7 @@ interface FileTransferContextType {
   handleFileSelect: (files: File[]) => void;
   handlePermissionResponse: (isApproved: boolean) => Promise<void>;
   handlePeerConnect: (remotePeerId: string) => Promise<void>;
+  handleDirectorySelect: (entries: FileSystemEntry[]) => void;
 }
 
 const FileTransferContext = createContext<FileTransferContextType>({} as FileTransferContextType);
@@ -88,9 +93,93 @@ export const FileTransferProvider: React.FC<FileTransferProviderProps> = ({ chil
     }
   }, [peer, currentFiles]);
 
+  // Process directory entries recursively to extract files
+  const processDirectoryEntry = (entry: FileSystemDirectoryEntry): Promise<File[]> => {
+    return new Promise((resolve) => {
+      const reader = entry.createReader();
+      const files: File[] = [];
+      
+      // Function to read all entries in the directory
+      const readEntries = () => {
+        reader.readEntries(async (entries) => {
+          if (entries.length === 0) {
+            resolve(files);
+            return;
+          }
+          
+          // Process each entry
+          for (const entry of entries) {
+            if (entry.isFile) {
+              const fileEntry = entry as FileSystemFileEntry;
+              await new Promise<void>((fileResolve) => {
+                fileEntry.file((file) => {
+                  // Add path info to the file
+                  const fileWithPath = Object.defineProperty(file, 'path', {
+                    value: fileEntry.fullPath,
+                    writable: true
+                  });
+                  files.push(fileWithPath);
+                  fileResolve();
+                });
+              });
+            } else if (entry.isDirectory) {
+              const subFiles = await processDirectoryEntry(entry as FileSystemDirectoryEntry);
+              files.push(...subFiles);
+            }
+          }
+          
+          // Continue reading if more entries exist
+          readEntries();
+        });
+      };
+      
+      readEntries();
+    });
+  };
+
+  // Handle directory selection
+  const handleDirectorySelect = async (entries: FileSystemEntry[]) => {
+    let allFiles: File[] = [];
+    
+    for (const entry of entries) {
+      if (entry.isFile) {
+        const fileEntry = entry as FileSystemFileEntry;
+        await new Promise<void>((resolve) => {
+          fileEntry.file((file) => {
+            // Add path info to the file
+            const fileWithPath = Object.defineProperty(file, 'path', {
+              value: fileEntry.fullPath,
+              writable: true
+            });
+            allFiles.push(fileWithPath);
+            resolve();
+          });
+        });
+      } else if (entry.isDirectory) {
+        const dirFiles = await processDirectoryEntry(entry as FileSystemDirectoryEntry);
+        allFiles = [...allFiles, ...dirFiles];
+      }
+    }
+    
+    // Use the existing handleFileSelect function with the collected files
+    handleFileSelect(allFiles);
+  };
+
   // Handle file selection and set up peer for sharing
   const handleFileSelect = (files: File[]) => {
-    setCurrentFiles(files);
+    // Check if any file exceeds max size
+    const oversizedFiles = files.filter(file => file.size > MAX_FILE_SIZE);
+    if (oversizedFiles.length > 0) {
+      toast.error(`${oversizedFiles.length} file(s) exceed the 2GB limit and can't be transferred`);
+      // Filter out oversized files
+      const validFiles = files.filter(file => file.size <= MAX_FILE_SIZE);
+      if (validFiles.length === 0) {
+        return;
+      }
+      setCurrentFiles(validFiles);
+    } else {
+      setCurrentFiles(files);
+    }
     
     // Generate a new peer ID if needed
     const newPeerId = peerId || generatePeerId();
@@ -118,12 +207,13 @@ export const FileTransferProvider: React.FC<FileTransferProviderProps> = ({ chil
     
     if (isApproved && files.length > 0) {
       try {
-        // Send file list first
+        // Send file list first with path information
         const fileList = files.map(file => ({
           name: file.name,
           type: file.type,
           size: file.size,
-          lastModified: file.lastModified
+          lastModified: file.lastModified,
+          path: (file as any).path || `/${file.name}` // Default to root if no path
         }));
         
         conn.send({
@@ -139,9 +229,8 @@ export const FileTransferProvider: React.FC<FileTransferProviderProps> = ({ chil
           const file = files[i];
           const buffer = await file.arrayBuffer();
           
-          // Send in chunks if the file is large
-          const chunkSize = 16384; // 16KB chunks
-          const totalChunks = Math.ceil(buffer.byteLength / chunkSize);
+          // Send in chunks 
+          const totalChunks = Math.ceil(buffer.byteLength / CHUNK_SIZE);
           
           // Send file info first
           conn.send({
@@ -150,14 +239,15 @@ export const FileTransferProvider: React.FC<FileTransferProviderProps> = ({ chil
             fileName: file.name,
             fileType: file.type,
             fileSize: file.size,
+            filePath: (file as any).path || `/${file.name}`,
             totalChunks: totalChunks,
             totalFiles: files.length
           });
           
           // Send file data in chunks
           for (let chunk = 0; chunk < totalChunks; chunk++) {
-            const start = chunk * chunkSize;
-            const end = Math.min(start + chunkSize, buffer.byteLength);
+            const start = chunk * CHUNK_SIZE;
+            const end = Math.min(start + CHUNK_SIZE, buffer.byteLength);
             const chunkData = buffer.slice(start, end);
             
             conn.send({
@@ -168,8 +258,24 @@ export const FileTransferProvider: React.FC<FileTransferProviderProps> = ({ chil
               data: chunkData
             });
             
+            // Update progress every 10 chunks
+            if (chunk % 10 === 0 || chunk === totalChunks - 1) {
+              const fileProgress = Math.round((chunk + 1) / totalChunks * 100);
+              const overallProgress = Math.round((i / files.length * 100) + (fileProgress / files.length));
+              
+              conn.send({
+                type: 'progress-update',
+                fileIndex: i, 
+                fileName: file.name,
+                currentChunk: chunk + 1,
+                totalChunks: totalChunks,
+                fileProgress: fileProgress,
+                overallProgress: overallProgress
+              });
+            }
+            
             // Small delay to prevent overwhelming the connection
-            await new Promise(resolve => setTimeout(resolve, 10));
+            await new Promise(resolve => setTimeout(resolve, 5));
           }
           
           toast.success(`Sending ${file.name} (${i+1}/${files.length})`);
@@ -249,6 +355,7 @@ export const FileTransferProvider: React.FC<FileTransferProviderProps> = ({ chil
         name: string,
         type: string,
         size: number,
+        path: string,
         chunks: Map<number, ArrayBuffer>,
         totalChunks: number
       }> = new Map();
@@ -256,7 +363,8 @@ export const FileTransferProvider: React.FC<FileTransferProviderProps> = ({ chil
       let completedFiles: Array<{
         index: number, 
         blob: Blob,
-        name: string
+        name: string,
+        path: string
       }> = [];
       
       conn.on('open', () => {
@@ -284,6 +392,7 @@ export const FileTransferProvider: React.FC<FileTransferProviderProps> = ({ chil
             name: data.fileName,
             type: data.fileType,
             size: data.fileSize,
+            path: data.filePath || `/${data.fileName}`,
             chunks: new Map(),
             totalChunks: data.totalChunks
           });
@@ -321,7 +430,8 @@ export const FileTransferProvider: React.FC<FileTransferProviderProps> = ({ chil
               completedFiles.push({
                 index: fileIndex,
                 blob,
-                name: fileInfo.name
+                name: fileInfo.name,
+                path: fileInfo.path
               });
               
               // Clear from receiving files to free memory
@@ -337,29 +447,86 @@ export const FileTransferProvider: React.FC<FileTransferProviderProps> = ({ chil
               });
               
               toast.success(`Received ${fileInfo.name}`);
-            } else {
-              // Update progress for this file
-              const fileProgress = Math.round((fileInfo.chunks.size / totalChunks) * 100);
-              console.log(`File ${fileIndex} progress: ${fileProgress}%`);
             }
           } catch (error) {
             console.error('Error processing file chunk:', error);
             toast.error("Error processing file data");
           }
         }
+        else if (data.type === 'progress-update') {
+          // Update UI with progress information
+          setTransferStatus(prev => ({
+            ...prev,
+            status: 'transferring',
+            progress: data.overallProgress,
+            remotePeer: remotePeerId
+          }));
+        }
         else if (data.type === 'transfer-complete') {
           // Process and download all files
           completedFiles.sort((a, b) => a.index - b.index);
           
+          // Group files by directory
+          const directories: Map<string, {blob: Blob, name: string}[]> = new Map();
+          
           completedFiles.forEach(file => {
-            const url = URL.createObjectURL(file.blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = file.name;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            // Extract directory path
+            const pathParts = file.path.split('/');
+            pathParts.pop(); // Remove filename
+            const dirPath = pathParts.join('/') || '/';
+            
+            if (!directories.has(dirPath)) {
+              directories.set(dirPath, []);
+            }
+            
+            directories.get(dirPath)?.push({
+              blob: file.blob,
+              name: file.name
+            });
+          });
+          
+          // Download files by directory
+          directories.forEach((files, dirPath) => {
+            if (files.length === 1 && dirPath === '/') {
+              // Single file at root, download directly
+              const file = files[0];
+              const url = URL.createObjectURL(file.blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = file.name;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            } else {
+              // Multiple files or directory structure
+              // For browsers that support the File System Access API
+              if ('showDirectoryPicker' in window) {
+                // Let the user download files individually for now
+                files.forEach(file => {
+                  const url = URL.createObjectURL(file.blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = file.name;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                });
+              } else {
+                // Fallback for browsers without directory support
+                files.forEach(file => {
+                  const url = URL.createObjectURL(file.blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = file.name;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                });
+              }
+            }
           });
           
           setTransferStatus({
@@ -465,6 +632,7 @@ export const FileTransferProvider: React.FC<FileTransferProviderProps> = ({ chil
         handleFileSelect,
         handlePermissionResponse,
         handlePeerConnect,
+        handleDirectorySelect
       }}
     >
       {children}
