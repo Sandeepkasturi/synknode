@@ -59,26 +59,3 @@
     @apply bg-background text-foreground;
   }
 }
-
-/* Adding rainbow text styling for logo */
-.rainbow-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r;
-}
-
-.dark .rainbow-text {
-  background-image: linear-gradient(90deg, #D6BCFA 0%, #8B5CF6 50%, #D946EF 100%);
-}
-
-.light .rainbow-text {
-  background-image: linear-gradient(90deg, #9b87f5 0%, #8B5CF6 50%, #D946EF 100%);
-}
-
-/* Glass card styles */
-.glass-card {
-  @apply bg-white/70 backdrop-blur-sm dark:bg-gray-800/50 dark:backdrop-blur-sm transition-all;
-}
-
-/* Dark mode adjustments for background gradient */
-.dark .bg-gradient-to-br {
-  @apply from-indigo-950/40 via-gray-900 to-purple-950/40;
-}

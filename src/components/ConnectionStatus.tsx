@@ -8,14 +8,14 @@ export const ConnectionStatus: React.FC = () => {
 
   return (
     <div className="flex items-center justify-center gap-2 mb-8">
-      <div className={`p-1.5 rounded-full ${isConnected ? 'bg-brand-green/10' : 'bg-gray-200 dark:bg-gray-700'}`}>
+      <div className={`p-1.5 rounded-full ${isConnected ? 'bg-brand-green/10' : 'bg-gray-200'}`}>
         {isConnected ? (
           <Wifi className="w-4 h-4 text-brand-green" />
         ) : (
-          <WifiOff className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+          <WifiOff className="w-4 h-4 text-gray-400" />
         )}
       </div>
-      <span className={`text-sm font-medium ${isConnected ? 'text-brand-green' : 'text-gray-400 dark:text-gray-500'}`}>
+      <span className={`text-sm font-medium ${isConnected ? 'text-brand-green' : 'text-gray-400'}`}>
         {isConnected ? 'Connected to P2P Network' : 'Connecting...'}
       </span>
     </div>

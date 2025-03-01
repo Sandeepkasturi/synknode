@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, File, X, Folder } from "lucide-react";
@@ -6,13 +7,6 @@ import { useFileTransfer } from "../context/FileTransferContext";
 
 interface FileUploadProps {
   onFileSelect: (files: File[]) => void;
-}
-
-declare module 'react' {
-  interface HTMLAttributes<T> extends AriaAttributes, DOMAttributes<T> {
-    directory?: string;
-    webkitdirectory?: string;
-  }
 }
 
 export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
@@ -34,6 +28,7 @@ export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
       setSelectedFiles(acceptedFiles);
       onFileSelect(acceptedFiles);
       
+      // Process image previews
       const newPreviews: string[] = [];
       acceptedFiles.forEach(file => {
         if (file.type.startsWith("image/")) {
@@ -107,6 +102,7 @@ export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
     setSelectedFiles(newFiles);
     onFileSelect(newFiles);
     
+    // Update previews if needed
     if (newFiles.length === 0) {
       setPreviews([]);
     }
@@ -120,8 +116,8 @@ export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
           ${isDragActive
               ? "border-success bg-success/5"
               : isDraggingDirectory
-                ? "border-indigo-400 bg-indigo-50 dark:border-indigo-600 dark:bg-indigo-900/30"
-                : "border-gray-300 hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-600"
+                ? "border-indigo-400 bg-indigo-50"
+                : "border-gray-300 hover:border-gray-400"
           }
         `}
         onDragEnter={() => setIsDraggingDirectory(true)}
@@ -140,11 +136,11 @@ export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
         
         {selectedFiles.length === 0 ? (
           <div className="text-center">
-            <Upload className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+            <Upload className="mx-auto h-12 w-12 text-gray-400" />
+            <p className="mt-2 text-sm text-gray-600">
               Drag & drop files here, or click to select
             </p>
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p className="mt-1 text-xs text-gray-500">
               You can select multiple files
             </p>
             <button
@@ -153,7 +149,7 @@ export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
                 e.stopPropagation();
                 handleDirectoryButtonClick();
               }}
-              className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-indigo-800 dark:hover:bg-indigo-700"
+              className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               <Folder className="mr-2 h-4 w-4" />
               Select Directory
@@ -163,10 +159,10 @@ export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
           <div className="animate-fade-up">
             <div className="flex flex-col space-y-2">
               {selectedFiles.map((file, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg border dark:border-gray-700">
+                <div key={index} className="flex items-center justify-between p-3 bg-white/50 backdrop-blur-sm rounded-lg border">
                   <div className="flex items-center space-x-3 overflow-hidden">
-                    <File className="h-5 w-5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-                    <div className="text-sm text-gray-600 dark:text-gray-300 truncate">
+                    <File className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                    <div className="text-sm text-gray-600 truncate">
                       {file.name}
                     </div>
                   </div>
@@ -175,9 +171,9 @@ export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
                       e.stopPropagation();
                       removeFile(index);
                     }}
-                    className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors flex-shrink-0"
+                    className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
                   >
-                    <X className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                    <X className="h-4 w-4 text-gray-500" />
                   </button>
                 </div>
               ))}
@@ -186,7 +182,7 @@ export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
             {previews.length > 0 && (
               <div className="mt-4 grid grid-cols-2 gap-2">
                 {previews.map((preview, index) => (
-                  <div key={index} className="relative aspect-square rounded-lg overflow-hidden border dark:border-gray-700">
+                  <div key={index} className="relative aspect-square rounded-lg overflow-hidden border">
                     <img
                       src={preview}
                       alt={`Preview ${index}`}
@@ -198,7 +194,7 @@ export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
             )}
             
             <div className="mt-4 text-center">
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-gray-500">
                 Click or drag to add more files
               </p>
               <button
@@ -207,7 +203,7 @@ export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
                   e.stopPropagation();
                   handleDirectoryButtonClick();
                 }}
-                className="mt-2 inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-indigo-800 dark:hover:bg-indigo-700"
+                className="mt-2 inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 <Folder className="mr-1 h-3 w-3" />
                 Add Directory
