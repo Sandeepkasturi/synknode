@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect, ReactNode } from "react";
 import Peer from "peerjs";
 import { toast } from "sonner";
@@ -11,6 +12,23 @@ export const generatePeerId = () => {
   }
   return result;
 };
+
+// Define the type for message data
+export interface ChatMessage {
+  id: string;
+  senderId: string;
+  senderName: string;
+  receiverId: string;
+  content: string;
+  timestamp: number;
+  type: 'text' | 'file' | 'token';
+  fileData?: {
+    name: string;
+    size: number;
+    type: string;
+    url?: string;
+  };
+}
 
 // Define the type for the device announcement data
 interface DeviceAnnouncementData {
@@ -29,6 +47,12 @@ interface PeerContextType {
   destroyPeer: () => void;
   announcePresence: () => void;
   registerDevice: (deviceId: string, deviceUsername: string) => void;
+  sendChatMessage: (receiverId: string, content: string, type?: 'text' | 'file' | 'token', fileData?: any) => void;
+  chatMessages: Record<string, ChatMessage[]>; // Messages organized by peer ID
+  isChatOpen: boolean;
+  setIsChatOpen: (isOpen: boolean) => void;
+  activeChatPeer: string | null;
+  setActiveChatPeer: (peerId: string | null) => void;
 }
 
 const PeerContext = createContext<PeerContextType>({
@@ -42,6 +66,12 @@ const PeerContext = createContext<PeerContextType>({
   destroyPeer: () => {},
   announcePresence: () => {},
   registerDevice: () => {},
+  sendChatMessage: () => {},
+  chatMessages: {},
+  isChatOpen: false,
+  setIsChatOpen: () => {},
+  activeChatPeer: null,
+  setActiveChatPeer: () => {},
 });
 
 export const usePeer = () => useContext(PeerContext);
@@ -58,6 +88,9 @@ export const PeerProvider: React.FC<PeerProviderProps> = ({ children }) => {
     return localStorage.getItem('p2p_username');
   });
   const [onlineDevices, setOnlineDevices] = useState<Array<{id: string, username: string}>>([]);
+  const [chatMessages, setChatMessages] = useState<Record<string, ChatMessage[]>>({});
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [activeChatPeer, setActiveChatPeer] = useState<string | null>(null);
 
   // Save username to localStorage whenever it changes
   useEffect(() => {
@@ -65,6 +98,56 @@ export const PeerProvider: React.FC<PeerProviderProps> = ({ children }) => {
       localStorage.setItem('p2p_username', username);
     }
   }, [username]);
+
+  // Send a chat message to a peer
+  const sendChatMessage = (receiverId: string, content: string, type: 'text' | 'file' | 'token' = 'text', fileData?: any) => {
+    if (!peer || !peerId || !username) {
+      toast.error("Not connected to the network");
+      return;
+    }
+
+    try {
+      const conn = peer.connect(receiverId);
+      
+      conn.on('open', () => {
+        const message: ChatMessage = {
+          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          senderId: peerId,
+          senderName: username,
+          receiverId,
+          content,
+          timestamp: Date.now(),
+          type,
+          ...(fileData && { fileData })
+        };
+
+        // Send message to receiver
+        conn.send({
+          type: 'chat-message',
+          message
+        });
+
+        // Store message in local state
+        setChatMessages(prev => {
+          const existingMessages = prev[receiverId] || [];
+          return {
+            ...prev,
+            [receiverId]: [...existingMessages, message]
+          };
+        });
+
+        toast.success(`Message sent to ${onlineDevices.find(d => d.id === receiverId)?.username || 'user'}`);
+      });
+
+      conn.on('error', (err) => {
+        console.error('Error sending message:', err);
+        toast.error("Failed to send message. User may be offline.");
+      });
+    } catch (err) {
+      console.error('Error connecting to peer:', err);
+      toast.error("Failed to connect to user");
+    }
+  };
 
   const createNewPeer = (customPeerId?: string) => {
     // Destroy existing peer if it exists
@@ -141,9 +224,18 @@ export const PeerProvider: React.FC<PeerProviderProps> = ({ children }) => {
           typeof data === 'object' && 
           data !== null && 
           'type' in data && 
-          data.type === 'device-announcement' && 
+          (data as any).type === 'device-announcement' && 
           'username' in data && 
-          typeof data.username === 'string';
+          typeof (data as any).username === 'string';
+        
+        // Type guard to check if data is a chat message
+        const isChatMessage = 
+          typeof data === 'object' && 
+          data !== null && 
+          'type' in data && 
+          (data as any).type === 'chat-message' && 
+          'message' in data && 
+          typeof (data as any).message === 'object';
         
         if (isDeviceAnnouncement) {
           const announcementData = data as DeviceAnnouncementData;
@@ -159,6 +251,30 @@ export const PeerProvider: React.FC<PeerProviderProps> = ({ children }) => {
             } catch (err) {
               console.error("Error sending device announcement reply:", err);
             }
+          }
+        } else if (isChatMessage) {
+          // Handle incoming chat message
+          const messageData = (data as any).message as ChatMessage;
+          
+          // Store message in local state
+          setChatMessages(prev => {
+            const existingMessages = prev[messageData.senderId] || [];
+            return {
+              ...prev,
+              [messageData.senderId]: [...existingMessages, messageData]
+            };
+          });
+          
+          // Show notification for new message
+          const senderName = onlineDevices.find(d => d.id === messageData.senderId)?.username || messageData.senderName;
+          
+          // Show a toast notification for the new message
+          if (messageData.type === 'text') {
+            toast.info(`New message from ${senderName}: ${messageData.content.substring(0, 30)}${messageData.content.length > 30 ? '...' : ''}`);
+          } else if (messageData.type === 'file') {
+            toast.info(`${senderName} sent you a file: ${messageData.fileData?.name}`);
+          } else if (messageData.type === 'token') {
+            toast.info(`${senderName} shared a token with you: ${messageData.content}`);
           }
         }
       });
@@ -290,6 +406,12 @@ export const PeerProvider: React.FC<PeerProviderProps> = ({ children }) => {
         destroyPeer,
         announcePresence,
         registerDevice,
+        sendChatMessage,
+        chatMessages,
+        isChatOpen,
+        setIsChatOpen,
+        activeChatPeer,
+        setActiveChatPeer,
       }}
     >
       {children}
