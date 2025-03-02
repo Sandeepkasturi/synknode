@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { usePeer, ChatMessage } from '@/context/PeerContext';
+import { usePeer } from '@/context/PeerContext';
+import type { ChatMessage } from '@/types/peer.types'; // Changed to type-only import
 import { useFileTransfer } from '@/context/FileTransferContext';
 import { X, Send, Share2, FileUp, Copy, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
