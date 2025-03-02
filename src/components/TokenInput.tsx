@@ -1,6 +1,7 @@
 
-import { useState } from "react";
-import { ArrowRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowRight, Link, PlugZap } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface TokenInputProps {
   onSubmit: (peerId: string) => void;
@@ -8,12 +9,15 @@ interface TokenInputProps {
 
 export const TokenInput = ({ onSubmit }: TokenInputProps) => {
   const [peerId, setPeerId] = useState("");
+  const [isValid, setIsValid] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (peerId.trim().length === 5) {
+    if (isValid) {
       onSubmit(peerId.trim().toUpperCase());
       setPeerId("");
+      setIsValid(false);
     }
   };
 
@@ -21,30 +25,76 @@ export const TokenInput = ({ onSubmit }: TokenInputProps) => {
     const value = e.target.value.toUpperCase();
     if (value.length <= 5) {
       setPeerId(value);
+      setIsValid(value.length === 5);
     }
+  };
+
+  // Character display for token input
+  const renderCharacterBoxes = () => {
+    const boxes = [];
+    for (let i = 0; i < 5; i++) {
+      const char = peerId[i] || "";
+      boxes.push(
+        <motion.div
+          key={i}
+          className={`flex items-center justify-center h-12 w-12 text-xl font-bold rounded-md
+            ${char ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-50 text-gray-400'}
+            ${isFocused && i === peerId.length ? 'ring-2 ring-indigo-500' : 'border border-gray-200'}
+          `}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.05 }}
+        >
+          {char}
+        </motion.div>
+      );
+    }
+    return boxes;
   };
 
   return (
     <div className="w-full max-w-md mx-auto">
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Link className="h-5 w-5 text-indigo-500" />
+          <h3 className="text-lg font-medium text-gray-900">Connect with Token</h3>
+        </div>
+        
+        <div className="text-sm text-gray-500 mb-4">
+          Enter the 5-character token shared by the sender to establish a connection.
+        </div>
+        
         <div className="relative">
           <input
             type="text"
             value={peerId}
             onChange={handlePeerIdChange}
-            placeholder="Enter 5-character token"
-            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-success/50 transition-all uppercase"
-            minLength={5}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            className="sr-only"
             maxLength={5}
-            pattern="[A-Z0-9]{5}"
-            required
+            aria-label="Token input"
           />
-          <button
-            type="submit"
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-success text-white rounded-full hover:bg-success/90 transition-colors"
+          
+          <div 
+            className="flex justify-center gap-2 p-2 cursor-text"
+            onClick={() => document.querySelector('input')?.focus()}
           >
-            <ArrowRight className="h-4 w-4" />
-          </button>
+            {renderCharacterBoxes()}
+          </div>
+          
+          <motion.button
+            type="submit"
+            disabled={!isValid}
+            className={`mt-4 w-full flex items-center justify-center gap-2 p-3 rounded-md text-white font-medium transition-colors
+              ${isValid ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-300 cursor-not-allowed'}
+            `}
+            whileHover={isValid ? { scale: 1.02 } : {}}
+            whileTap={isValid ? { scale: 0.98 } : {}}
+          >
+            <PlugZap className="h-5 w-5" />
+            Connect
+          </motion.button>
         </div>
       </form>
     </div>
