@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect, ReactNode } from "react";
 import Peer from "peerjs";
 import { toast } from "sonner";
@@ -12,6 +11,12 @@ export const generatePeerId = () => {
   }
   return result;
 };
+
+// Define the type for the device announcement data
+interface DeviceAnnouncementData {
+  type: string;
+  username: string;
+}
 
 interface PeerContextType {
   peer: Peer | null;
@@ -130,9 +135,19 @@ export const PeerProvider: React.FC<PeerProviderProps> = ({ children }) => {
       console.log("PeerContext: New connection from", conn.peer);
       
       // Handle discovery messages
-      conn.on('data', (data) => {
-        if (data.type === 'device-announcement' && data.username) {
-          registerDevice(conn.peer, data.username);
+      conn.on('data', (data: unknown) => {
+        // Type guard to check if data is a device announcement
+        const isDeviceAnnouncement = 
+          typeof data === 'object' && 
+          data !== null && 
+          'type' in data && 
+          data.type === 'device-announcement' && 
+          'username' in data && 
+          typeof data.username === 'string';
+        
+        if (isDeviceAnnouncement) {
+          const announcementData = data as DeviceAnnouncementData;
+          registerDevice(conn.peer, announcementData.username);
           
           // Reply with our own username to let them know we're also online
           if (username) {
