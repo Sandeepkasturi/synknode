@@ -8,7 +8,7 @@ import { FileUpload } from "./FileUpload";
 import { TokenDisplay } from "./TokenDisplay";
 import { TokenInput } from "./TokenInput";
 import { TransferStatus } from "./TransferStatus";
-import { DevicesTab } from './DevicesTab';
+import { DevicesTab } from './devices/DevicesTab';
 
 export const FileTransferTabs: React.FC = () => {
   const { handleFileSelect, currentFiles, handlePeerConnect, transferStatus } = useFileTransfer();
