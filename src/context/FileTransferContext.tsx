@@ -1,8 +1,7 @@
-
 import React, { createContext, useState, useContext, useEffect, ReactNode } from "react";
 import { toast } from "sonner";
 import { usePeer } from "./PeerContext";
-import { generatePeerId } from "./PeerContext";
+import { generatePeerId } from "../utils/peer.utils";
 
 // Increasing max file size to 2GB
 const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
