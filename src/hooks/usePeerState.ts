@@ -102,10 +102,6 @@ export const usePeerState = () => {
       if (!isConnected || customPeerId) {
         toast.success("Connected to P2P network!");
       }
-      
-      if (username) {
-        announcePresence();
-      }
     });
 
     newPeer.on('error', (error) => {
@@ -197,7 +193,7 @@ export const usePeerState = () => {
   const announcePresence = () => {
     if (!peer || !username) return;
     
-    console.log("Attempting to announce presence to network");
+    console.log("Explicitly announcing presence to network");
     
     const broadcastIds = [];
     
@@ -273,42 +269,10 @@ export const usePeerState = () => {
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (peer && username) {
-        onlineDevices.forEach(device => {
-          try {
-            const conn = peer.connect(device.id);
-            let isResponding = false;
-            
-            conn.on('open', () => {
-              isResponding = true;
-              conn.send({
-                type: 'ping'
-              });
-              
-              setTimeout(() => conn.close(), 1000);
-            });
-            
-            setTimeout(() => {
-              if (!isResponding) {
-                setOnlineDevices(prev => 
-                  prev.filter(d => d.id !== device.id)
-                );
-              }
-            }, 5000);
-          } catch (err) {
-            setOnlineDevices(prev => 
-              prev.filter(d => d.id !== device.id)
-            );
-          }
-        });
-        
-        announcePresence();
-      }
-    }, 15000);
-    
-    return () => clearInterval(interval);
-  }, [peer, onlineDevices, username]);
+    return () => {
+      destroyPeer();
+    };
+  }, []);
 
   useEffect(() => {
     createNewPeer();

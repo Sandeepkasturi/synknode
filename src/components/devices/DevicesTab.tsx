@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { usePeer } from '@/context/PeerContext';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,19 +20,8 @@ export const DevicesTab: React.FC = () => {
 
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Auto-scan for devices when the component mounts
-  useEffect(() => {
-    if (username) {
-      refreshDevices();
-      
-      // Set up an interval to refresh devices
-      const interval = setInterval(() => {
-        refreshDevices(false); // Silent refresh
-      }, 10000); // Every 10 seconds
-      
-      return () => clearInterval(interval);
-    }
-  }, [username]);
+  // Remove auto-scan for devices when the component mounts
+  // and remove interval to refresh devices automatically
 
   const handleConnect = (deviceId: string) => {
     setActiveChatPeer(deviceId);
@@ -75,7 +64,7 @@ export const DevicesTab: React.FC = () => {
             <p className="text-xs text-gray-400 mt-1">
               {onlineDevices.length > 0 
                 ? `Found ${onlineDevices.length} devices` 
-                : "No devices found. Try refreshing."}
+                : "No devices found. Click the Refresh button to scan for devices."}
             </p>
           </div>
 
