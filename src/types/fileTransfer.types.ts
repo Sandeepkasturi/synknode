@@ -1,5 +1,7 @@
 
-import { FileSystemEntry } from 'react-dropzone';
+// FileSystemEntry from react-dropzone is not directly exported
+// Using the correct type import pattern
+import { FileRejection } from 'react-dropzone';
 
 // Transfer status type
 export interface TransferStatus {
@@ -13,6 +15,18 @@ export interface TransferStatus {
 export interface PendingPermission {
   conn: any; 
   files: File[];
+}
+
+// We'll define our own FileSystemEntry interface since it's not exported from react-dropzone
+export interface FileSystemEntry {
+  isFile: boolean;
+  isDirectory: boolean;
+  name: string;
+  path?: string;
+  file?: (callback: (file: File) => void) => void;
+  createReader?: () => {
+    readEntries: (callback: (entries: FileSystemEntry[]) => void) => void;
+  };
 }
 
 // Context type
