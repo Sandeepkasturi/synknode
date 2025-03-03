@@ -1,12 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { usePeer } from '@/context/PeerContext';
 import { useFileTransfer } from '@/context/FileTransferContext';
-import { Laptop, User, Share2, RefreshCw, Users, Shield, MessageSquare } from 'lucide-react';
+import { Laptop, User, Share2, RefreshCw, Users, Shield, MessageSquare, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 // Animation variants
 const containerVariants = {
@@ -35,13 +36,24 @@ export const DevicesList: React.FC<DevicesListProps> = ({
   isRefreshing, 
   refreshDevices 
 }) => {
-  const { onlineDevices } = usePeer();
+  const { onlineDevices, peerId, username, announcePresence } = usePeer();
   const { handlePeerConnect } = useFileTransfer();
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
+  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
   };
+
+  const handleRefresh = () => {
+    refreshDevices();
+    setLastRefresh(new Date());
+  };
+
+  useEffect(() => {
+    // When this component mounts, force a refresh
+    handleRefresh();
+  }, []);
 
   return (
     <>
@@ -55,13 +67,30 @@ export const DevicesList: React.FC<DevicesListProps> = ({
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={refreshDevices}
+          onClick={handleRefresh}
           className="flex items-center gap-2"
         >
-          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          {isRefreshing ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <RefreshCw className="h-4 w-4" />
+          )}
           Refresh
         </Button>
       </div>
+
+      {/* Device info alert */}
+      <Alert className="mb-4 bg-blue-50 text-blue-800 border-blue-200">
+        <Users className="h-4 w-4 text-blue-500" />
+        <AlertTitle className="text-blue-800">Your device info</AlertTitle>
+        <AlertDescription className="text-blue-700">
+          <div className="flex flex-col gap-1 mt-2 text-xs">
+            <div><strong>Username:</strong> {username || 'Not set'}</div>
+            <div><strong>Device ID:</strong> {peerId || 'Not connected'}</div>
+            <div><strong>Last refresh:</strong> {lastRefresh.toLocaleTimeString()}</div>
+          </div>
+        </AlertDescription>
+      </Alert>
 
       {onlineDevices.length === 0 ? (
         <div className="text-center py-10 bg-gradient-to-br from-gray-50 to-indigo-50 rounded-lg border border-dashed border-gray-300">
@@ -78,7 +107,7 @@ export const DevicesList: React.FC<DevicesListProps> = ({
             <Button 
               variant="outline"
               size="sm" 
-              onClick={refreshDevices}
+              onClick={handleRefresh}
               className="mt-4"
             >
               Scan for devices

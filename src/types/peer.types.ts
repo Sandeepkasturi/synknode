@@ -20,8 +20,12 @@ export interface ChatMessage {
 
 // Define the type for the device announcement data
 export interface DeviceAnnouncementData {
-  type: string;
+  type: 'device-announcement';
   username: string;
+}
+
+export interface PingData {
+  type: 'ping';
 }
 
 export interface OnlineDevice {

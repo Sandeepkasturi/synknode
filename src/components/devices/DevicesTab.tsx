@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePeer } from '@/context/PeerContext';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,10 +14,25 @@ export const DevicesTab: React.FC = () => {
     setIsChatOpen, 
     isChatOpen, 
     activeChatPeer, 
-    setActiveChatPeer 
+    setActiveChatPeer,
+    onlineDevices
   } = usePeer();
 
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Auto-scan for devices when the component mounts
+  useEffect(() => {
+    if (username) {
+      refreshDevices();
+      
+      // Set up an interval to refresh devices
+      const interval = setInterval(() => {
+        refreshDevices(false); // Silent refresh
+      }, 10000); // Every 10 seconds
+      
+      return () => clearInterval(interval);
+    }
+  }, [username]);
 
   const handleConnect = (deviceId: string) => {
     setActiveChatPeer(deviceId);
@@ -30,10 +45,13 @@ export const DevicesTab: React.FC = () => {
     setActiveChatPeer(null);
   };
 
-  const refreshDevices = () => {
+  const refreshDevices = (showToast = true) => {
     setIsRefreshing(true);
     announcePresence();
-    toast.info("Scanning for devices...");
+    
+    if (showToast) {
+      toast.info("Scanning for devices...");
+    }
     
     // Reset refreshing state after animation completes
     setTimeout(() => setIsRefreshing(false), 1000);
@@ -53,6 +71,11 @@ export const DevicesTab: React.FC = () => {
             <h2 className="text-xl font-medium text-gray-900">Available Devices</h2>
             <p className="text-sm text-gray-500 mt-1">
               Connect to another device to chat and share files
+            </p>
+            <p className="text-xs text-gray-400 mt-1">
+              {onlineDevices.length > 0 
+                ? `Found ${onlineDevices.length} devices` 
+                : "No devices found. Try refreshing."}
             </p>
           </div>
 
