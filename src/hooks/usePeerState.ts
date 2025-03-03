@@ -193,11 +193,11 @@ export const usePeerState = () => {
   const announcePresence = () => {
     if (!peer || !username) return;
     
-    console.log("Explicitly announcing presence to network");
+    console.log("Announcing presence to network");
     
     const broadcastIds = [];
     
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 50; i++) {
       broadcastIds.push(generatePeerId());
     }
     
@@ -222,7 +222,7 @@ export const usePeerState = () => {
             username: username
           });
           
-          setTimeout(() => conn.close(), 5000);
+          setTimeout(() => conn.close(), 8000);
         });
         
         conn.on('error', (err) => {
@@ -248,13 +248,13 @@ export const usePeerState = () => {
       if (exists) {
         return prev.map(device => 
           device.id === deviceId 
-            ? { ...device, username: deviceUsername } 
+            ? { ...device, username: deviceUsername, lastSeen: Date.now() } 
             : device
         );
       } else {
         console.log(`Registering new device: ${deviceUsername} (${deviceId})`);
         toast.info(`${deviceUsername} is now online`);
-        return [...prev, { id: deviceId, username: deviceUsername }];
+        return [...prev, { id: deviceId, username: deviceUsername, lastSeen: Date.now() }];
       }
     });
   };
@@ -267,6 +267,25 @@ export const usePeerState = () => {
       setIsConnected(false);
     }
   };
+
+  useEffect(() => {
+    const cleanupInterval = setInterval(() => {
+      const now = Date.now();
+      const STALE_THRESHOLD = 30000; // 30 seconds
+      
+      setOnlineDevices(prev => 
+        prev.filter(device => {
+          const isStale = now - device.lastSeen > STALE_THRESHOLD;
+          if (isStale) {
+            console.log(`Removing stale device: ${device.username} (${device.id})`);
+          }
+          return !isStale;
+        })
+      );
+    }, 15000); // Check every 15 seconds
+    
+    return () => clearInterval(cleanupInterval);
+  }, []);
 
   useEffect(() => {
     return () => {

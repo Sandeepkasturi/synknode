@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { usePeer } from '@/context/PeerContext';
 import { useFileTransfer } from '@/context/FileTransferContext';
-import { Laptop, User, Share2, RefreshCw, Users, Shield, MessageSquare, Loader2 } from 'lucide-react';
+import { Laptop, User, Share2, RefreshCw, Users, Shield, MessageSquare, Loader2, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -47,6 +48,21 @@ export const DevicesList: React.FC<DevicesListProps> = ({
   const handleRefresh = () => {
     refreshDevices();
     setLastRefresh(new Date());
+  };
+
+  const getTimeAgo = (timestamp: number) => {
+    const seconds = Math.floor((Date.now() - timestamp) / 1000);
+    
+    if (seconds < 5) return 'just now';
+    if (seconds < 60) return `${seconds} seconds ago`;
+    
+    const minutes = Math.floor(seconds / 60);
+    if (minutes === 1) return '1 minute ago';
+    if (minutes < 60) return `${minutes} minutes ago`;
+    
+    const hours = Math.floor(minutes / 60);
+    if (hours === 1) return '1 hour ago';
+    return `${hours} hours ago`;
   };
 
   return (
@@ -132,9 +148,15 @@ export const DevicesList: React.FC<DevicesListProps> = ({
                 </Avatar>
                 <div>
                   <h3 className="text-sm font-medium text-gray-900">{device.username}</h3>
-                  <div className="flex items-center gap-1">
-                    <Shield className="h-3 w-3 text-gray-400" />
-                    <p className="text-xs text-gray-500">ID: {device.id}</p>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-1">
+                      <Shield className="h-3 w-3 text-gray-400" />
+                      <p className="text-xs text-gray-500">ID: {device.id}</p>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3 w-3 text-gray-400" />
+                      <p className="text-xs text-gray-500">Last seen: {getTimeAgo(device.lastSeen)}</p>
+                    </div>
                   </div>
                 </div>
               </div>

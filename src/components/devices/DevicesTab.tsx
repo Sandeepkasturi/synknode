@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePeer } from '@/context/PeerContext';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,8 +20,24 @@ export const DevicesTab: React.FC = () => {
 
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Remove auto-scan for devices when the component mounts
-  // and remove interval to refresh devices automatically
+  // Add automatic device scanning every 10 seconds
+  useEffect(() => {
+    // Initial scan when component mounts
+    if (username) {
+      refreshDevices(false);
+    }
+
+    // Set up interval for periodic scanning
+    const scanInterval = setInterval(() => {
+      if (username) {
+        refreshDevices(false); // Silent refresh (no toast)
+      }
+    }, 10000); // Scan every 10 seconds
+    
+    return () => {
+      clearInterval(scanInterval); // Cleanup on component unmount
+    };
+  }, [username]);
 
   const handleConnect = (deviceId: string) => {
     setActiveChatPeer(deviceId);

@@ -31,6 +31,7 @@ export interface PingData {
 export interface OnlineDevice {
   id: string;
   username: string;
+  lastSeen: number; // Timestamp when the device was last seen
 }
 
 export interface PeerContextType {
