@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from "react";
 import { usePeer } from "../context/PeerContext";
 import { toast } from "sonner";
@@ -58,13 +59,10 @@ export const useFileTransferState = () => {
         } else if (entry.isDirectory) {
           if (entry.createReader) {
             const reader = entry.createReader();
-            await new Promise<void>((resolve, reject) => {
+            await new Promise<void>((resolve) => {
               reader.readEntries(async (newEntries) => {
                 await processEntries(newEntries);
                 resolve();
-              }, (err) => {
-                console.error("Error reading directory entries:", err);
-                reject(err);
               });
             });
           } else {
@@ -96,7 +94,7 @@ export const useFileTransferState = () => {
         sendFile(pendingPermission.conn, pendingPermission.files);
       } else {
         setTransferStatus({ ...transferStatus, status: 'denied' });
-        toast.warn("Permission denied. File transfer cancelled.");
+        toast.warning("Permission denied. File transfer cancelled.");
       }
     }
   }, [transferStatus, pendingPermission]);
@@ -153,7 +151,7 @@ export const useFileTransferState = () => {
     }
 
     if (pendingConnections.has(remotePeerId)) {
-      toast.warn("Already attempting to connect to this peer.");
+      toast.warning("Already attempting to connect to this peer.");
       return;
     }
 
