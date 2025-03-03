@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, ReactNode } from "react";
-import { useFileTransferState } from "../hooks/fileTransfer";
+import { useFileTransferState } from "../hooks/useFileTransferState";
 import { FileTransferContextType } from "../types/fileTransfer.types";
 
 // Create the context

@@ -20,18 +20,13 @@ export interface ChatMessage {
 
 // Define the type for the device announcement data
 export interface DeviceAnnouncementData {
-  type: 'device-announcement';
+  type: string;
   username: string;
-}
-
-export interface PingData {
-  type: 'ping';
 }
 
 export interface OnlineDevice {
   id: string;
   username: string;
-  lastSeen: number; // Timestamp when the device was last seen
 }
 
 export interface PeerContextType {
