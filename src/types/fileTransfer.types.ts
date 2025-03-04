@@ -1,5 +1,6 @@
 
-import { FileSystemEntry } from 'react-dropzone';
+// Remove the FileSystemEntry import as it's not needed and causing errors
+// import { FileSystemEntry } from 'react-dropzone';
 
 // Transfer status type
 export interface TransferStatus {

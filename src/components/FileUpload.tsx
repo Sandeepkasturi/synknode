@@ -1,9 +1,10 @@
 
-import { useState, useCallback, useRef, ChangeEvent } from "react";
+import { useState, useCallback, ChangeEvent } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, File, X } from "lucide-react";
 import { toast } from "sonner";
 import { useFileTransfer } from "../context/FileTransferContext";
+import { MAX_FILE_SIZE } from "@/types/fileTransfer.types";
 
 interface FileUploadProps {
   onFileSelect: (files: File[]) => void;
@@ -17,9 +18,8 @@ export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
   const processFiles = (acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
       const totalSize = acceptedFiles.reduce((sum, file) => sum + file.size, 0);
-      const MAX_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
       
-      if (totalSize > MAX_SIZE) {
+      if (totalSize > MAX_FILE_SIZE) {
         toast.warning(`Total file size exceeds 2GB limit. Some files may not transfer properly.`);
       }
       
@@ -67,10 +67,10 @@ export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full mx-auto">
       <div
         {...getRootProps()}
-        className={`relative p-8 border-2 border-dashed rounded-lg transition-all duration-300 
+        className={`relative p-6 border-2 border-dashed rounded-lg transition-all duration-300 
           ${isDragActive
               ? "border-success bg-success/5"
               : "border-gray-300 hover:border-gray-400"
@@ -81,7 +81,7 @@ export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
         
         {selectedFiles.length === 0 ? (
           <div className="text-center">
-            <Upload className="mx-auto h-12 w-12 text-gray-400" />
+            <Upload className="mx-auto h-10 w-10 text-gray-400" />
             <p className="mt-2 text-sm text-gray-600">
               Drag & drop files here, or click to select
             </p>
@@ -93,9 +93,9 @@ export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
           <div className="animate-fade-up">
             <div className="flex flex-col space-y-2">
               {selectedFiles.map((file, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-white/50 backdrop-blur-sm rounded-lg border">
+                <div key={index} className="flex items-center justify-between p-2 bg-white/80 backdrop-blur-sm rounded-lg border">
                   <div className="flex items-center space-x-3 overflow-hidden">
-                    <File className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                    <File className="h-4 w-4 text-gray-500 flex-shrink-0" />
                     <div className="text-sm text-gray-600 truncate">
                       {file.name}
                     </div>
@@ -114,7 +114,7 @@ export const FileUpload = ({ onFileSelect }: FileUploadProps) => {
             </div>
             
             {previews.length > 0 && (
-              <div className="mt-4 grid grid-cols-2 gap-2">
+              <div className="mt-4 grid grid-cols-3 gap-2">
                 {previews.map((preview, index) => (
                   <div key={index} className="relative aspect-square rounded-lg overflow-hidden border">
                     <img

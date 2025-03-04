@@ -15,9 +15,9 @@ export const FileTransferTabs: React.FC = () => {
   const { peerId } = usePeer();
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="w-full max-w-2xl mx-auto bg-white/50 rounded-xl p-6 shadow-sm border border-white/60">
       <Tabs defaultValue="upload" className="w-full animate-fade-up">
-        <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 mb-8">
+        <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 mb-6">
           <TabsTrigger value="upload" className="flex items-center gap-2">
             <Upload className="h-4 w-4" />
             Share File
@@ -33,14 +33,14 @@ export const FileTransferTabs: React.FC = () => {
         </TabsList>
 
         <TabsContent value="upload" className="mt-0">
-          <div className="space-y-8">
+          <div className="space-y-6">
             <FileUpload onFileSelect={handleFileSelect} />
             {peerId && currentFiles.length > 0 && <TokenDisplay token={peerId} />}
           </div>
         </TabsContent>
 
         <TabsContent value="download" className="mt-0">
-          <div className="space-y-8">
+          <div className="space-y-6">
             <TokenInput onSubmit={handlePeerConnect} />
             {transferStatus.active && (
               <TransferStatus 

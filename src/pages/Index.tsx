@@ -22,7 +22,7 @@ const IndexContent: React.FC = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="container max-w-6xl mx-auto px-4 py-16"
+        className="container max-w-5xl mx-auto px-4 py-8 md:py-12"
       >
         <ConnectionStatus />
         
@@ -30,6 +30,7 @@ const IndexContent: React.FC = () => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.5 }}
+          className="mb-12"
         >
           <HeroSection />
         </motion.div>
@@ -38,6 +39,7 @@ const IndexContent: React.FC = () => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
+          className="mb-16"
         >
           <FileTransferTabs />
         </motion.div>
@@ -46,6 +48,7 @@ const IndexContent: React.FC = () => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
+          className="mb-16"
         >
           <InfoSection />
         </motion.div>

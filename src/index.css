@@ -57,5 +57,27 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
   }
+}
+
+@layer utilities {
+  .glass-card {
+    @apply bg-white/30 backdrop-blur-sm;
+  }
+  
+  .rainbow-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-purple via-brand-blue to-brand-pink;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+#root {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  text-align: center;
 }
