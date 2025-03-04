@@ -30,7 +30,6 @@ export interface FileTransferContextType {
   handleFileSelect: (files: File[]) => void;
   handlePermissionResponse: (isApproved: boolean) => Promise<void>;
   handlePeerConnect: (remotePeerId: string) => Promise<void>;
-  handleDirectorySelect: (entries: FileSystemEntry[]) => void;
 }
 
 // Constants

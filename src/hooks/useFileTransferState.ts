@@ -3,9 +3,8 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { usePeer } from "../context/PeerContext";
 import { generatePeerId } from "../utils/peer.utils";
-import { processDirectoryEntry, validateFiles, downloadFile } from "../utils/fileTransfer.utils";
+import { validateFiles, downloadFile } from "../utils/fileTransfer.utils";
 import { TransferStatus, PendingPermission, MAX_FILE_SIZE, CHUNK_SIZE } from "../types/fileTransfer.types";
-import { FileSystemEntry } from 'react-dropzone';
 
 export const useFileTransferState = () => {
   const { peer, createNewPeer, peerId } = usePeer();
@@ -55,34 +54,6 @@ export const useFileTransferState = () => {
     }
   }, [peer, currentFiles]);
 
-  // Handle directory selection
-  const handleDirectorySelect = async (entries: FileSystemEntry[]) => {
-    let allFiles: File[] = [];
-    
-    for (const entry of entries) {
-      if (entry.isFile) {
-        const fileEntry = entry as FileSystemFileEntry;
-        await new Promise<void>((resolve) => {
-          fileEntry.file((file) => {
-            // Add path info to the file
-            const fileWithPath = Object.defineProperty(file, 'path', {
-              value: fileEntry.fullPath,
-              writable: true
-            });
-            allFiles.push(fileWithPath);
-            resolve();
-          });
-        });
-      } else if (entry.isDirectory) {
-        const dirFiles = await processDirectoryEntry(entry as FileSystemDirectoryEntry);
-        allFiles = [...allFiles, ...dirFiles];
-      }
-    }
-    
-    // Use the existing handleFileSelect function with the collected files
-    handleFileSelect(allFiles);
-  };
-
   // Handle file selection and set up peer for sharing
   const handleFileSelect = (files: File[]) => {
     // Validate files
@@ -125,7 +96,6 @@ export const useFileTransferState = () => {
           type: file.type,
           size: file.size,
           lastModified: file.lastModified,
-          path: (file as any).path || `/${file.name}` // Default to root if no path
         }));
         
         conn.send({
@@ -151,7 +121,6 @@ export const useFileTransferState = () => {
             fileName: file.name,
             fileType: file.type,
             fileSize: file.size,
-            filePath: (file as any).path || `/${file.name}`,
             totalChunks: totalChunks,
             totalFiles: files.length
           });
@@ -267,7 +236,6 @@ export const useFileTransferState = () => {
         name: string,
         type: string,
         size: number,
-        path: string,
         chunks: Map<number, ArrayBuffer>,
         totalChunks: number
       }> = new Map();
@@ -275,8 +243,7 @@ export const useFileTransferState = () => {
       let completedFiles: Array<{
         index: number, 
         blob: Blob,
-        name: string,
-        path: string
+        name: string
       }> = [];
       
       conn.on('open', () => {
@@ -304,7 +271,6 @@ export const useFileTransferState = () => {
             name: data.fileName,
             type: data.fileType,
             size: data.fileSize,
-            path: data.filePath || `/${data.fileName}`,
             chunks: new Map(),
             totalChunks: data.totalChunks
           });
@@ -342,8 +308,7 @@ export const useFileTransferState = () => {
               completedFiles.push({
                 index: fileIndex,
                 blob,
-                name: fileInfo.name,
-                path: fileInfo.path
+                name: fileInfo.name
               });
               
               // Clear from receiving files to free memory
@@ -378,46 +343,9 @@ export const useFileTransferState = () => {
           // Process and download all files
           completedFiles.sort((a, b) => a.index - b.index);
           
-          // Group files by directory
-          const directories: Map<string, {blob: Blob, name: string}[]> = new Map();
-          
+          // Download files
           completedFiles.forEach(file => {
-            // Extract directory path
-            const pathParts = file.path.split('/');
-            pathParts.pop(); // Remove filename
-            const dirPath = pathParts.join('/') || '/';
-            
-            if (!directories.has(dirPath)) {
-              directories.set(dirPath, []);
-            }
-            
-            directories.get(dirPath)?.push({
-              blob: file.blob,
-              name: file.name
-            });
-          });
-          
-          // Download files by directory
-          directories.forEach((files, dirPath) => {
-            if (files.length === 1 && dirPath === '/') {
-              // Single file at root, download directly
-              const file = files[0];
-              downloadFile(file.blob, file.name);
-            } else {
-              // Multiple files or directory structure
-              // For browsers that support the File System Access API
-              if ('showDirectoryPicker' in window) {
-                // Let the user download files individually for now
-                files.forEach(file => {
-                  downloadFile(file.blob, file.name);
-                });
-              } else {
-                // Fallback for browsers without directory support
-                files.forEach(file => {
-                  downloadFile(file.blob, file.name);
-                });
-              }
-            }
+            downloadFile(file.blob, file.name);
           });
           
           setTransferStatus({
@@ -520,7 +448,6 @@ export const useFileTransferState = () => {
     setPendingPermission,
     handleFileSelect,
     handlePermissionResponse,
-    handlePeerConnect,
-    handleDirectorySelect
+    handlePeerConnect
   };
 };
