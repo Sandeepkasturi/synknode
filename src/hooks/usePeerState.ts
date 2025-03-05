@@ -219,7 +219,7 @@ export const usePeerState = () => {
     setPeer(newPeer);
   };
 
-  // Announce presence to the network - IMPROVED VERSION
+  // Simplified announce presence function - uses known peers and doesn't try random peers
   const announcePresence = () => {
     if (!peer || !username || !peerId) {
       console.log("Cannot announce presence - missing peer, username, or peerId");
@@ -228,69 +228,36 @@ export const usePeerState = () => {
     
     console.log("Announcing presence to the network as:", username);
     
-    // Use a central peer/broker approach
-    // In a real app, this would be a server, but for this demo, we're using known peer IDs
+    // Use a central peer/broker approach with known peer IDs
     const knownPeerIds = [
       "ABCDE", "12345", "QWERT", "ASDFG", "ZXCVB", 
       "POIUY", "LKJHG", "MNBVC", "98765", "FGHIJ"
     ];
     
-    // Announce to all known peers plus any we've seen before
+    // Combine known peers with previously discovered peers
     const allPeers = [...new Set([...knownPeerIds, ...onlineDevices.map(d => d.id)])];
     
     // Filter out our own ID
     const peersToAnnounce = allPeers.filter(id => id !== peerId);
     
-    console.log("Will try to announce to these peers:", peersToAnnounce);
+    console.log("Announcing to these peers:", peersToAnnounce);
     
     // Connect to each peer and announce our presence
     peersToAnnounce.forEach(targetPeerId => {
       try {
-        console.log("Attempting to connect to peer:", targetPeerId);
         const conn = peer.connect(targetPeerId);
         
         conn.on('open', () => {
-          console.log("Connection opened to peer:", targetPeerId);
           // Send our announcement
           conn.send({
             type: 'device-announcement',
             username: username
           });
         });
-        
-        conn.on('error', (err) => {
-          console.error(`Error connecting to peer ${targetPeerId}:`, err);
-        });
       } catch (err) {
-        console.error(`Failed to announce to peer ${targetPeerId}:`, err);
+        // Silently ignore errors for unavailable peers
       }
     });
-    
-    // Also broadcast to any random IDs we generate - this improves discovery
-    // Random 3-digit number for broadcasting to random peers
-    for (let i = 0; i < 5; i++) {
-      const randomChar1 = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A-Z
-      const randomChar2 = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A-Z
-      const randomNumber = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-      const randomPeerId = randomChar1 + randomChar2 + randomNumber;
-      
-      try {
-        console.log("Attempting to connect to random peer:", randomPeerId);
-        const conn = peer.connect(randomPeerId);
-        
-        conn.on('open', () => {
-          console.log("Connection opened to random peer:", randomPeerId);
-          conn.send({
-            type: 'device-announcement',
-            username: username
-          });
-        });
-      } catch (err) {
-        // Ignore errors for random peers
-      }
-    }
-    
-    console.log("Finished announcing presence");
   };
 
   // Register a device in our online devices list
@@ -330,20 +297,20 @@ export const usePeerState = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       if (peer && username) {
-        // Remove devices that haven't been seen for more than 2 minutes
-        const TWO_MINUTES = 2 * 60 * 1000;
+        // Remove devices that haven't been seen for more than 3 minutes
+        const THREE_MINUTES = 3 * 60 * 1000;
         setOnlineDevices(prevDevices => {
           const now = Date.now();
           return prevDevices.filter(device => {
             const lastSeen = device.lastSeen || 0;
-            return (now - lastSeen) < TWO_MINUTES;
+            return (now - lastSeen) < THREE_MINUTES;
           });
         });
         
-        // Announce presence periodically
+        // Announce presence periodically, but less frequently
         announcePresence();
       }
-    }, 15000); // Every 15 seconds instead of 30
+    }, 30000); // Every 30 seconds
     
     return () => clearInterval(interval);
   }, [peer, username]);

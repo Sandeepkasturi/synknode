@@ -61,18 +61,8 @@ export const DevicesTab: React.FC = () => {
   const refreshDevices = () => {
     setIsRefreshing(true);
     
-    // Multiple announcements for better discovery
+    // Just announce once to reduce connection attempts
     announcePresence();
-    
-    // Announce again after a delay to improve discovery chances
-    setTimeout(() => {
-      announcePresence();
-    }, 500);
-    
-    // And once more for good measure
-    setTimeout(() => {
-      announcePresence();
-    }, 1500);
     
     toast.info("Scanning for devices...");
     
@@ -82,15 +72,19 @@ export const DevicesTab: React.FC = () => {
 
   // Auto-refresh when the component mounts
   useEffect(() => {
-    refreshDevices();
+    if (username) {
+      refreshDevices();
+    }
     
-    // Set up periodic scanning
+    // Set up periodic scanning at a reasonable interval
     const intervalId = setInterval(() => {
-      announcePresence();
-    }, 10000); // Every 10 seconds
+      if (username) {
+        announcePresence();
+      }
+    }, 30000); // Every 30 seconds
     
     return () => clearInterval(intervalId);
-  }, []);
+  }, [username]);
 
   return (
     <AnimatePresence mode="wait">
