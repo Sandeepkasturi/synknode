@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import Peer from "peerjs";
 import { toast } from "sonner";
@@ -18,14 +17,12 @@ export const usePeerState = () => {
   const [activeChatPeer, setActiveChatPeer] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
 
-  // Save username to localStorage whenever it changes
   useEffect(() => {
     if (username) {
       localStorage.setItem('p2p_username', username);
     }
   }, [username]);
 
-  // Send a chat message to a peer
   const sendChatMessage = (receiverId: string, content: string, type: 'text' | 'file' | 'token' = 'text', fileData?: any) => {
     if (!peer || !peerId || !username) {
       toast.error("Not connected to the network");
@@ -47,13 +44,11 @@ export const usePeerState = () => {
           ...(fileData && { fileData })
         };
 
-        // Send message to receiver
         conn.send({
           type: 'chat-message',
           message
         });
 
-        // Store message in local state
         setChatMessages(prev => {
           const existingMessages = prev[receiverId] || [];
           return {
@@ -76,19 +71,16 @@ export const usePeerState = () => {
   };
 
   const createNewPeer = (customPeerId?: string) => {
-    // Destroy existing peer if it exists
     if (peer) {
       peer.destroy();
     }
 
-    // Create a new peer with optional custom ID
     const newPeerId = customPeerId || generatePeerId();
     
     console.log("Creating new peer with ID:", newPeerId);
     
-    // Create new peer instance with configuration
     const newPeer = new Peer(newPeerId, {
-      debug: 3, // For better logging
+      debug: 3,
       config: {
         iceServers: [
           { urls: "stun:stun.l.google.com:19302" },
@@ -103,13 +95,11 @@ export const usePeerState = () => {
     newPeer.on('open', (id) => {
       console.log('Connected to P2P network with ID:', id);
       
-      // If the id returned is not 5 characters, use our generated one
       const finalId = id.length !== 5 ? newPeerId : id;
       
       setPeerId(finalId);
       setIsConnected(true);
       
-      // Only show toast if we're not already connected or if this is a custom peer ID
       if (!isConnected || customPeerId) {
         toast.success("Connected to P2P network!");
       }
@@ -120,12 +110,10 @@ export const usePeerState = () => {
       toast.error("Connection error: " + error.message);
       setIsConnected(false);
       
-      // If it's a peer unavailable error and we're trying to connect, not create a new ID
       if (error.type === 'peer-unavailable' && customPeerId) {
         toast.error(`Peer ${customPeerId} is not available. Check the token and try again.`);
       }
       
-      // If it's a network error, try to reconnect
       if (error.type === 'network' || error.type === 'disconnected') {
         toast.error("Network connection lost. Trying to reconnect...");
         setTimeout(() => {
@@ -134,20 +122,16 @@ export const usePeerState = () => {
       }
     });
 
-    // Listen for incoming connections
     newPeer.on('connection', (conn) => {
       console.log("New connection from", conn.peer);
       
-      // Handle incoming data
       conn.on('data', (data: unknown) => {
         console.log("Received data from peer:", conn.peer, data);
         
-        // Handle device announcement messages
         if (isDeviceAnnouncement(data)) {
           const announcementData = data as any;
           registerDevice(conn.peer, announcementData.username);
           
-          // Reply with our own username to let them know we're also online
           if (username) {
             try {
               console.log("Sending announcement reply to:", conn.peer);
@@ -159,12 +143,9 @@ export const usePeerState = () => {
               console.error("Error sending device announcement reply:", err);
             }
           }
-        } 
-        // Handle chat messages
-        else if (isChatMessage(data)) {
+        } else if (isChatMessage(data)) {
           const messageData = (data as any).message as ChatMessage;
           
-          // Store message in local state
           setChatMessages(prev => {
             const existingMessages = prev[messageData.senderId] || [];
             return {
@@ -173,10 +154,8 @@ export const usePeerState = () => {
             };
           });
           
-          // Show notification for new message
           const senderName = onlineDevices.find(d => d.id === messageData.senderId)?.username || messageData.senderName;
           
-          // Show a toast notification for the new message
           if (messageData.type === 'text') {
             toast.info(`New message from ${senderName}: ${messageData.content.substring(0, 30)}${messageData.content.length > 30 ? '...' : ''}`);
           } else if (messageData.type === 'file') {
@@ -187,7 +166,6 @@ export const usePeerState = () => {
         }
       });
       
-      // Handle connection close
       conn.on('close', () => {
         console.log("Connection closed with peer:", conn.peer);
       });
@@ -196,7 +174,6 @@ export const usePeerState = () => {
     setPeer(newPeer);
   };
 
-  // Type guards
   const isDeviceAnnouncement = (data: unknown): boolean => {
     return (
       typeof data === 'object' && 
@@ -219,7 +196,6 @@ export const usePeerState = () => {
     );
   };
 
-  // Scan for devices without connecting to them
   const scanForDevices = () => {
     if (!peer || !username || !peerId) {
       console.log("Cannot scan for devices - missing peer, username, or peerId");
@@ -229,24 +205,20 @@ export const usePeerState = () => {
     setIsScanning(true);
     console.log("Scanning for devices as:", username);
     
-    // Use broker approach with known peer IDs for discovery
     const knownPeerIds = [
       "ABCDE", "12345", "QWERT", "ASDFG", "ZXCVB", 
       "POIUY", "LKJHG", "MNBVC", "98765", "FGHIJ"
     ];
     
-    // Filter out our own ID
     const peersToAnnounce = knownPeerIds.filter(id => id !== peerId);
     
     console.log("Announcing to broker peers:", peersToAnnounce);
     
-    // Connect to each peer and announce our presence (for discovery only)
     peersToAnnounce.forEach(targetPeerId => {
       try {
         const conn = peer.connect(targetPeerId);
         
         conn.on('open', () => {
-          // Send our announcement
           conn.send({
             type: 'device-announcement',
             username: username
@@ -257,7 +229,6 @@ export const usePeerState = () => {
       }
     });
     
-    // Also announce to previously seen devices to refresh our presence
     onlineDevices.forEach(device => {
       if (device.id !== peerId) {
         try {
@@ -275,30 +246,53 @@ export const usePeerState = () => {
       }
     });
     
-    // Set a timeout to disable the scanning indicator
     setTimeout(() => {
       setIsScanning(false);
     }, 3000);
   };
 
-  // Register a device in our online devices list
+  const announcePresence = () => {
+    if (!peer || !username || !peerId) {
+      console.log("Cannot announce presence - missing peer, username, or peerId");
+      return;
+    }
+    
+    console.log("Announcing presence as:", username);
+    
+    const brokerPeers = ["ABCDE", "12345", "QWERT"];
+    
+    const peersToAnnounce = brokerPeers.filter(id => id !== peerId);
+    
+    peersToAnnounce.forEach(targetPeerId => {
+      try {
+        const conn = peer.connect(targetPeerId);
+        
+        conn.on('open', () => {
+          conn.send({
+            type: 'device-announcement',
+            username: username
+          });
+        });
+      } catch (err) {
+        // Silently ignore errors for unavailable peers
+      }
+    });
+  };
+
   const registerDevice = (deviceId: string, deviceUsername: string) => {
-    if (deviceId === peerId) return; // Don't add ourselves
+    if (deviceId === peerId) return;
     
     console.log("Registering device:", deviceId, deviceUsername);
     
     setOnlineDevices(prev => {
-      // Check if device already exists
       const exists = prev.some(device => device.id === deviceId);
       if (exists) {
-        // Update username if needed
         return prev.map(device => 
           device.id === deviceId 
             ? { ...device, username: deviceUsername, lastSeen: Date.now() } 
             : device
         );
       } else {
-        // Add new device
         toast.info(`${deviceUsername} is now online`);
         return [...prev, { id: deviceId, username: deviceUsername, lastSeen: Date.now() }];
       }
@@ -314,11 +308,9 @@ export const usePeerState = () => {
     }
   };
 
-  // Clean up and remove disconnected peers periodically
   useEffect(() => {
     const interval = setInterval(() => {
       if (peer && username) {
-        // Remove devices that haven't been seen for more than 3 minutes
         const THREE_MINUTES = 3 * 60 * 1000;
         setOnlineDevices(prevDevices => {
           const now = Date.now();
@@ -328,16 +320,14 @@ export const usePeerState = () => {
           });
         });
       }
-    }, 30000); // Every 30 seconds
+    }, 30000);
     
     return () => clearInterval(interval);
   }, [peer, username]);
 
-  // Initialize peer on component mount
   useEffect(() => {
     createNewPeer();
 
-    // Cleanup on unmount
     return () => {
       destroyPeer();
     };
@@ -361,5 +351,6 @@ export const usePeerState = () => {
     setIsChatOpen,
     activeChatPeer,
     setActiveChatPeer,
+    announcePresence,
   };
 };
