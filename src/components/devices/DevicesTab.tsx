@@ -9,7 +9,7 @@ import { Filter, Users, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { OnlineDevice } from '@/types/peer.types';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export const DevicesTab: React.FC = () => {
   const { 
@@ -26,7 +26,7 @@ export const DevicesTab: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [filterType, setFilterType] = useState<'all' | 'same-network' | 'different-network'>('all');
   const [filteredDevices, setFilteredDevices] = useState<OnlineDevice[]>(onlineDevices);
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (filterType === 'all') {
