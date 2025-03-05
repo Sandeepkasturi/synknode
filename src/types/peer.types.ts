@@ -27,6 +27,7 @@ export interface DeviceAnnouncementData {
 export interface OnlineDevice {
   id: string;
   username: string;
+  lastSeen?: number;
 }
 
 export interface PeerContextType {

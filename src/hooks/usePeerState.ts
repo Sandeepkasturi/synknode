@@ -115,7 +115,10 @@ export const usePeerState = () => {
       
       // Announce presence to other peers
       if (username) {
-        announcePresence();
+        // Add a small delay before announcing to ensure the peer connection is fully established
+        setTimeout(() => {
+          announcePresence();
+        }, 1000);
       }
     });
 
@@ -144,6 +147,8 @@ export const usePeerState = () => {
       
       // Handle discovery messages
       conn.on('data', (data: unknown) => {
+        console.log("Received data from peer:", conn.peer, data);
+        
         // Type guard to check if data is a device announcement
         const isDeviceAnnouncement = 
           typeof data === 'object' && 
@@ -169,6 +174,7 @@ export const usePeerState = () => {
           // Reply with our own username to let them know we're also online
           if (username) {
             try {
+              console.log("Sending announcement reply to:", conn.peer);
               conn.send({
                 type: 'device-announcement',
                 username: username
@@ -203,39 +209,95 @@ export const usePeerState = () => {
           }
         }
       });
+      
+      // Handle connection close
+      conn.on('close', () => {
+        console.log("Connection closed with peer:", conn.peer);
+      });
     });
 
     setPeer(newPeer);
   };
 
-  // Announce presence to the network
+  // Announce presence to the network - IMPROVED VERSION
   const announcePresence = () => {
-    if (!peer || !username) return;
+    if (!peer || !username || !peerId) {
+      console.log("Cannot announce presence - missing peer, username, or peerId");
+      return;
+    }
     
-    // Get all known peer IDs from onlineDevices
-    const peerIds = onlineDevices.map(device => device.id);
+    console.log("Announcing presence to the network as:", username);
+    
+    // Use a central peer/broker approach
+    // In a real app, this would be a server, but for this demo, we're using known peer IDs
+    const knownPeerIds = [
+      "ABCDE", "12345", "QWERT", "ASDFG", "ZXCVB", 
+      "POIUY", "LKJHG", "MNBVC", "98765", "FGHIJ"
+    ];
+    
+    // Announce to all known peers plus any we've seen before
+    const allPeers = [...new Set([...knownPeerIds, ...onlineDevices.map(d => d.id)])];
+    
+    // Filter out our own ID
+    const peersToAnnounce = allPeers.filter(id => id !== peerId);
+    
+    console.log("Will try to announce to these peers:", peersToAnnounce);
     
     // Connect to each peer and announce our presence
-    peerIds.forEach(peerId => {
+    peersToAnnounce.forEach(targetPeerId => {
       try {
-        const conn = peer.connect(peerId);
+        console.log("Attempting to connect to peer:", targetPeerId);
+        const conn = peer.connect(targetPeerId);
+        
         conn.on('open', () => {
+          console.log("Connection opened to peer:", targetPeerId);
+          // Send our announcement
+          conn.send({
+            type: 'device-announcement',
+            username: username
+          });
+        });
+        
+        conn.on('error', (err) => {
+          console.error(`Error connecting to peer ${targetPeerId}:`, err);
+        });
+      } catch (err) {
+        console.error(`Failed to announce to peer ${targetPeerId}:`, err);
+      }
+    });
+    
+    // Also broadcast to any random IDs we generate - this improves discovery
+    // Random 3-digit number for broadcasting to random peers
+    for (let i = 0; i < 5; i++) {
+      const randomChar1 = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A-Z
+      const randomChar2 = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A-Z
+      const randomNumber = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+      const randomPeerId = randomChar1 + randomChar2 + randomNumber;
+      
+      try {
+        console.log("Attempting to connect to random peer:", randomPeerId);
+        const conn = peer.connect(randomPeerId);
+        
+        conn.on('open', () => {
+          console.log("Connection opened to random peer:", randomPeerId);
           conn.send({
             type: 'device-announcement',
             username: username
           });
         });
       } catch (err) {
-        console.error(`Failed to announce to peer ${peerId}:`, err);
+        // Ignore errors for random peers
       }
-    });
+    }
     
-    console.log("Announced presence to", peerIds.length, "peers");
+    console.log("Finished announcing presence");
   };
 
   // Register a device in our online devices list
   const registerDevice = (deviceId: string, deviceUsername: string) => {
     if (deviceId === peerId) return; // Don't add ourselves
+    
+    console.log("Registering device:", deviceId, deviceUsername);
     
     setOnlineDevices(prev => {
       // Check if device already exists
@@ -244,13 +306,13 @@ export const usePeerState = () => {
         // Update username if needed
         return prev.map(device => 
           device.id === deviceId 
-            ? { ...device, username: deviceUsername } 
+            ? { ...device, username: deviceUsername, lastSeen: Date.now() } 
             : device
         );
       } else {
         // Add new device
         toast.info(`${deviceUsername} is now online`);
-        return [...prev, { id: deviceId, username: deviceUsername }];
+        return [...prev, { id: deviceId, username: deviceUsername, lastSeen: Date.now() }];
       }
     });
   };
@@ -268,45 +330,23 @@ export const usePeerState = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       if (peer && username) {
-        // Periodically ping known peers to check if they're still online
-        onlineDevices.forEach(device => {
-          try {
-            const conn = peer.connect(device.id);
-            let isResponding = false;
-            
-            conn.on('open', () => {
-              isResponding = true;
-              conn.send({
-                type: 'ping'
-              });
-              
-              // Close connection after sending ping
-              setTimeout(() => conn.close(), 1000);
-            });
-            
-            // If connection fails, remove the device
-            setTimeout(() => {
-              if (!isResponding) {
-                setOnlineDevices(prev => 
-                  prev.filter(d => d.id !== device.id)
-                );
-              }
-            }, 5000);
-          } catch (err) {
-            // If connection fails, remove from online devices
-            setOnlineDevices(prev => 
-              prev.filter(d => d.id !== device.id)
-            );
-          }
+        // Remove devices that haven't been seen for more than 2 minutes
+        const TWO_MINUTES = 2 * 60 * 1000;
+        setOnlineDevices(prevDevices => {
+          const now = Date.now();
+          return prevDevices.filter(device => {
+            const lastSeen = device.lastSeen || 0;
+            return (now - lastSeen) < TWO_MINUTES;
+          });
         });
         
-        // Re-announce presence periodically
+        // Announce presence periodically
         announcePresence();
       }
-    }, 30000); // Every 30 seconds
+    }, 15000); // Every 15 seconds instead of 30
     
     return () => clearInterval(interval);
-  }, [peer, onlineDevices, username]);
+  }, [peer, username]);
 
   // Initialize peer on component mount
   useEffect(() => {

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { usePeer } from '@/context/PeerContext';
 import { toast } from 'sonner';
@@ -59,12 +60,37 @@ export const DevicesTab: React.FC = () => {
 
   const refreshDevices = () => {
     setIsRefreshing(true);
+    
+    // Multiple announcements for better discovery
     announcePresence();
+    
+    // Announce again after a delay to improve discovery chances
+    setTimeout(() => {
+      announcePresence();
+    }, 500);
+    
+    // And once more for good measure
+    setTimeout(() => {
+      announcePresence();
+    }, 1500);
+    
     toast.info("Scanning for devices...");
     
     // Reset refreshing state after animation completes
-    setTimeout(() => setIsRefreshing(false), 1000);
+    setTimeout(() => setIsRefreshing(false), 2000);
   };
+
+  // Auto-refresh when the component mounts
+  useEffect(() => {
+    refreshDevices();
+    
+    // Set up periodic scanning
+    const intervalId = setInterval(() => {
+      announcePresence();
+    }, 10000); // Every 10 seconds
+    
+    return () => clearInterval(intervalId);
+  }, []);
 
   return (
     <AnimatePresence mode="wait">
