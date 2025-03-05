@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { usePeer } from '@/context/PeerContext';
@@ -29,9 +28,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose }) => {
   const [newMessage, setNewMessage] = useState('');
   const [showFileShare, setShowFileShare] = useState(false);
   const [shareFilesFor, setShareFilesFor] = useState<string | null>(null);
+  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom of messages when new ones arrive
   useEffect(() => {
     if (messagesEndRef.current && activeChatPeer) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -48,7 +47,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose }) => {
   const handleShareToken = () => {
     if (!activeChatPeer || !peerId) return;
     
-    // Send current peer ID as a token message
     sendChatMessage(activeChatPeer, peerId, 'token');
     toast.success("Token shared successfully");
   };
@@ -61,10 +59,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose }) => {
   const confirmFileShare = () => {
     if (!shareFilesFor || currentFiles.length === 0) return;
     
-    // Connect to peer for file transfer
     handlePeerConnect(shareFilesFor);
     
-    // Also send a message about the files
     const fileNames = currentFiles.map(f => f.name).join(', ');
     sendChatMessage(
       shareFilesFor, 
@@ -86,6 +82,15 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose }) => {
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setNewMessage(e.target.value);
+    
+    if (!isTyping) {
+      setIsTyping(true);
+      setTimeout(() => setIsTyping(false), 2000);
+    }
+  };
+
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
   };
@@ -95,7 +100,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose }) => {
 
   return (
     <div className="h-full flex flex-col">
-      {/* Chat header */}
       <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-indigo-50 to-purple-50">
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9 bg-gradient-to-br from-indigo-400 to-purple-500">
@@ -103,7 +107,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose }) => {
           </Avatar>
           <div>
             <h3 className="text-sm font-medium">{activeChat?.username || 'User'}</h3>
-            <p className="text-xs text-gray-500">ID: {activeChatPeer}</p>
+            <p className="text-xs text-gray-500">{isTyping ? 'Typing...' : 'Online'}</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -114,7 +118,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose }) => {
             className="flex items-center gap-1 text-xs"
           >
             <Share2 className="h-3.5 w-3.5" />
-            Share Token
+            <span className="hidden sm:inline">Share Token</span>
           </Button>
           <Button
             size="sm"
@@ -124,7 +128,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose }) => {
             disabled={currentFiles.length === 0}
           >
             <FileUp className="h-3.5 w-3.5" />
-            Share Files
+            <span className="hidden sm:inline">Share Files</span>
           </Button>
           <Button
             size="sm"
@@ -137,7 +141,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose }) => {
         </div>
       </div>
 
-      {/* Chat messages */}
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
           {currentMessages.length === 0 ? (
@@ -167,12 +170,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose }) => {
         </div>
       </ScrollArea>
 
-      {/* Message input */}
       <div className="p-4 border-t bg-white">
         <div className="flex items-end gap-2">
           <Textarea
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onChange={handleInputChange}
             placeholder="Type your message here..."
             className="min-h-[60px] resize-none"
             onKeyDown={(e) => {
@@ -192,7 +194,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose }) => {
         </div>
       </div>
 
-      {/* File sharing dialog */}
       <Dialog open={showFileShare} onOpenChange={setShowFileShare}>
         <DialogContent>
           <DialogHeader>

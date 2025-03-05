@@ -1,11 +1,15 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePeer } from '@/context/PeerContext';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DevicesList } from './DevicesList';
 import { DeviceStatusBadge } from './DeviceStatusBadge';
 import { ChatInterface } from './ChatInterface';
+import { Filter, Users, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { OnlineDevice } from '@/types/peer.types';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useMobile } from '@/hooks/use-mobile';
 
 export const DevicesTab: React.FC = () => {
   const { 
@@ -14,10 +18,33 @@ export const DevicesTab: React.FC = () => {
     setIsChatOpen, 
     isChatOpen, 
     activeChatPeer, 
-    setActiveChatPeer 
+    setActiveChatPeer,
+    onlineDevices,
+    peerId
   } = usePeer();
 
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [filterType, setFilterType] = useState<'all' | 'same-network' | 'different-network'>('all');
+  const [filteredDevices, setFilteredDevices] = useState<OnlineDevice[]>(onlineDevices);
+  const isMobile = useMobile();
+
+  useEffect(() => {
+    if (filterType === 'all') {
+      setFilteredDevices(onlineDevices);
+    } else if (filterType === 'same-network') {
+      // This is a simple simulation - in a real app you'd use IP address matching
+      // For now we'll consider devices with IDs starting with the same letter as "same network"
+      const firstChar = peerId?.charAt(0) || '';
+      setFilteredDevices(
+        onlineDevices.filter(device => device.id.charAt(0) === firstChar)
+      );
+    } else if (filterType === 'different-network') {
+      const firstChar = peerId?.charAt(0) || '';
+      setFilteredDevices(
+        onlineDevices.filter(device => device.id.charAt(0) !== firstChar)
+      );
+    }
+  }, [onlineDevices, filterType, peerId]);
 
   const handleConnect = (deviceId: string) => {
     setActiveChatPeer(deviceId);
@@ -56,7 +83,54 @@ export const DevicesTab: React.FC = () => {
             </p>
           </div>
 
+          <div className="flex justify-between items-center mb-3">
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-indigo-600" />
+              <span className="font-medium text-sm">
+                {filteredDevices.length} {filteredDevices.length === 1 ? 'device' : 'devices'} found
+              </span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 gap-1.5">
+                    <Filter className="h-3.5 w-3.5" />
+                    {!isMobile && (
+                      <span className="text-xs">
+                        {filterType === 'all' ? 'All Networks' : 
+                         filterType === 'same-network' ? 'Same Network' : 'Different Network'}
+                      </span>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setFilterType('all')}>
+                    All Networks
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setFilterType('same-network')}>
+                    Same Network
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setFilterType('different-network')}>
+                    Different Network
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={refreshDevices}
+                className="flex items-center gap-2 h-8 px-3"
+              >
+                <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+                {!isMobile && <span>Refresh</span>}
+              </Button>
+            </div>
+          </div>
+
           <DevicesList 
+            devices={filteredDevices}
             handleConnect={handleConnect}
             isRefreshing={isRefreshing}
             refreshDevices={refreshDevices}
