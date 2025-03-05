@@ -39,7 +39,8 @@ export interface PeerContextType {
   onlineDevices: OnlineDevice[];
   createNewPeer: (customPeerId?: string) => void;
   destroyPeer: () => void;
-  announcePresence: () => void;
+  scanForDevices: () => void;
+  isScanning: boolean;
   registerDevice: (deviceId: string, deviceUsername: string) => void;
   sendChatMessage: (receiverId: string, content: string, type?: 'text' | 'file' | 'token', fileData?: any) => void;
   chatMessages: Record<string, ChatMessage[]>; // Messages organized by peer ID

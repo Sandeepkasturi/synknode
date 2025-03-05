@@ -16,6 +16,7 @@ export const usePeerState = () => {
   const [chatMessages, setChatMessages] = useState<Record<string, ChatMessage[]>>({});
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [activeChatPeer, setActiveChatPeer] = useState<string | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
 
   // Save username to localStorage whenever it changes
   useEffect(() => {
@@ -112,14 +113,6 @@ export const usePeerState = () => {
       if (!isConnected || customPeerId) {
         toast.success("Connected to P2P network!");
       }
-      
-      // Announce presence to other peers
-      if (username) {
-        // Add a small delay before announcing to ensure the peer connection is fully established
-        setTimeout(() => {
-          announcePresence();
-        }, 1000);
-      }
     });
 
     newPeer.on('error', (error) => {
@@ -141,33 +134,16 @@ export const usePeerState = () => {
       }
     });
 
-    // Listen for connection events for debugging and device discovery
+    // Listen for incoming connections
     newPeer.on('connection', (conn) => {
-      console.log("PeerContext: New connection from", conn.peer);
+      console.log("New connection from", conn.peer);
       
-      // Handle discovery messages
+      // Handle incoming data
       conn.on('data', (data: unknown) => {
         console.log("Received data from peer:", conn.peer, data);
         
-        // Type guard to check if data is a device announcement
-        const isDeviceAnnouncement = 
-          typeof data === 'object' && 
-          data !== null && 
-          'type' in data && 
-          (data as any).type === 'device-announcement' && 
-          'username' in data && 
-          typeof (data as any).username === 'string';
-        
-        // Type guard to check if data is a chat message
-        const isChatMessage = 
-          typeof data === 'object' && 
-          data !== null && 
-          'type' in data && 
-          (data as any).type === 'chat-message' && 
-          'message' in data && 
-          typeof (data as any).message === 'object';
-        
-        if (isDeviceAnnouncement) {
+        // Handle device announcement messages
+        if (isDeviceAnnouncement(data)) {
           const announcementData = data as any;
           registerDevice(conn.peer, announcementData.username);
           
@@ -183,8 +159,9 @@ export const usePeerState = () => {
               console.error("Error sending device announcement reply:", err);
             }
           }
-        } else if (isChatMessage) {
-          // Handle incoming chat message
+        } 
+        // Handle chat messages
+        else if (isChatMessage(data)) {
           const messageData = (data as any).message as ChatMessage;
           
           // Store message in local state
@@ -219,30 +196,51 @@ export const usePeerState = () => {
     setPeer(newPeer);
   };
 
-  // Simplified announce presence function - uses known peers and doesn't try random peers
-  const announcePresence = () => {
+  // Type guards
+  const isDeviceAnnouncement = (data: unknown): boolean => {
+    return (
+      typeof data === 'object' && 
+      data !== null && 
+      'type' in data && 
+      (data as any).type === 'device-announcement' && 
+      'username' in data && 
+      typeof (data as any).username === 'string'
+    );
+  };
+  
+  const isChatMessage = (data: unknown): boolean => {
+    return (
+      typeof data === 'object' && 
+      data !== null && 
+      'type' in data && 
+      (data as any).type === 'chat-message' && 
+      'message' in data && 
+      typeof (data as any).message === 'object'
+    );
+  };
+
+  // Scan for devices without connecting to them
+  const scanForDevices = () => {
     if (!peer || !username || !peerId) {
-      console.log("Cannot announce presence - missing peer, username, or peerId");
+      console.log("Cannot scan for devices - missing peer, username, or peerId");
       return;
     }
     
-    console.log("Announcing presence to the network as:", username);
+    setIsScanning(true);
+    console.log("Scanning for devices as:", username);
     
-    // Use a central peer/broker approach with known peer IDs
+    // Use broker approach with known peer IDs for discovery
     const knownPeerIds = [
       "ABCDE", "12345", "QWERT", "ASDFG", "ZXCVB", 
       "POIUY", "LKJHG", "MNBVC", "98765", "FGHIJ"
     ];
     
-    // Combine known peers with previously discovered peers
-    const allPeers = [...new Set([...knownPeerIds, ...onlineDevices.map(d => d.id)])];
-    
     // Filter out our own ID
-    const peersToAnnounce = allPeers.filter(id => id !== peerId);
+    const peersToAnnounce = knownPeerIds.filter(id => id !== peerId);
     
-    console.log("Announcing to these peers:", peersToAnnounce);
+    console.log("Announcing to broker peers:", peersToAnnounce);
     
-    // Connect to each peer and announce our presence
+    // Connect to each peer and announce our presence (for discovery only)
     peersToAnnounce.forEach(targetPeerId => {
       try {
         const conn = peer.connect(targetPeerId);
@@ -258,6 +256,29 @@ export const usePeerState = () => {
         // Silently ignore errors for unavailable peers
       }
     });
+    
+    // Also announce to previously seen devices to refresh our presence
+    onlineDevices.forEach(device => {
+      if (device.id !== peerId) {
+        try {
+          const conn = peer.connect(device.id);
+          
+          conn.on('open', () => {
+            conn.send({
+              type: 'device-announcement',
+              username: username
+            });
+          });
+        } catch (err) {
+          // Silently ignore errors
+        }
+      }
+    });
+    
+    // Set a timeout to disable the scanning indicator
+    setTimeout(() => {
+      setIsScanning(false);
+    }, 3000);
   };
 
   // Register a device in our online devices list
@@ -306,9 +327,6 @@ export const usePeerState = () => {
             return (now - lastSeen) < THREE_MINUTES;
           });
         });
-        
-        // Announce presence periodically, but less frequently
-        announcePresence();
       }
     }, 30000); // Every 30 seconds
     
@@ -334,7 +352,8 @@ export const usePeerState = () => {
     onlineDevices,
     createNewPeer,
     destroyPeer,
-    announcePresence,
+    scanForDevices,
+    isScanning,
     registerDevice,
     sendChatMessage,
     chatMessages,

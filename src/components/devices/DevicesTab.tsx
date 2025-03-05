@@ -15,16 +15,16 @@ import { useIsMobile } from '@/hooks/use-mobile';
 export const DevicesTab: React.FC = () => {
   const { 
     username, 
-    announcePresence, 
+    scanForDevices, 
     setIsChatOpen, 
     isChatOpen, 
     activeChatPeer, 
     setActiveChatPeer,
     onlineDevices,
-    peerId
+    peerId,
+    isScanning
   } = usePeer();
 
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [filterType, setFilterType] = useState<'all' | 'same-network' | 'different-network'>('all');
   const [filteredDevices, setFilteredDevices] = useState<OnlineDevice[]>(onlineDevices);
   const isMobile = useIsMobile();
@@ -59,18 +59,15 @@ export const DevicesTab: React.FC = () => {
   };
 
   const refreshDevices = () => {
-    setIsRefreshing(true);
-    
-    // Just announce once to reduce connection attempts
-    announcePresence();
-    
-    toast.info("Scanning for devices...");
-    
-    // Reset refreshing state after animation completes
-    setTimeout(() => setIsRefreshing(false), 2000);
+    if (username) {
+      toast.info("Scanning for devices...");
+      scanForDevices();
+    } else {
+      toast.error("Please set a username first");
+    }
   };
 
-  // Auto-refresh when the component mounts
+  // Scan for devices when the component mounts
   useEffect(() => {
     if (username) {
       refreshDevices();
@@ -79,9 +76,9 @@ export const DevicesTab: React.FC = () => {
     // Set up periodic scanning at a reasonable interval
     const intervalId = setInterval(() => {
       if (username) {
-        announcePresence();
+        scanForDevices();
       }
-    }, 30000); // Every 30 seconds
+    }, 60000); // Once per minute is enough
     
     return () => clearInterval(intervalId);
   }, [username]);
@@ -142,9 +139,10 @@ export const DevicesTab: React.FC = () => {
                 size="sm" 
                 onClick={refreshDevices}
                 className="flex items-center gap-2 h-8 px-3"
+                disabled={isScanning}
               >
-                <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
-                {!isMobile && <span>Refresh</span>}
+                <RefreshCw className={`h-3 w-3 ${isScanning ? 'animate-spin' : ''}`} />
+                {!isMobile && <span>{isScanning ? 'Scanning...' : 'Scan'}</span>}
               </Button>
             </div>
           </div>
@@ -152,7 +150,7 @@ export const DevicesTab: React.FC = () => {
           <DevicesList 
             devices={filteredDevices}
             handleConnect={handleConnect}
-            isRefreshing={isRefreshing}
+            isRefreshing={isScanning}
             refreshDevices={refreshDevices}
           />
           
