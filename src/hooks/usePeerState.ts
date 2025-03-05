@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import Peer from "peerjs";
 import { toast } from "sonner";
@@ -107,11 +108,10 @@ export const usePeerState = () => {
 
     newPeer.on('error', (error) => {
       console.error('PeerJS error:', error);
-      toast.error("Connection error: " + error.message);
-      setIsConnected(false);
       
-      if (error.type === 'peer-unavailable' && customPeerId) {
-        toast.error(`Peer ${customPeerId} is not available. Check the token and try again.`);
+      // Only show errors that aren't related to peer unavailability during scanning
+      if (error.type !== 'peer-unavailable' || !isScanning) {
+        toast.error("Connection error: " + error.message);
       }
       
       if (error.type === 'network' || error.type === 'disconnected') {
@@ -120,6 +120,8 @@ export const usePeerState = () => {
           createNewPeer(customPeerId);
         }, 3000);
       }
+      
+      setIsConnected(false);
     });
 
     newPeer.on('connection', (conn) => {
@@ -196,6 +198,7 @@ export const usePeerState = () => {
     );
   };
 
+  // Modified to use a central announcement server instead of direct connections during scanning
   const scanForDevices = () => {
     if (!peer || !username || !peerId) {
       console.log("Cannot scan for devices - missing peer, username, or peerId");
@@ -204,48 +207,43 @@ export const usePeerState = () => {
     
     setIsScanning(true);
     console.log("Scanning for devices as:", username);
+
+    // Use a list of known "broker" peers that act as discovery servers
+    const brokerPeers = ["ABCDE", "12345", "QWERT"];
     
-    const knownPeerIds = [
-      "ABCDE", "12345", "QWERT", "ASDFG", "ZXCVB", 
-      "POIUY", "LKJHG", "MNBVC", "98765", "FGHIJ"
-    ];
-    
-    const peersToAnnounce = knownPeerIds.filter(id => id !== peerId);
-    
-    console.log("Announcing to broker peers:", peersToAnnounce);
-    
-    peersToAnnounce.forEach(targetPeerId => {
+    // Send our presence to the broker servers only
+    brokerPeers.forEach(brokerPeerId => {
+      if (brokerPeerId === peerId) return; // Skip self
+      
       try {
-        const conn = peer.connect(targetPeerId);
+        console.log("Announcing to broker:", brokerPeerId);
+        // Connect only to the broker peers
+        const conn = peer.connect(brokerPeerId);
         
         conn.on('open', () => {
+          // Send presence announcement
           conn.send({
             type: 'device-announcement',
             username: username
           });
+          
+          // Immediately close connection after announcing
+          setTimeout(() => {
+            conn.close();
+          }, 500);
+        });
+        
+        // Don't show error toasts for broker connections
+        conn.on('error', (err) => {
+          console.log("Broker unavailable:", brokerPeerId);
         });
       } catch (err) {
-        // Silently ignore errors for unavailable peers
+        // Silently ignore broker connection errors
+        console.log("Failed to connect to broker:", brokerPeerId);
       }
     });
     
-    onlineDevices.forEach(device => {
-      if (device.id !== peerId) {
-        try {
-          const conn = peer.connect(device.id);
-          
-          conn.on('open', () => {
-            conn.send({
-              type: 'device-announcement',
-              username: username
-            });
-          });
-        } catch (err) {
-          // Silently ignore errors
-        }
-      }
-    });
-    
+    // Set a timeout to end the scanning state
     setTimeout(() => {
       setIsScanning(false);
     }, 3000);
@@ -259,22 +257,28 @@ export const usePeerState = () => {
     
     console.log("Announcing presence as:", username);
     
+    // Only use broker peers for announcements
     const brokerPeers = ["ABCDE", "12345", "QWERT"];
     
-    const peersToAnnounce = brokerPeers.filter(id => id !== peerId);
-    
-    peersToAnnounce.forEach(targetPeerId => {
+    brokerPeers.forEach(brokerPeerId => {
+      if (brokerPeerId === peerId) return; // Skip self
+      
       try {
-        const conn = peer.connect(targetPeerId);
+        const conn = peer.connect(brokerPeerId);
         
         conn.on('open', () => {
           conn.send({
             type: 'device-announcement',
             username: username
           });
+          
+          // Close connection after announcing
+          setTimeout(() => {
+            conn.close();
+          }, 500);
         });
       } catch (err) {
-        // Silently ignore errors for unavailable peers
+        // Silently ignore errors
       }
     });
   };

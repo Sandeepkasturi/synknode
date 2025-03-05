@@ -48,5 +48,5 @@ export interface PeerContextType {
   setIsChatOpen: (isOpen: boolean) => void;
   activeChatPeer: string | null;
   setActiveChatPeer: (peerId: string | null) => void;
-  announcePresence: () => void; // Add this line
+  announcePresence: () => void;
 }

@@ -47,10 +47,11 @@ export const DevicesTab: React.FC = () => {
     }
   }, [onlineDevices, filterType, peerId]);
 
+  // Connect to a device only when user specifically clicks on it
   const handleConnect = (deviceId: string) => {
     setActiveChatPeer(deviceId);
     setIsChatOpen(true);
-    toast.info(`Opening chat with ${deviceId}...`);
+    toast.info(`Opening chat with ${onlineDevices.find(d => d.id === deviceId)?.username || deviceId}...`);
   };
 
   const handleCloseChat = () => {
