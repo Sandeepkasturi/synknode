@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { usePeer } from '@/context/PeerContext';
-import type { ChatMessage } from '@/types/peer.types'; // Changed to type-only import
+import type { ChatMessage } from '@/types/peer.types';
 import { useFileTransfer } from '@/context/FileTransferContext';
-import { X, Send, Share2, FileUp, Copy, MessageSquare } from 'lucide-react';
+import { Send, Share2, FileUp, Copy, MessageSquare, RefreshCw, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -11,66 +12,58 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
-interface ChatInterfaceProps {
-  onClose: () => void;
-}
-
-export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose }) => {
+export const BroadcastChat: React.FC = () => {
   const { 
     peerId,
-    activeChatPeer,
+    username,
     chatMessages,
     onlineDevices,
-    sendChatMessage
+    broadcastMessage,
+    scanForDevices,
+    isScanning
   } = usePeer();
   
   const { currentFiles, handlePeerConnect } = useFileTransfer();
   const [newMessage, setNewMessage] = useState('');
   const [showFileShare, setShowFileShare] = useState(false);
-  const [shareFilesFor, setShareFilesFor] = useState<string | null>(null);
-  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (messagesEndRef.current && activeChatPeer) {
+    if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [chatMessages, activeChatPeer]);
+  }, [chatMessages]);
 
   const handleSendMessage = () => {
-    if (!newMessage.trim() || !activeChatPeer) return;
+    if (!newMessage.trim()) return;
     
-    sendChatMessage(activeChatPeer, newMessage);
+    broadcastMessage(newMessage);
     setNewMessage('');
   };
 
   const handleShareToken = () => {
-    if (!activeChatPeer || !peerId) return;
+    if (!peerId) return;
     
-    sendChatMessage(activeChatPeer, peerId, 'token');
-    toast.success("Token shared successfully");
+    broadcastMessage(peerId, 'token');
+    toast.success("Token shared with everyone");
   };
 
   const handleShareFiles = () => {
     setShowFileShare(true);
-    setShareFilesFor(activeChatPeer);
   };
 
   const confirmFileShare = () => {
-    if (!shareFilesFor || currentFiles.length === 0) return;
-    
-    handlePeerConnect(shareFilesFor);
+    if (currentFiles.length === 0) return;
     
     const fileNames = currentFiles.map(f => f.name).join(', ');
-    sendChatMessage(
-      shareFilesFor, 
-      `I'm sending you files: ${fileNames}`, 
+    broadcastMessage(
+      `I'm sharing files with everyone: ${fileNames}`, 
       'file',
       { files: currentFiles.map(f => ({ name: f.name, size: f.size, type: f.type })) }
     );
     
     setShowFileShare(false);
-    toast.success("File transfer initiated");
+    toast.success("File information shared with everyone");
   };
 
   const copyTokenToClipboard = async (token: string) => {
@@ -84,30 +77,25 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose }) => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setNewMessage(e.target.value);
-    
-    if (!isTyping) {
-      setIsTyping(true);
-      setTimeout(() => setIsTyping(false), 2000);
-    }
   };
 
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
   };
 
-  const activeChat = activeChatPeer ? onlineDevices.find(d => d.id === activeChatPeer) : null;
-  const currentMessages = activeChatPeer ? chatMessages[activeChatPeer] || [] : [];
+  const messages = chatMessages['broadcast'] || [];
+  const onlineCount = onlineDevices.length;
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex flex-col h-full bg-white/50 rounded-xl shadow-sm border border-white/60">
       <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-indigo-50 to-purple-50">
         <div className="flex items-center gap-3">
-          <Avatar className="h-9 w-9 bg-gradient-to-br from-indigo-400 to-purple-500">
-            <AvatarFallback>{activeChat ? getInitials(activeChat.username) : '?'}</AvatarFallback>
-          </Avatar>
+          <div className="bg-indigo-100 p-2 rounded-full">
+            <Users className="h-5 w-5 text-indigo-600" />
+          </div>
           <div>
-            <h3 className="text-sm font-medium">{activeChat?.username || 'User'}</h3>
-            <p className="text-xs text-gray-500">{isTyping ? 'Typing...' : 'Online'}</p>
+            <h3 className="text-sm font-medium">Global Chat</h3>
+            <p className="text-xs text-gray-500">{onlineCount} {onlineCount === 1 ? 'user' : 'users'} online</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -130,20 +118,22 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose }) => {
             <FileUp className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Share Files</span>
           </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={onClose}
-            className="p-1 h-8 w-8"
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={scanForDevices}
+            className="flex items-center gap-2 h-8 px-3"
+            disabled={isScanning}
           >
-            <X className="h-4 w-4" />
+            <RefreshCw className={`h-3.5 w-3.5 ${isScanning ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:inline">{isScanning ? 'Scanning...' : 'Scan'}</span>
           </Button>
         </div>
       </div>
 
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
-          {currentMessages.length === 0 ? (
+          {messages.length === 0 ? (
             <div className="text-center py-10">
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -152,11 +142,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose }) => {
               >
                 <MessageSquare className="mx-auto h-12 w-12 text-indigo-200" />
                 <p className="mt-2 text-sm text-gray-500">No messages yet</p>
-                <p className="text-xs text-gray-400">Start the conversation by sending a message</p>
+                <p className="text-xs text-gray-400">Be the first to send a message to everyone</p>
               </motion.div>
             </div>
           ) : (
-            currentMessages.map((msg) => (
+            messages.map((msg) => (
               <ChatMessage 
                 key={msg.id} 
                 message={msg} 
@@ -197,7 +187,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose }) => {
       <Dialog open={showFileShare} onOpenChange={setShowFileShare}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Share Files</DialogTitle>
+            <DialogTitle>Share Files With Everyone</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4 py-4">
@@ -230,7 +220,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose }) => {
               onClick={confirmFileShare}
               disabled={currentFiles.length === 0}
             >
-              Share Files
+              Share With Everyone
             </Button>
           </div>
         </DialogContent>
@@ -266,6 +256,10 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
           }
         `}
       >
+        {!isCurrentUser && (
+          <div className="text-xs font-medium mb-1 text-indigo-600">{message.senderName}</div>
+        )}
+        
         {message.type === 'text' && (
           <p className="text-sm">{message.content}</p>
         )}

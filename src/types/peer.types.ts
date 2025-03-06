@@ -6,7 +6,7 @@ export interface ChatMessage {
   id: string;
   senderId: string;
   senderName: string;
-  receiverId: string;
+  receiverId: string | 'broadcast';
   content: string;
   timestamp: number;
   type: 'text' | 'file' | 'token';
@@ -42,11 +42,8 @@ export interface PeerContextType {
   scanForDevices: () => void;
   isScanning: boolean;
   registerDevice: (deviceId: string, deviceUsername: string) => void;
-  sendChatMessage: (receiverId: string, content: string, type?: 'text' | 'file' | 'token', fileData?: any) => void;
+  sendChatMessage: (receiverId: string | 'broadcast', content: string, type?: 'text' | 'file' | 'token', fileData?: any) => void;
   chatMessages: Record<string, ChatMessage[]>; // Messages organized by peer ID
-  isChatOpen: boolean;
-  setIsChatOpen: (isOpen: boolean) => void;
-  activeChatPeer: string | null;
-  setActiveChatPeer: (peerId: string | null) => void;
   announcePresence: () => void;
+  broadcastMessage: (content: string, type?: 'text' | 'file' | 'token', fileData?: any) => void;
 }

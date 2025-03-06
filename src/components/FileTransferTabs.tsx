@@ -1,14 +1,14 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, Download, Laptop } from "lucide-react";
+import { Upload, Download, MessageSquare } from "lucide-react";
 import { useFileTransfer } from '../context/FileTransferContext';
 import { usePeer } from '../context/PeerContext';
 import { FileUpload } from "./FileUpload";
 import { TokenDisplay } from "./TokenDisplay";
 import { TokenInput } from "./TokenInput";
 import { TransferStatus } from "./TransferStatus";
-import { DevicesTab } from './devices/DevicesTab';
+import { BroadcastChat } from './broadcast/BroadcastChat';
 
 export const FileTransferTabs: React.FC = () => {
   const { handleFileSelect, currentFiles, handlePeerConnect, transferStatus } = useFileTransfer();
@@ -26,9 +26,9 @@ export const FileTransferTabs: React.FC = () => {
             <Download className="h-4 w-4" />
             Receive File
           </TabsTrigger>
-          <TabsTrigger value="devices" className="flex items-center gap-2">
-            <Laptop className="h-4 w-4" />
-            Devices
+          <TabsTrigger value="chat" className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            Global Chat
           </TabsTrigger>
         </TabsList>
 
@@ -52,8 +52,8 @@ export const FileTransferTabs: React.FC = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="devices" className="mt-0">
-          <DevicesTab />
+        <TabsContent value="chat" className="mt-0">
+          <BroadcastChat />
         </TabsContent>
       </Tabs>
     </div>

@@ -13,9 +13,9 @@ export const usePeerState = () => {
     return localStorage.getItem('p2p_username');
   });
   const [onlineDevices, setOnlineDevices] = useState<OnlineDevice[]>([]);
-  const [chatMessages, setChatMessages] = useState<Record<string, ChatMessage[]>>({});
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [activeChatPeer, setActiveChatPeer] = useState<string | null>(null);
+  const [chatMessages, setChatMessages] = useState<Record<string, ChatMessage[]>>({
+    broadcast: []
+  });
   const [isScanning, setIsScanning] = useState(false);
 
   useEffect(() => {
@@ -24,9 +24,71 @@ export const usePeerState = () => {
     }
   }, [username]);
 
-  const sendChatMessage = (receiverId: string, content: string, type: 'text' | 'file' | 'token' = 'text', fileData?: any) => {
+  const broadcastMessage = (content: string, type: 'text' | 'file' | 'token' = 'text', fileData?: any) => {
     if (!peer || !peerId || !username) {
       toast.error("Not connected to the network");
+      return;
+    }
+
+    // Create the message
+    const message: ChatMessage = {
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      senderId: peerId,
+      senderName: username,
+      receiverId: 'broadcast',
+      content,
+      timestamp: Date.now(),
+      type,
+      ...(fileData && { fileData })
+    };
+
+    // Add to local messages
+    setChatMessages(prev => {
+      const existingMessages = prev['broadcast'] || [];
+      return {
+        ...prev,
+        broadcast: [...existingMessages, message]
+      };
+    });
+
+    // Send to all connected devices
+    onlineDevices.forEach(device => {
+      try {
+        const conn = peer.connect(device.id);
+        
+        conn.on('open', () => {
+          conn.send({
+            type: 'broadcast-message',
+            message
+          });
+          
+          // Close connection after sending
+          setTimeout(() => {
+            conn.close();
+          }, 500);
+        });
+        
+        conn.on('error', (err) => {
+          console.error('Error broadcasting to peer:', err);
+          // Don't show error toasts for each failed connection
+        });
+      } catch (err) {
+        console.error('Error connecting to peer for broadcast:', err);
+      }
+    });
+
+    toast.success(`Message broadcasted to all users`);
+  };
+
+  const sendChatMessage = (receiverId: string | 'broadcast', content: string, type: 'text' | 'file' | 'token' = 'text', fileData?: any) => {
+    if (!peer || !peerId || !username) {
+      toast.error("Not connected to the network");
+      return;
+    }
+
+    // Handle broadcast messages
+    if (receiverId === 'broadcast') {
+      broadcastMessage(content, type, fileData);
       return;
     }
 
@@ -104,6 +166,13 @@ export const usePeerState = () => {
       if (!isConnected || customPeerId) {
         toast.success("Connected to P2P network!");
       }
+
+      // Announce presence when connected
+      setTimeout(() => {
+        if (username) {
+          announcePresence();
+        }
+      }, 1000);
     });
 
     newPeer.on('error', (error) => {
@@ -165,6 +234,27 @@ export const usePeerState = () => {
           } else if (messageData.type === 'token') {
             toast.info(`${senderName} shared a token with you: ${messageData.content}`);
           }
+        } else if (isBroadcastMessage(data)) {
+          const messageData = (data as any).message as ChatMessage;
+          
+          // Don't add our own broadcast messages again
+          if (messageData.senderId !== peerId) {
+            setChatMessages(prev => {
+              const existingMessages = prev['broadcast'] || [];
+              return {
+                ...prev,
+                broadcast: [...existingMessages, messageData]
+              };
+            });
+            
+            const senderName = onlineDevices.find(d => d.id === messageData.senderId)?.username || messageData.senderName;
+            
+            if (messageData.type === 'text') {
+              toast.info(`Broadcast from ${senderName}: ${messageData.content.substring(0, 30)}${messageData.content.length > 30 ? '...' : ''}`);
+            } else if (messageData.type === 'file') {
+              toast.info(`${senderName} shared a file with everyone: ${messageData.fileData?.name}`);
+            }
+          }
         }
       });
       
@@ -198,7 +288,17 @@ export const usePeerState = () => {
     );
   };
 
-  // Modified to use a central announcement server instead of direct connections during scanning
+  const isBroadcastMessage = (data: unknown): boolean => {
+    return (
+      typeof data === 'object' && 
+      data !== null && 
+      'type' in data && 
+      (data as any).type === 'broadcast-message' && 
+      'message' in data && 
+      typeof (data as any).message === 'object'
+    );
+  };
+
   const scanForDevices = () => {
     if (!peer || !username || !peerId) {
       console.log("Cannot scan for devices - missing peer, username, or peerId");
@@ -337,6 +437,21 @@ export const usePeerState = () => {
     };
   }, []);
 
+  // Periodically scan for devices
+  useEffect(() => {
+    if (username) {
+      scanForDevices();
+    }
+    
+    const intervalId = setInterval(() => {
+      if (username && peer) {
+        scanForDevices();
+      }
+    }, 60000); // Once per minute
+    
+    return () => clearInterval(intervalId);
+  }, [username, peer]);
+
   return {
     peer,
     peerId,
@@ -351,10 +466,7 @@ export const usePeerState = () => {
     registerDevice,
     sendChatMessage,
     chatMessages,
-    isChatOpen,
-    setIsChatOpen,
-    activeChatPeer,
-    setActiveChatPeer,
     announcePresence,
+    broadcastMessage,
   };
 };
