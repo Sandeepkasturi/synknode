@@ -16,7 +16,7 @@ export const FileTransferTabs: React.FC = () => {
 
   return (
     <div className="w-full max-w-2xl mx-auto bg-white/50 rounded-xl p-6 shadow-sm border border-white/60">
-      <Tabs defaultValue="upload" className="w-full animate-fade-up">
+      <Tabs defaultValue="chat" className="w-full animate-fade-up">
         <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 mb-6">
           <TabsTrigger value="upload" className="flex items-center gap-2">
             <Upload className="h-4 w-4" />

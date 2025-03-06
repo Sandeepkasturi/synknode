@@ -56,10 +56,23 @@ export const BroadcastChat: React.FC = () => {
     if (currentFiles.length === 0) return;
     
     const fileNames = currentFiles.map(f => f.name).join(', ');
+    
+    // Create file data for sharing
+    const fileDataToShare = currentFiles.map(f => ({ 
+      name: f.name, 
+      size: f.size, 
+      type: f.type 
+    }));
+    
     broadcastMessage(
       `I'm sharing files with everyone: ${fileNames}`, 
       'file',
-      { files: currentFiles.map(f => ({ name: f.name, size: f.size, type: f.type })) }
+      { 
+        name: fileNames,
+        size: currentFiles.reduce((total, f) => total + f.size, 0),
+        type: currentFiles.length > 1 ? 'multiple' : currentFiles[0].type,
+        files: fileDataToShare
+      }
     );
     
     setShowFileShare(false);
@@ -266,7 +279,20 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
         
         {message.type === 'file' && (
           <div className="flex flex-col">
-            <p className="text-sm">{message.content}</p>
+            <p className="text-sm mb-1">{message.content}</p>
+            {message.fileData && (
+              <div className="bg-white/60 rounded p-2 mt-1 text-xs">
+                <div className="font-medium">Shared Files:</div>
+                <div className="text-gray-600 mt-1">
+                  {message.fileData.name}
+                  {message.fileData.size && (
+                    <span className="ml-2 text-gray-500">
+                      ({(message.fileData.size / (1024 * 1024)).toFixed(2)} MB)
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
         

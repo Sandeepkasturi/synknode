@@ -65,7 +65,7 @@ export const usePeerState = () => {
           // Close connection after sending
           setTimeout(() => {
             conn.close();
-          }, 500);
+          }, 1000);
         });
         
         conn.on('error', (err) => {
@@ -241,6 +241,11 @@ export const usePeerState = () => {
           if (messageData.senderId !== peerId) {
             setChatMessages(prev => {
               const existingMessages = prev['broadcast'] || [];
+              // Check if this message already exists to avoid duplicates
+              const exists = existingMessages.some(msg => msg.id === messageData.id);
+              if (exists) {
+                return prev;
+              }
               return {
                 ...prev,
                 broadcast: [...existingMessages, messageData]
@@ -252,7 +257,9 @@ export const usePeerState = () => {
             if (messageData.type === 'text') {
               toast.info(`Broadcast from ${senderName}: ${messageData.content.substring(0, 30)}${messageData.content.length > 30 ? '...' : ''}`);
             } else if (messageData.type === 'file') {
-              toast.info(`${senderName} shared a file with everyone: ${messageData.fileData?.name}`);
+              toast.info(`${senderName} shared a file with everyone: ${messageData.fileData?.name || 'unnamed file'}`);
+            } else if (messageData.type === 'token') {
+              toast.info(`${senderName} shared a token with everyone: ${messageData.content}`);
             }
           }
         }
@@ -343,6 +350,37 @@ export const usePeerState = () => {
       }
     });
     
+    // Also broadcast to all online devices
+    onlineDevices.forEach(device => {
+      if (device.id === peerId) return; // Skip self
+      
+      try {
+        console.log("Announcing to device:", device.id);
+        const conn = peer.connect(device.id);
+        
+        conn.on('open', () => {
+          // Send presence announcement
+          conn.send({
+            type: 'device-announcement',
+            username: username
+          });
+          
+          // Close connection after announcing
+          setTimeout(() => {
+            conn.close();
+          }, 500);
+        });
+        
+        conn.on('error', (err) => {
+          console.log("Device unavailable:", device.id);
+          // Remove devices that no longer respond
+          setOnlineDevices(prev => prev.filter(d => d.id !== device.id));
+        });
+      } catch (err) {
+        console.log("Failed to connect to device:", device.id);
+      }
+    });
+    
     // Set a timeout to end the scanning state
     setTimeout(() => {
       setIsScanning(false);
@@ -357,14 +395,38 @@ export const usePeerState = () => {
     
     console.log("Announcing presence as:", username);
     
-    // Only use broker peers for announcements
+    // Use broker peers and all known devices for announcements
     const brokerPeers = ["ABCDE", "12345", "QWERT"];
     
+    // First announce to brokers
     brokerPeers.forEach(brokerPeerId => {
       if (brokerPeerId === peerId) return; // Skip self
       
       try {
         const conn = peer.connect(brokerPeerId);
+        
+        conn.on('open', () => {
+          conn.send({
+            type: 'device-announcement',
+            username: username
+          });
+          
+          // Close connection after announcing
+          setTimeout(() => {
+            conn.close();
+          }, 500);
+        });
+      } catch (err) {
+        // Silently ignore errors
+      }
+    });
+    
+    // Then announce to all known devices
+    onlineDevices.forEach(device => {
+      if (device.id === peerId) return; // Skip self
+      
+      try {
+        const conn = peer.connect(device.id);
         
         conn.on('open', () => {
           conn.send({
@@ -447,7 +509,7 @@ export const usePeerState = () => {
       if (username && peer) {
         scanForDevices();
       }
-    }, 60000); // Once per minute
+    }, 30000); // Every 30 seconds
     
     return () => clearInterval(intervalId);
   }, [username, peer]);

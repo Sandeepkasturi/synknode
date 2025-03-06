@@ -15,6 +15,11 @@ export interface ChatMessage {
     size: number;
     type: string;
     url?: string;
+    files?: Array<{
+      name: string;
+      size: number;
+      type: string;
+    }>;
   };
 }
 
