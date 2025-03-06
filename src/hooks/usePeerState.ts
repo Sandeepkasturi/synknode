@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import Peer from "peerjs";
 import { toast } from "sonner";
@@ -24,13 +23,43 @@ export const usePeerState = () => {
     }
   }, [username]);
 
+  const broadcastData = (data: any) => {
+    if (!peer || !peerId) {
+      toast.error("Not connected to the network");
+      return;
+    }
+
+    console.log("Broadcasting data to all peers:", data);
+
+    onlineDevices.forEach(device => {
+      if (device.id === peerId) return; // Skip self
+      try {
+        const conn = peer.connect(device.id);
+        
+        conn.on('open', () => {
+          conn.send(data);
+          
+          setTimeout(() => {
+            conn.close();
+          }, 2000);
+        });
+        
+        conn.on('error', (err) => {
+          console.error('Error broadcasting to peer:', err);
+          setOnlineDevices(prev => prev.filter(d => d.id !== device.id));
+        });
+      } catch (err) {
+        console.error('Error connecting to peer for broadcast:', err);
+      }
+    });
+  };
+
   const broadcastMessage = (content: string, type: 'text' | 'file' | 'token' = 'text', fileData?: any) => {
     if (!peer || !peerId || !username) {
       toast.error("Not connected to the network");
       return;
     }
 
-    // Create the message
     const message: ChatMessage = {
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       senderId: peerId,
@@ -42,7 +71,6 @@ export const usePeerState = () => {
       ...(fileData && { fileData })
     };
 
-    // Add to local messages
     setChatMessages(prev => {
       const existingMessages = prev['broadcast'] || [];
       return {
@@ -51,33 +79,12 @@ export const usePeerState = () => {
       };
     });
 
-    // Send to all connected devices
-    onlineDevices.forEach(device => {
-      try {
-        const conn = peer.connect(device.id);
-        
-        conn.on('open', () => {
-          conn.send({
-            type: 'broadcast-message',
-            message
-          });
-          
-          // Close connection after sending
-          setTimeout(() => {
-            conn.close();
-          }, 1000);
-        });
-        
-        conn.on('error', (err) => {
-          console.error('Error broadcasting to peer:', err);
-          // Don't show error toasts for each failed connection
-        });
-      } catch (err) {
-        console.error('Error connecting to peer for broadcast:', err);
-      }
+    broadcastData({
+      type: 'broadcast-message',
+      message
     });
 
-    toast.success(`Message broadcasted to all users`);
+    console.log("Broadcast message sent to all users");
   };
 
   const sendChatMessage = (receiverId: string | 'broadcast', content: string, type: 'text' | 'file' | 'token' = 'text', fileData?: any) => {
@@ -86,7 +93,6 @@ export const usePeerState = () => {
       return;
     }
 
-    // Handle broadcast messages
     if (receiverId === 'broadcast') {
       broadcastMessage(content, type, fileData);
       return;
@@ -167,7 +173,6 @@ export const usePeerState = () => {
         toast.success("Connected to P2P network!");
       }
 
-      // Announce presence when connected
       setTimeout(() => {
         if (username) {
           announcePresence();
@@ -178,7 +183,6 @@ export const usePeerState = () => {
     newPeer.on('error', (error) => {
       console.error('PeerJS error:', error);
       
-      // Only show errors that aren't related to peer unavailability during scanning
       if (error.type !== 'peer-unavailable' || !isScanning) {
         toast.error("Connection error: " + error.message);
       }
@@ -189,8 +193,6 @@ export const usePeerState = () => {
           createNewPeer(customPeerId);
         }, 3000);
       }
-      
-      setIsConnected(false);
     });
 
     newPeer.on('connection', (conn) => {
@@ -237,11 +239,11 @@ export const usePeerState = () => {
         } else if (isBroadcastMessage(data)) {
           const messageData = (data as any).message as ChatMessage;
           
-          // Don't add our own broadcast messages again
           if (messageData.senderId !== peerId) {
+            console.log("Received broadcast message:", messageData);
+            
             setChatMessages(prev => {
               const existingMessages = prev['broadcast'] || [];
-              // Check if this message already exists to avoid duplicates
               const exists = existingMessages.some(msg => msg.id === messageData.id);
               if (exists) {
                 return prev;
@@ -315,57 +317,47 @@ export const usePeerState = () => {
     setIsScanning(true);
     console.log("Scanning for devices as:", username);
 
-    // Use a list of known "broker" peers that act as discovery servers
     const brokerPeers = ["ABCDE", "12345", "QWERT"];
     
-    // Send our presence to the broker servers only
     brokerPeers.forEach(brokerPeerId => {
-      if (brokerPeerId === peerId) return; // Skip self
+      if (brokerPeerId === peerId) return;
       
       try {
         console.log("Announcing to broker:", brokerPeerId);
-        // Connect only to the broker peers
         const conn = peer.connect(brokerPeerId);
         
         conn.on('open', () => {
-          // Send presence announcement
           conn.send({
             type: 'device-announcement',
             username: username
           });
           
-          // Immediately close connection after announcing
           setTimeout(() => {
             conn.close();
           }, 500);
         });
         
-        // Don't show error toasts for broker connections
         conn.on('error', (err) => {
           console.log("Broker unavailable:", brokerPeerId);
         });
       } catch (err) {
-        // Silently ignore broker connection errors
         console.log("Failed to connect to broker:", brokerPeerId);
       }
     });
     
-    // Also broadcast to all online devices
     onlineDevices.forEach(device => {
-      if (device.id === peerId) return; // Skip self
+      if (device.id === peerId) return;
       
       try {
         console.log("Announcing to device:", device.id);
         const conn = peer.connect(device.id);
         
         conn.on('open', () => {
-          // Send presence announcement
           conn.send({
             type: 'device-announcement',
             username: username
           });
           
-          // Close connection after announcing
           setTimeout(() => {
             conn.close();
           }, 500);
@@ -373,7 +365,6 @@ export const usePeerState = () => {
         
         conn.on('error', (err) => {
           console.log("Device unavailable:", device.id);
-          // Remove devices that no longer respond
           setOnlineDevices(prev => prev.filter(d => d.id !== device.id));
         });
       } catch (err) {
@@ -381,7 +372,6 @@ export const usePeerState = () => {
       }
     });
     
-    // Set a timeout to end the scanning state
     setTimeout(() => {
       setIsScanning(false);
     }, 3000);
@@ -395,12 +385,10 @@ export const usePeerState = () => {
     
     console.log("Announcing presence as:", username);
     
-    // Use broker peers and all known devices for announcements
     const brokerPeers = ["ABCDE", "12345", "QWERT"];
     
-    // First announce to brokers
     brokerPeers.forEach(brokerPeerId => {
-      if (brokerPeerId === peerId) return; // Skip self
+      if (brokerPeerId === peerId) return;
       
       try {
         const conn = peer.connect(brokerPeerId);
@@ -411,7 +399,6 @@ export const usePeerState = () => {
             username: username
           });
           
-          // Close connection after announcing
           setTimeout(() => {
             conn.close();
           }, 500);
@@ -421,9 +408,8 @@ export const usePeerState = () => {
       }
     });
     
-    // Then announce to all known devices
     onlineDevices.forEach(device => {
-      if (device.id === peerId) return; // Skip self
+      if (device.id === peerId) return;
       
       try {
         const conn = peer.connect(device.id);
@@ -434,7 +420,6 @@ export const usePeerState = () => {
             username: username
           });
           
-          // Close connection after announcing
           setTimeout(() => {
             conn.close();
           }, 500);
@@ -499,19 +484,18 @@ export const usePeerState = () => {
     };
   }, []);
 
-  // Periodically scan for devices
   useEffect(() => {
     if (username) {
       scanForDevices();
+      
+      const intervalId = setInterval(() => {
+        if (username && peer) {
+          scanForDevices();
+        }
+      }, 30000);
+      
+      return () => clearInterval(intervalId);
     }
-    
-    const intervalId = setInterval(() => {
-      if (username && peer) {
-        scanForDevices();
-      }
-    }, 30000); // Every 30 seconds
-    
-    return () => clearInterval(intervalId);
   }, [username, peer]);
 
   return {
@@ -530,5 +514,6 @@ export const usePeerState = () => {
     chatMessages,
     announcePresence,
     broadcastMessage,
+    broadcastData,
   };
 };

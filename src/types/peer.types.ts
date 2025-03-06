@@ -51,4 +51,5 @@ export interface PeerContextType {
   chatMessages: Record<string, ChatMessage[]>; // Messages organized by peer ID
   announcePresence: () => void;
   broadcastMessage: (content: string, type?: 'text' | 'file' | 'token', fileData?: any) => void;
+  broadcastData: (data: any) => void; // New method to broadcast any data to all peers
 }
