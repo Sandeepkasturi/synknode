@@ -71,12 +71,26 @@
     padding-left: 1rem !important;
     padding-right: 1rem !important;
   }
+
+  /* Make input containers take full width on mobile */
+  .input-container {
+    width: 100% !important;
+  }
+
+  /* Fix buttons on mobile */
+  button {
+    white-space: nowrap;
+  }
 }
 
 /* Better scrolling on mobile */
 html, body {
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 /* Chat interface specific styles */
@@ -89,5 +103,61 @@ html, body {
   .chat-container {
     max-height: calc(100vh - 80px);
     height: calc(100vh - 80px);
+  }
+
+  /* Fix padding in mobile chat */
+  .chat-page {
+    padding: 0 !important;
+  }
+
+  /* Full-screen chat on mobile */
+  #root {
+    padding: 0;
+  }
+}
+
+/* Custom animations */
+.animate-fade-up {
+  animation: fadeUp 0.5s ease forwards;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Chat bubbles animations */
+.chat-bubble-in {
+  animation: bubbleIn 0.3s ease forwards;
+}
+
+@keyframes bubbleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Ensure the app wrapper takes full height */
+.app-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fix for iOS devices to handle safe areas */
+@supports (-webkit-touch-callout: none) {
+  .ios-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }

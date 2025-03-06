@@ -13,7 +13,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 export const FileTransferTabs: React.FC = () => {
   const { handleFileSelect, currentFiles, handlePeerConnect, transferStatus } = useFileTransfer();
-  const { peerId, username } = usePeer();
+  const { peerId, username, announcePresence, scanForDevices } = usePeer();
   const navigate = useNavigate();
 
   if (!username) {
@@ -21,6 +21,11 @@ export const FileTransferTabs: React.FC = () => {
   }
 
   const handleOpenChat = () => {
+    // Make sure we're connected before navigating
+    announcePresence();
+    scanForDevices();
+    
+    // Navigate to chat
     navigate('/chat');
   };
 
