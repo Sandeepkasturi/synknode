@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Send, Users, Paperclip, Image, ChevronRight, Info, MoreVertical, Search } from 'lucide-react';
+import { ArrowLeft, Send, Users, Paperclip, Image, ChevronRight, Info, MoreVertical, Search, Home } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePeer } from '../context/PeerContext';
 import { useFileTransfer } from '../context/FileTransferContext';
@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ChatMessage } from '@/types/peer.types';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 export const ChatPage: React.FC = () => {
   const { 
@@ -31,6 +32,7 @@ export const ChatPage: React.FC = () => {
   const [showOnlineUsers, setShowOnlineUsers] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Scroll to bottom whenever messages change
   useEffect(() => {
@@ -42,6 +44,7 @@ export const ChatPage: React.FC = () => {
   // Periodically announce presence and scan for devices
   useEffect(() => {
     announcePresence();
+    scanForDevices();
     
     const interval = setInterval(() => {
       scanForDevices();
@@ -56,6 +59,11 @@ export const ChatPage: React.FC = () => {
     
     broadcastMessage(newMessage);
     setNewMessage('');
+    
+    // Focus the textarea after sending
+    setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 0);
   };
 
   const handleFileButtonClick = () => {
@@ -93,6 +101,7 @@ export const ChatPage: React.FC = () => {
     );
     
     setShowFileShare(false);
+    toast.success('Files shared with everyone');
   };
 
   const broadcastMessages = chatMessages['broadcast'] || [];
@@ -100,9 +109,15 @@ export const ChatPage: React.FC = () => {
 
   if (!username) {
     return (
-      <div className="h-screen flex items-center justify-center">
-        <p>Please set your username first</p>
-        <Link to="/" className="ml-2 text-blue-500 hover:underline">Go back</Link>
+      <div className="h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="mb-4 text-center animate-bounce">
+          <Users className="h-12 w-12 text-indigo-500 mx-auto mb-2" />
+          <p className="text-lg font-medium text-gray-700">Please set your username first</p>
+        </div>
+        <Link to="/" className="px-4 py-2 bg-indigo-600 text-white rounded-lg flex items-center gap-2 hover:bg-indigo-700 transition-colors shadow-md">
+          <Home className="h-4 w-4" />
+          Return Home
+        </Link>
       </div>
     );
   }
@@ -110,31 +125,34 @@ export const ChatPage: React.FC = () => {
   return (
     <div className="h-screen bg-gray-100 flex flex-col">
       {/* Header */}
-      <header className="bg-indigo-600 text-white p-4 shadow-md">
+      <header className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-3 shadow-lg z-10">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <div className="flex items-center space-x-4">
-            <Link to="/">
-              <ArrowLeft className="h-6 w-6" />
+          <div className="flex items-center space-x-3">
+            <Link to="/" className="p-2 rounded-full hover:bg-white/10 transition-colors">
+              <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
               <h1 className="text-xl font-bold">Global Chat</h1>
-              <p className="text-xs text-indigo-200">{onlineCount} {onlineCount === 1 ? 'user' : 'users'} online</p>
+              <div className="flex items-center">
+                <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                <p className="text-xs text-indigo-100">{onlineCount} {onlineCount === 1 ? 'user' : 'users'} online</p>
+              </div>
             </div>
           </div>
           
-          <div className="flex space-x-2">
+          <div className="flex space-x-1">
             <Button 
               variant="ghost" 
-              className="text-white" 
-              size="icon"
+              className="text-white hover:bg-white/10" 
+              size="sm"
               onClick={() => setShowOnlineUsers(true)}
             >
               <Users className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" className="text-white" size="icon">
+            <Button variant="ghost" className="text-white hover:bg-white/10" size="sm">
               <Search className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" className="text-white" size="icon">
+            <Button variant="ghost" className="text-white hover:bg-white/10" size="sm">
               <MoreVertical className="h-5 w-5" />
             </Button>
           </div>
@@ -143,18 +161,22 @@ export const ChatPage: React.FC = () => {
 
       {/* Chat Container */}
       <div className="flex-1 overflow-hidden bg-[url('https://i.pinimg.com/originals/97/c0/07/97c00759d90d786d9b6096d274ad3e07.png')] bg-repeat">
-        <ScrollArea className="h-full py-6 px-4">
-          <div className="max-w-3xl mx-auto space-y-6">
+        <ScrollArea className="h-full py-3 px-2 md:py-6 md:px-4">
+          <div className="max-w-3xl mx-auto space-y-4">
             {broadcastMessages.length === 0 ? (
-              <div className="bg-white/80 rounded-lg p-8 text-center shadow-sm backdrop-blur-sm">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white/80 rounded-lg p-6 md:p-8 text-center shadow-sm backdrop-blur-sm"
+              >
                 <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Info className="h-8 w-8 text-indigo-600" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">No messages yet</h3>
                 <p className="text-gray-500">Be the first to send a message to everyone in this chat room!</p>
-              </div>
+              </motion.div>
             ) : (
-              <>
+              <AnimatePresence initial={false}>
                 {broadcastMessages.map((message, index) => {
                   const showAvatar = index === 0 || 
                     broadcastMessages[index - 1].senderId !== message.senderId;
@@ -168,7 +190,7 @@ export const ChatPage: React.FC = () => {
                     />
                   );
                 })}
-              </>
+              </AnimatePresence>
             )}
             <div ref={messagesEndRef} />
           </div>
@@ -182,7 +204,7 @@ export const ChatPage: React.FC = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="text-indigo-600 h-10 w-10"
+              className="text-indigo-600 h-10 w-10 rounded-full hover:bg-indigo-50"
               onClick={handleFileButtonClick}
             >
               <Paperclip className="h-5 w-5" />
@@ -202,22 +224,23 @@ export const ChatPage: React.FC = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="text-indigo-600 h-10 w-10"
+              className="text-indigo-600 h-10 w-10 rounded-full hover:bg-indigo-50"
             >
               <Image className="h-5 w-5" />
             </Button>
           </div>
           
           <Textarea
+            ref={textareaRef}
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type a message..."
-            className="flex-1 min-h-[50px] max-h-[200px] rounded-2xl border-gray-300 focus-visible:ring-1 focus-visible:ring-indigo-500"
+            className="flex-1 min-h-[50px] max-h-[120px] rounded-2xl border-gray-300 focus-visible:ring-1 focus-visible:ring-indigo-500 resize-none"
             onKeyDown={handleKeyDown}
           />
           
           <Button
-            className="rounded-full h-10 w-10 p-0 bg-indigo-600 hover:bg-indigo-700"
+            className="rounded-full h-10 w-10 p-0 bg-indigo-600 hover:bg-indigo-700 shadow-md"
             onClick={handleSendMessage}
             disabled={!newMessage.trim()}
           >
@@ -228,7 +251,7 @@ export const ChatPage: React.FC = () => {
 
       {/* File Share Dialog */}
       <Dialog open={showFileShare} onOpenChange={setShowFileShare}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Share Files With Everyone</DialogTitle>
           </DialogHeader>
@@ -243,9 +266,9 @@ export const ChatPage: React.FC = () => {
               <div className="space-y-2">
                 <p className="text-sm text-gray-500">Selected files:</p>
                 {currentFiles.map((file, index) => (
-                  <div key={index} className="text-sm p-2 bg-gray-50 rounded flex justify-between items-center">
-                    <span>{file.name}</span>
-                    <span className="text-xs text-gray-500">{(file.size / 1024).toFixed(0)} KB</span>
+                  <div key={index} className="text-sm p-2 bg-gray-50 rounded-lg flex justify-between items-center">
+                    <span className="truncate max-w-[200px]">{file.name}</span>
+                    <span className="text-xs text-gray-500 ml-2 whitespace-nowrap">{(file.size / 1024).toFixed(0)} KB</span>
                   </div>
                 ))}
               </div>
@@ -262,6 +285,7 @@ export const ChatPage: React.FC = () => {
             <Button
               onClick={confirmFileShare}
               disabled={currentFiles.length === 0}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white"
             >
               Share With Everyone
             </Button>
@@ -271,30 +295,35 @@ export const ChatPage: React.FC = () => {
 
       {/* Online Users Dialog */}
       <Dialog open={showOnlineUsers} onOpenChange={setShowOnlineUsers}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Online Users</DialogTitle>
           </DialogHeader>
           
-          <ScrollArea className="h-[400px] mt-4">
+          <ScrollArea className="h-[400px] mt-4 pr-4">
             <div className="space-y-2">
               {onlineDevices.map(device => (
-                <div key={device.id} className="p-3 rounded-lg bg-gray-50 flex items-center justify-between">
+                <motion.div 
+                  key={device.id} 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-3 rounded-lg bg-gray-50 hover:bg-gray-100 flex items-center justify-between transition-colors cursor-pointer"
+                >
                   <div className="flex items-center">
-                    <Avatar className="h-10 w-10 bg-indigo-100">
-                      <AvatarFallback className="text-indigo-600">
+                    <Avatar className="h-10 w-10 bg-gradient-to-br from-indigo-400 to-purple-500">
+                      <AvatarFallback className="text-white font-medium">
                         {device.username.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className="ml-3">
                       <p className="font-medium">{device.username}</p>
-                      <p className="text-xs text-gray-500">ID: {device.id}</p>
+                      <p className="text-xs text-gray-500 truncate max-w-[150px]">ID: {device.id}</p>
                     </div>
                   </div>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-600">
                     <ChevronRight className="h-5 w-5" />
                   </Button>
-                </div>
+                </motion.div>
               ))}
 
               {onlineDevices.length === 0 && (
@@ -315,6 +344,7 @@ export const ChatPage: React.FC = () => {
               onClick={() => {
                 scanForDevices();
                 announcePresence();
+                toast.info('Refreshing user list...');
               }}
               disabled={isScanning}
               className="w-full"
@@ -344,14 +374,19 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   };
 
   return (
-    <div className={cn(
-      "flex gap-2",
-      isCurrentUser ? "justify-end" : "justify-start",
-      !showAvatar && !isCurrentUser ? "pl-12" : "" // Indent for continuity
-    )}>
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className={cn(
+        "flex gap-2 mb-2",
+        isCurrentUser ? "justify-end" : "justify-start",
+        !showAvatar && !isCurrentUser ? "pl-12" : "" // Indent for continuity
+      )}
+    >
       {!isCurrentUser && showAvatar && (
         <Avatar className="h-10 w-10 mt-1 flex-shrink-0">
-          <AvatarFallback className="bg-indigo-100 text-indigo-600">
+          <AvatarFallback className="bg-gradient-to-br from-indigo-400 to-purple-500 text-white">
             {getInitials(message.senderName)}
           </AvatarFallback>
         </Avatar>
@@ -362,7 +397,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       <div className={cn(
         "max-w-[75%] rounded-2xl px-4 py-2 shadow-sm",
         isCurrentUser 
-          ? "bg-indigo-600 text-white rounded-br-none" 
+          ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-br-none" 
           : "bg-white text-gray-800 rounded-bl-none",
         !showAvatar && !isCurrentUser ? "rounded-tl-2xl" : "",
         !showAvatar && isCurrentUser ? "rounded-tr-2xl" : ""
@@ -380,7 +415,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             <p className="text-sm mb-1">{message.content}</p>
             {message.fileData && (
               <div className={cn(
-                "rounded p-3 mt-1 text-xs",
+                "rounded-lg p-3 mt-1 text-xs",
                 isCurrentUser ? "bg-indigo-700/60" : "bg-gray-100"
               )}>
                 <div className="font-medium">Shared Files:</div>
@@ -409,6 +444,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           {new Date(message.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
         </span>
       </div>
-    </div>
+    </motion.div>
   );
 };

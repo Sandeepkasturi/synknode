@@ -9,18 +9,23 @@ import { TokenDisplay } from "./TokenDisplay";
 import { TokenInput } from "./TokenInput";
 import { TransferStatus } from "./TransferStatus";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const FileTransferTabs: React.FC = () => {
   const { handleFileSelect, currentFiles, handlePeerConnect, transferStatus } = useFileTransfer();
   const { peerId, username } = usePeer();
+  const navigate = useNavigate();
 
   if (!username) {
     return null; // Don't render if no username yet
   }
 
+  const handleOpenChat = () => {
+    navigate('/chat');
+  };
+
   return (
-    <div className="w-full max-w-2xl mx-auto bg-white/50 rounded-xl p-6 shadow-sm border border-white/60">
+    <div className="w-full max-w-2xl mx-auto bg-white/50 backdrop-blur-md rounded-xl p-6 shadow-md border border-white/60">
       <Tabs defaultValue="chat" className="w-full animate-fade-up">
         <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 mb-6">
           <TabsTrigger value="upload" className="flex items-center gap-2">
@@ -69,11 +74,13 @@ export const FileTransferTabs: React.FC = () => {
               Connect with everyone in the global chat room. Share messages, files, and more in real-time.
             </p>
 
-            <Link to="/chat">
-              <Button size="lg" className="mt-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700">
-                Open Chat Room
-              </Button>
-            </Link>
+            <Button 
+              size="lg" 
+              onClick={handleOpenChat}
+              className="mt-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
+            >
+              Open Chat Room
+            </Button>
           </div>
         </TabsContent>
       </Tabs>
