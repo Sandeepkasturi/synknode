@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Send, Users, Paperclip, Image, ChevronRight, Info, MoreVertical, Search, Home, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Send, Users, Paperclip, Image, ChevronRight, Info, MoreVertical, Search, Home } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePeer } from '../context/PeerContext';
 import { useFileTransfer } from '../context/FileTransferContext';
@@ -43,21 +43,16 @@ export const ChatPage: React.FC = () => {
 
   // Periodically announce presence and scan for devices
   useEffect(() => {
-    // Immediate initial scan
-    if (username) {
-      announcePresence();
-      scanForDevices();
-    }
+    announcePresence();
+    scanForDevices();
     
     const interval = setInterval(() => {
-      if (username) {
-        scanForDevices();
-        announcePresence();
-      }
+      scanForDevices();
+      announcePresence();
     }, 10000);
     
     return () => clearInterval(interval);
-  }, [username]);
+  }, []);
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
@@ -109,13 +104,6 @@ export const ChatPage: React.FC = () => {
     toast.success('Files shared with everyone');
   };
 
-  // Force refresh chat from peers
-  const refreshChat = () => {
-    announcePresence();
-    scanForDevices();
-    toast.info("Refreshing chat and looking for new messages...");
-  };
-
   const broadcastMessages = chatMessages['broadcast'] || [];
   const onlineCount = onlineDevices.length;
 
@@ -157,14 +145,6 @@ export const ChatPage: React.FC = () => {
               variant="ghost" 
               className="text-white hover:bg-white/10" 
               size="sm"
-              onClick={refreshChat}
-            >
-              <RefreshCw className={`h-5 w-5 ${isScanning ? 'animate-spin' : ''}`} />
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="text-white hover:bg-white/10" 
-              size="sm"
               onClick={() => setShowOnlineUsers(true)}
             >
               <Users className="h-5 w-5" />
@@ -194,14 +174,6 @@ export const ChatPage: React.FC = () => {
                 </div>
                 <h3 className="text-xl font-semibold mb-2">No messages yet</h3>
                 <p className="text-gray-500">Be the first to send a message to everyone in this chat room!</p>
-                <Button
-                  variant="outline"
-                  onClick={refreshChat}
-                  className="mt-4"
-                >
-                  <RefreshCw className={`h-4 w-4 mr-2 ${isScanning ? 'animate-spin' : ''}`} />
-                  Refresh Chat
-                </Button>
               </motion.div>
             ) : (
               <AnimatePresence initial={false}>

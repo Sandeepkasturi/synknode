@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import Peer from "peerjs";
 import { toast } from "sonner";
@@ -17,29 +16,6 @@ export const usePeerState = () => {
     broadcast: []
   });
   const [isScanning, setIsScanning] = useState(false);
-
-  // Store messages in localStorage to persist them
-  useEffect(() => {
-    if (chatMessages.broadcast && chatMessages.broadcast.length > 0) {
-      localStorage.setItem('p2p_broadcast_messages', JSON.stringify(chatMessages.broadcast));
-    }
-  }, [chatMessages.broadcast]);
-
-  // Load messages from localStorage on init
-  useEffect(() => {
-    try {
-      const savedMessages = localStorage.getItem('p2p_broadcast_messages');
-      if (savedMessages) {
-        const parsedMessages = JSON.parse(savedMessages) as ChatMessage[];
-        setChatMessages(prev => ({
-          ...prev,
-          broadcast: parsedMessages
-        }));
-      }
-    } catch (err) {
-      console.error('Error loading saved messages:', err);
-    }
-  }, []);
 
   useEffect(() => {
     if (username) {
@@ -62,7 +38,6 @@ export const usePeerState = () => {
         
         conn.on('open', () => {
           conn.send(data);
-          console.log(`Sent data to peer ${device.id}`, data);
           
           setTimeout(() => {
             conn.close();
@@ -96,7 +71,6 @@ export const usePeerState = () => {
       ...(fileData && { fileData })
     };
 
-    // Add message to local state first
     setChatMessages(prev => {
       const existingMessages = prev['broadcast'] || [];
       return {
@@ -105,14 +79,12 @@ export const usePeerState = () => {
       };
     });
 
-    // Then broadcast to all peers
     broadcastData({
       type: 'broadcast-message',
       message
     });
 
-    console.log("Broadcast message sent to all users", message);
-    return message;
+    console.log("Broadcast message sent to all users");
   };
 
   const sendChatMessage = (receiverId: string | 'broadcast', content: string, type: 'text' | 'file' | 'token' = 'text', fileData?: any) => {
@@ -122,7 +94,8 @@ export const usePeerState = () => {
     }
 
     if (receiverId === 'broadcast') {
-      return broadcastMessage(content, type, fileData);
+      broadcastMessage(content, type, fileData);
+      return;
     }
 
     try {
@@ -154,18 +127,15 @@ export const usePeerState = () => {
         });
 
         toast.success(`Message sent to ${onlineDevices.find(d => d.id === receiverId)?.username || 'user'}`);
-        return message;
       });
 
       conn.on('error', (err) => {
         console.error('Error sending message:', err);
         toast.error("Failed to send message. User may be offline.");
-        return null;
       });
     } catch (err) {
       console.error('Error connecting to peer:', err);
       toast.error("Failed to connect to user");
-      return null;
     }
   };
 
@@ -205,12 +175,7 @@ export const usePeerState = () => {
 
       setTimeout(() => {
         if (username) {
-          // Register self in online devices for easier tracking
-          registerDevice(finalId, username);
-          // Then announce presence to others
           announcePresence();
-          // And scan for other devices
-          scanForDevices();
         }
       }, 1000);
     });
@@ -233,7 +198,6 @@ export const usePeerState = () => {
     newPeer.on('connection', (conn) => {
       console.log("New connection from", conn.peer);
       
-      // Handle incoming data
       conn.on('data', (data: unknown) => {
         console.log("Received data from peer:", conn.peer, data);
         
@@ -248,15 +212,6 @@ export const usePeerState = () => {
                 type: 'device-announcement',
                 username: username
               });
-              
-              // Send the new peer our message history
-              if (chatMessages.broadcast && chatMessages.broadcast.length > 0) {
-                console.log("Sending message history to new peer:", conn.peer);
-                conn.send({
-                  type: 'message-history',
-                  messages: chatMessages.broadcast
-                });
-              }
             } catch (err) {
               console.error("Error sending device announcement reply:", err);
             }
@@ -266,10 +221,6 @@ export const usePeerState = () => {
           
           setChatMessages(prev => {
             const existingMessages = prev[messageData.senderId] || [];
-            // Check if message already exists to avoid duplicates
-            if (existingMessages.some(m => m.id === messageData.id)) {
-              return prev;
-            }
             return {
               ...prev,
               [messageData.senderId]: [...existingMessages, messageData]
@@ -297,15 +248,6 @@ export const usePeerState = () => {
               if (exists) {
                 return prev;
               }
-              
-              // Add the message and re-broadcast to ensure everyone gets it
-              setTimeout(() => {
-                broadcastData({
-                  type: 'broadcast-message',
-                  message: messageData
-                });
-              }, 500);
-              
               return {
                 ...prev,
                 broadcast: [...existingMessages, messageData]
@@ -321,29 +263,6 @@ export const usePeerState = () => {
             } else if (messageData.type === 'token') {
               toast.info(`${senderName} shared a token with everyone: ${messageData.content}`);
             }
-          }
-        } else if (isMessageHistory(data)) {
-          const historyData = (data as any).messages as ChatMessage[];
-          console.log("Received message history:", historyData);
-          
-          if (Array.isArray(historyData) && historyData.length > 0) {
-            setChatMessages(prev => {
-              const existingMessages = prev['broadcast'] || [];
-              const newMessages = historyData.filter(
-                newMsg => !existingMessages.some(oldMsg => oldMsg.id === newMsg.id)
-              );
-              
-              if (newMessages.length === 0) {
-                return prev;
-              }
-              
-              return {
-                ...prev,
-                broadcast: [...existingMessages, ...newMessages].sort((a, b) => a.timestamp - b.timestamp)
-              };
-            });
-            
-            toast.info(`Received ${historyData.length} messages from chat history`);
           }
         }
       });
@@ -389,17 +308,6 @@ export const usePeerState = () => {
     );
   };
 
-  const isMessageHistory = (data: unknown): boolean => {
-    return (
-      typeof data === 'object' && 
-      data !== null && 
-      'type' in data && 
-      (data as any).type === 'message-history' && 
-      'messages' in data && 
-      Array.isArray((data as any).messages)
-    );
-  };
-
   const scanForDevices = () => {
     if (!peer || !username || !peerId) {
       console.log("Cannot scan for devices - missing peer, username, or peerId");
@@ -409,9 +317,8 @@ export const usePeerState = () => {
     setIsScanning(true);
     console.log("Scanning for devices as:", username);
 
-    const brokerPeers = ["ABCDE", "12345", "QWERT", "HELLO", "CHAT1", "WORLD"];
+    const brokerPeers = ["ABCDE", "12345", "QWERT"];
     
-    // Connect to broker peers first to increase chance of discovery
     brokerPeers.forEach(brokerPeerId => {
       if (brokerPeerId === peerId) return;
       
@@ -438,7 +345,6 @@ export const usePeerState = () => {
       }
     });
     
-    // Also connect to all known devices
     onlineDevices.forEach(device => {
       if (device.id === peerId) return;
       
@@ -479,8 +385,7 @@ export const usePeerState = () => {
     
     console.log("Announcing presence as:", username);
     
-    // Using more broker peers to increase chance of connection
-    const brokerPeers = ["ABCDE", "12345", "QWERT", "HELLO", "CHAT1", "WORLD"];
+    const brokerPeers = ["ABCDE", "12345", "QWERT"];
     
     brokerPeers.forEach(brokerPeerId => {
       if (brokerPeerId === peerId) return;
@@ -503,7 +408,6 @@ export const usePeerState = () => {
       }
     });
     
-    // Also announce to all known devices
     onlineDevices.forEach(device => {
       if (device.id === peerId) return;
       
@@ -527,6 +431,8 @@ export const usePeerState = () => {
   };
 
   const registerDevice = (deviceId: string, deviceUsername: string) => {
+    if (deviceId === peerId) return;
+    
     console.log("Registering device:", deviceId, deviceUsername);
     
     setOnlineDevices(prev => {
@@ -538,9 +444,7 @@ export const usePeerState = () => {
             : device
         );
       } else {
-        if (deviceId !== peerId) {
-          toast.info(`${deviceUsername} is now online`);
-        }
+        toast.info(`${deviceUsername} is now online`);
         return [...prev, { id: deviceId, username: deviceUsername, lastSeen: Date.now() }];
       }
     });
@@ -555,7 +459,6 @@ export const usePeerState = () => {
     }
   };
 
-  // Clean up old devices periodically
   useEffect(() => {
     const interval = setInterval(() => {
       if (peer && username) {
@@ -573,7 +476,6 @@ export const usePeerState = () => {
     return () => clearInterval(interval);
   }, [peer, username]);
 
-  // Create initial peer on component mount
   useEffect(() => {
     createNewPeer();
 
@@ -582,7 +484,6 @@ export const usePeerState = () => {
     };
   }, []);
 
-  // Periodically scan for devices when we have a username
   useEffect(() => {
     if (username) {
       scanForDevices();
@@ -590,9 +491,8 @@ export const usePeerState = () => {
       const intervalId = setInterval(() => {
         if (username && peer) {
           scanForDevices();
-          announcePresence();
         }
-      }, 15000); // Scan more frequently
+      }, 30000);
       
       return () => clearInterval(intervalId);
     }
