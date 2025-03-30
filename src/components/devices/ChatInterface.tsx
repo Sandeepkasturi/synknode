@@ -2,9 +2,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { usePeer } from '@/context/PeerContext';
-import type { ChatMessage } from '@/types/peer.types';
+import type { ChatMessage } from '@/types/peer.types'; // Changed to type-only import
 import { useFileTransfer } from '@/context/FileTransferContext';
-import { Send, Share2, FileUp, Copy, MessageSquare, RefreshCw, Users } from 'lucide-react';
+import { X, Send, Share2, FileUp, Copy, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -12,71 +12,69 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
-export const BroadcastChat: React.FC = () => {
+interface ChatInterfaceProps {
+  onClose: () => void;
+}
+
+export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose }) => {
   const { 
     peerId,
-    username,
+    activeChatPeer,
     chatMessages,
     onlineDevices,
-    broadcastMessage,
-    scanForDevices,
-    isScanning
+    sendChatMessage
   } = usePeer();
   
   const { currentFiles, handlePeerConnect } = useFileTransfer();
   const [newMessage, setNewMessage] = useState('');
   const [showFileShare, setShowFileShare] = useState(false);
+  const [shareFilesFor, setShareFilesFor] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Scroll to bottom of messages when new ones arrive
   useEffect(() => {
-    if (messagesEndRef.current) {
+    if (messagesEndRef.current && activeChatPeer) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [chatMessages]);
+  }, [chatMessages, activeChatPeer]);
 
   const handleSendMessage = () => {
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() || !activeChatPeer) return;
     
-    broadcastMessage(newMessage);
+    sendChatMessage(activeChatPeer, newMessage);
     setNewMessage('');
   };
 
   const handleShareToken = () => {
-    if (!peerId) return;
+    if (!activeChatPeer || !peerId) return;
     
-    broadcastMessage(peerId, 'token');
-    toast.success("Token shared with everyone");
+    // Send current peer ID as a token message
+    sendChatMessage(activeChatPeer, peerId, 'token');
+    toast.success("Token shared successfully");
   };
 
   const handleShareFiles = () => {
     setShowFileShare(true);
+    setShareFilesFor(activeChatPeer);
   };
 
   const confirmFileShare = () => {
-    if (currentFiles.length === 0) return;
+    if (!shareFilesFor || currentFiles.length === 0) return;
     
+    // Connect to peer for file transfer
+    handlePeerConnect(shareFilesFor);
+    
+    // Also send a message about the files
     const fileNames = currentFiles.map(f => f.name).join(', ');
-    
-    // Create file data for sharing
-    const fileDataToShare = currentFiles.map(f => ({ 
-      name: f.name, 
-      size: f.size, 
-      type: f.type 
-    }));
-    
-    broadcastMessage(
-      `I'm sharing files with everyone: ${fileNames}`, 
+    sendChatMessage(
+      shareFilesFor, 
+      `I'm sending you files: ${fileNames}`, 
       'file',
-      { 
-        name: fileNames,
-        size: currentFiles.reduce((total, f) => total + f.size, 0),
-        type: currentFiles.length > 1 ? 'multiple' : currentFiles[0].type,
-        files: fileDataToShare
-      }
+      { files: currentFiles.map(f => ({ name: f.name, size: f.size, type: f.type })) }
     );
     
     setShowFileShare(false);
-    toast.success("File information shared with everyone");
+    toast.success("File transfer initiated");
   };
 
   const copyTokenToClipboard = async (token: string) => {
@@ -88,27 +86,24 @@ export const BroadcastChat: React.FC = () => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setNewMessage(e.target.value);
-  };
-
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
   };
 
-  const messages = chatMessages['broadcast'] || [];
-  const onlineCount = onlineDevices.length;
+  const activeChat = activeChatPeer ? onlineDevices.find(d => d.id === activeChatPeer) : null;
+  const currentMessages = activeChatPeer ? chatMessages[activeChatPeer] || [] : [];
 
   return (
-    <div className="flex flex-col h-full bg-white/50 rounded-xl shadow-sm border border-white/60">
+    <div className="h-full flex flex-col">
+      {/* Chat header */}
       <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-indigo-50 to-purple-50">
         <div className="flex items-center gap-3">
-          <div className="bg-indigo-100 p-2 rounded-full">
-            <Users className="h-5 w-5 text-indigo-600" />
-          </div>
+          <Avatar className="h-9 w-9 bg-gradient-to-br from-indigo-400 to-purple-500">
+            <AvatarFallback>{activeChat ? getInitials(activeChat.username) : '?'}</AvatarFallback>
+          </Avatar>
           <div>
-            <h3 className="text-sm font-medium">Global Chat</h3>
-            <p className="text-xs text-gray-500">{onlineCount} {onlineCount === 1 ? 'user' : 'users'} online</p>
+            <h3 className="text-sm font-medium">{activeChat?.username || 'User'}</h3>
+            <p className="text-xs text-gray-500">ID: {activeChatPeer}</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -119,7 +114,7 @@ export const BroadcastChat: React.FC = () => {
             className="flex items-center gap-1 text-xs"
           >
             <Share2 className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Share Token</span>
+            Share Token
           </Button>
           <Button
             size="sm"
@@ -129,24 +124,23 @@ export const BroadcastChat: React.FC = () => {
             disabled={currentFiles.length === 0}
           >
             <FileUp className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Share Files</span>
+            Share Files
           </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={scanForDevices}
-            className="flex items-center gap-2 h-8 px-3"
-            disabled={isScanning}
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={onClose}
+            className="p-1 h-8 w-8"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${isScanning ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">{isScanning ? 'Scanning...' : 'Scan'}</span>
+            <X className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
+      {/* Chat messages */}
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
-          {messages.length === 0 ? (
+          {currentMessages.length === 0 ? (
             <div className="text-center py-10">
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -155,11 +149,11 @@ export const BroadcastChat: React.FC = () => {
               >
                 <MessageSquare className="mx-auto h-12 w-12 text-indigo-200" />
                 <p className="mt-2 text-sm text-gray-500">No messages yet</p>
-                <p className="text-xs text-gray-400">Be the first to send a message to everyone</p>
+                <p className="text-xs text-gray-400">Start the conversation by sending a message</p>
               </motion.div>
             </div>
           ) : (
-            messages.map((msg) => (
+            currentMessages.map((msg) => (
               <ChatMessage 
                 key={msg.id} 
                 message={msg} 
@@ -173,11 +167,12 @@ export const BroadcastChat: React.FC = () => {
         </div>
       </ScrollArea>
 
+      {/* Message input */}
       <div className="p-4 border-t bg-white">
         <div className="flex items-end gap-2">
           <Textarea
             value={newMessage}
-            onChange={handleInputChange}
+            onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type your message here..."
             className="min-h-[60px] resize-none"
             onKeyDown={(e) => {
@@ -197,10 +192,11 @@ export const BroadcastChat: React.FC = () => {
         </div>
       </div>
 
+      {/* File sharing dialog */}
       <Dialog open={showFileShare} onOpenChange={setShowFileShare}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Share Files With Everyone</DialogTitle>
+            <DialogTitle>Share Files</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4 py-4">
@@ -233,7 +229,7 @@ export const BroadcastChat: React.FC = () => {
               onClick={confirmFileShare}
               disabled={currentFiles.length === 0}
             >
-              Share With Everyone
+              Share Files
             </Button>
           </div>
         </DialogContent>
@@ -269,30 +265,13 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
           }
         `}
       >
-        {!isCurrentUser && (
-          <div className="text-xs font-medium mb-1 text-indigo-600">{message.senderName}</div>
-        )}
-        
         {message.type === 'text' && (
           <p className="text-sm">{message.content}</p>
         )}
         
         {message.type === 'file' && (
           <div className="flex flex-col">
-            <p className="text-sm mb-1">{message.content}</p>
-            {message.fileData && (
-              <div className="bg-white/60 rounded p-2 mt-1 text-xs">
-                <div className="font-medium">Shared Files:</div>
-                <div className="text-gray-600 mt-1">
-                  {message.fileData.name}
-                  {message.fileData.size && (
-                    <span className="ml-2 text-gray-500">
-                      ({(message.fileData.size / (1024 * 1024)).toFixed(2)} MB)
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
+            <p className="text-sm">{message.content}</p>
           </div>
         )}
         

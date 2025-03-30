@@ -6,7 +6,7 @@ export interface ChatMessage {
   id: string;
   senderId: string;
   senderName: string;
-  receiverId: string | 'broadcast';
+  receiverId: string;
   content: string;
   timestamp: number;
   type: 'text' | 'file' | 'token';
@@ -15,11 +15,6 @@ export interface ChatMessage {
     size: number;
     type: string;
     url?: string;
-    files?: Array<{
-      name: string;
-      size: number;
-      type: string;
-    }>;
   };
 }
 
@@ -32,7 +27,6 @@ export interface DeviceAnnouncementData {
 export interface OnlineDevice {
   id: string;
   username: string;
-  lastSeen?: number;
 }
 
 export interface PeerContextType {
@@ -44,12 +38,12 @@ export interface PeerContextType {
   onlineDevices: OnlineDevice[];
   createNewPeer: (customPeerId?: string) => void;
   destroyPeer: () => void;
-  scanForDevices: () => void;
-  isScanning: boolean;
-  registerDevice: (deviceId: string, deviceUsername: string) => void;
-  sendChatMessage: (receiverId: string | 'broadcast', content: string, type?: 'text' | 'file' | 'token', fileData?: any) => void;
-  chatMessages: Record<string, ChatMessage[]>; // Messages organized by peer ID
   announcePresence: () => void;
-  broadcastMessage: (content: string, type?: 'text' | 'file' | 'token', fileData?: any) => void;
-  broadcastData: (data: any) => void; // New method to broadcast any data to all peers
+  registerDevice: (deviceId: string, deviceUsername: string) => void;
+  sendChatMessage: (receiverId: string, content: string, type?: 'text' | 'file' | 'token', fileData?: any) => void;
+  chatMessages: Record<string, ChatMessage[]>; // Messages organized by peer ID
+  isChatOpen: boolean;
+  setIsChatOpen: (isOpen: boolean) => void;
+  activeChatPeer: string | null;
+  setActiveChatPeer: (peerId: string | null) => void;
 }

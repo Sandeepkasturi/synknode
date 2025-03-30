@@ -1,20 +1,8 @@
-
 #root {
-  max-width: 100%;
-  width: 100%;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 2rem;
   text-align: center;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-@media (min-width: 768px) {
-  #root {
-    max-width: 1280px;
-    padding: 2rem;
-  }
 }
 
 .logo {
@@ -51,43 +39,4 @@
 
 .read-the-docs {
   color: #888;
-}
-
-/* Mobile responsiveness fixes */
-@media (max-width: 640px) {
-  h1 {
-    font-size: 1.75rem !important;
-  }
-  
-  h2 {
-    font-size: 1.5rem !important;
-  }
-  
-  h3 {
-    font-size: 1.25rem !important;
-  }
-  
-  .container {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-  }
-}
-
-/* Better scrolling on mobile */
-html, body {
-  overscroll-behavior: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Chat interface specific styles */
-.chat-container {
-  max-height: calc(100vh - 100px);
-  height: calc(100vh - 100px);
-}
-
-@media (max-width: 768px) {
-  .chat-container {
-    max-height: calc(100vh - 80px);
-    height: calc(100vh - 80px);
-  }
 }
