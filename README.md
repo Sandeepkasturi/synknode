@@ -21,10 +21,10 @@ If you prefer working locally using your own development environment, follow the
 Ensure Node.js & npm are installed - install with nvm
 
 # Step 1: Clone the repository using the project’s Git URL.
-git clone https://github.com/Sandeepkasturi/sharetokenia
+git clone https://github.com/Sandeepkasturi/synknode
 
 # Step 2: Navigate into your project directory.
-cd sharetokenia
+cd synknode
 
 # Step 3: Install all required dependencies.
 npm i
