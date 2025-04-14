@@ -1,69 +1,76 @@
-# Welcome to your Lovable project
+Welcome to your SKAVTECH Project
 
-## Project info
+Project 
 
-**URL**: https://lovable.dev/projects/f87c562d-f92a-4724-8c02-4c64eb0dca16
+URL: https://synknode.vercel.app
 
-## How can I edit this code?
+How can I edit this code?
 
-There are several ways of editing your application.
+There are several ways to modify and contribute to your SKAVTECH application.
 
-**Use Lovable**
+Use SKAVTECH's Platform
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/f87c562d-f92a-4724-8c02-4c64eb0dca16) and start prompting.
+Visit the SKAVTECH Project and start building or editing through intuitive prompts.
 
-Changes made via Lovable will be committed automatically to this repo.
+Changes made via SKAVTECH will automatically be committed to this repository.
 
-**Use your preferred IDE**
+Use your preferred IDE
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+If you prefer working locally using your own development environment, follow the steps below:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Ensure Node.js & npm are installed - install with nvm
 
-Follow these steps:
+# Step 1: Clone the repository using the project’s Git URL.
+git clone https://github.com/Sandeepkasturi/sharetokenia
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Step 2: Navigate into your project directory.
+cd sharetokenia
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
+# Step 3: Install all required dependencies.
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Start the local development server.
 npm run dev
-```
 
-**Edit a file directly in GitHub**
+Edit Directly on GitHub
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Go to the relevant file(s) on GitHub.
 
-**Use GitHub Codespaces**
+Click the pencil icon to begin editing.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Commit the changes once you’re done.
 
-## What technologies are used for this project?
 
-This project is built with .
+Use GitHub Codespaces
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Open your repository.
 
-## How can I deploy this project?
+Click on "Code" (green button).
 
-Simply open [Lovable](https://lovable.dev/projects/f87c562d-f92a-4724-8c02-4c64eb0dca16) and click on Share -> Publish.
+Navigate to the "Codespaces" tab.
 
-## I want to use a custom domain - is that possible?
+Launch a new Codespace to start editing in a cloud IDE.
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+Save and commit your updates as needed.
+
+
+What technologies power this project?
+
+This SKAVTECH project is built using:
+
+Vite
+
+TypeScript
+
+React
+
+shadcn-ui
+
+Tailwind CSS
+
+PeerJs
+
+
+How can I deploy this project?
+
+To deploy, open vercel, then go to Project → import third party github repo. → Paste the repo link.
