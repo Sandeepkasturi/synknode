@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { AirShareProvider } from '../context/AirShareContext';
 import { ConnectionCode } from '../components/airshare/ConnectionCode';
@@ -6,10 +7,12 @@ import { FilePreview } from '../components/airshare/FilePreview';
 import { P2PConnectionStatus } from '../components/airshare/P2PConnectionStatus';
 import { useAirShare } from '../context/AirShareContext';
 import { usePeer } from '../context/PeerContext';
+import { PeerProvider } from '../context/PeerContext';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 
 // Inner content component that uses the context
 const AirShareContent: React.FC = () => {
@@ -89,11 +92,13 @@ const AirShareContent: React.FC = () => {
   );
 };
 
-// Wrapper component with provider
+// Wrapper component with providers
 const AirShare: React.FC = () => (
-  <AirShareProvider>
-    <AirShareContent />
-  </AirShareProvider>
+  <PeerProvider>
+    <AirShareProvider>
+      <AirShareContent />
+    </AirShareProvider>
+  </PeerProvider>
 );
 
 export default AirShare;
