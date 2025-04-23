@@ -7,7 +7,6 @@ import { FilePreview } from '../components/airshare/FilePreview';
 import { P2PConnectionStatus } from '../components/airshare/P2PConnectionStatus';
 import { useAirShare } from '../context/AirShareContext';
 import { usePeer } from '../context/PeerContext';
-import { PeerProvider } from '../context/PeerContext';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -92,13 +91,11 @@ const AirShareContent: React.FC = () => {
   );
 };
 
-// Wrapper component with providers
+// Wrapper component with provider
 const AirShare: React.FC = () => (
-  <PeerProvider>
-    <AirShareProvider>
-      <AirShareContent />
-    </AirShareProvider>
-  </PeerProvider>
+  <AirShareProvider>
+    <AirShareContent />
+  </AirShareProvider>
 );
 
 export default AirShare;
