@@ -1,5 +1,6 @@
 
-import { FileSystemEntry } from 'react-dropzone';
+// Remove react-dropzone import
+import React from 'react';
 
 // Transfer status type
 export interface TransferStatus {
