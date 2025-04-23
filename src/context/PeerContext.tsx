@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, ReactNode } from "react";
+import React, { createContext, useContext, ReactNode, useEffect } from "react";
 import { usePeerState } from "../hooks/usePeerState";
 import { PeerContextType } from "../types/peer.types";
 
@@ -22,6 +22,13 @@ interface PeerProviderProps {
 export const PeerProvider: React.FC<PeerProviderProps> = ({ children }) => {
   // Use the hook to get all the peer state and methods
   const peerState = usePeerState();
+
+  // Establish P2P connection when the provider mounts
+  useEffect(() => {
+    if (!peerState.isConnected) {
+      peerState.createNewPeer();
+    }
+  }, []);
 
   return (
     <PeerContext.Provider value={peerState}>
