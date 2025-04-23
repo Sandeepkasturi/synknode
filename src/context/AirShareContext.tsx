@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { usePeer } from "./PeerContext";
 import { toast } from "sonner";
@@ -46,10 +45,16 @@ export const AirShareProvider: React.FC<AirShareProviderProps> = ({ children }) 
   const [isReceivingFile, setIsReceivingFile] = useState(false);
   
   // Get peer functionality
-  const { peer, createNewPeer, peerId, destroyPeer } = usePeer();
+  const { peer, createNewPeer, peerId, destroyPeer, isConnected: isPeerConnected } = usePeer();
 
   // Generate new 6-digit connection code
   const generateNewCode = () => {
+    // Only generate code if connected to P2P network
+    if (!isPeerConnected) {
+      toast.error("Please wait for P2P network connection");
+      return;
+    }
+
     // Destroy any existing connection
     destroyPeer();
     
@@ -72,6 +77,12 @@ export const AirShareProvider: React.FC<AirShareProviderProps> = ({ children }) 
 
   // Connect to another peer using their code
   const connectWithCode = async (code: string): Promise<boolean> => {
+    // Ensure P2P connection is established first
+    if (!isPeerConnected) {
+      toast.error("Please wait for P2P network connection");
+      return false;
+    }
+
     // Validate the code format
     if (!validateCode(code)) {
       toast.error("Please enter a valid 6-digit code");

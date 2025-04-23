@@ -1,18 +1,29 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { AirShareProvider } from '../context/AirShareContext';
 import { ConnectionCode } from '../components/airshare/ConnectionCode';
 import { FileDropZone } from '../components/airshare/FileDropZone';
 import { FilePreview } from '../components/airshare/FilePreview';
+import { P2PConnectionStatus } from '../components/airshare/P2PConnectionStatus';
 import { useAirShare } from '../context/AirShareContext';
+import { usePeer } from '../context/PeerContext';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 
 // Inner content component that uses the context
 const AirShareContent: React.FC = () => {
-  const { isConnected } = useAirShare();
+  const { isConnected: isAirShareConnected } = useAirShare();
+  const { isConnected: isPeerConnected, createNewPeer } = usePeer();
+
+  // Ensure P2P connection is established when component mounts
+  useEffect(() => {
+    if (!isPeerConnected) {
+      createNewPeer();
+    }
+  }, [isPeerConnected, createNewPeer]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
@@ -41,17 +52,25 @@ const AirShareContent: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
+        >
+          <P2PConnectionStatus />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
           className="mb-10"
         >
           <ConnectionCode />
         </motion.div>
 
-        {isConnected && (
+        {isAirShareConnected && (
           <>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.3 }}
             >
               <FileDropZone />
             </motion.div>
@@ -59,7 +78,7 @@ const AirShareContent: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.4 }}
               className="mb-12"
             >
               <h2 className="text-2xl font-semibold mb-4 text-center">File Preview</h2>
