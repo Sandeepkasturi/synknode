@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { usePeer } from "./PeerContext";
 import { toast } from "sonner";
-import { generateSixDigitCode } from "../utils/codeGenerator";
+import { generateSixDigitCode, validateCode } from "../utils/codeGenerator";
 
 interface AirShareContextType {
   // Connection state
@@ -10,6 +10,7 @@ interface AirShareContextType {
   isConnected: boolean;
   connectedPeerId: string | null;
   isHost: boolean;
+  isConnecting: boolean;
   
   // File preview state
   previewFiles: File[];
@@ -37,6 +38,7 @@ export const AirShareProvider: React.FC<AirShareProviderProps> = ({ children }) 
   const [isConnected, setIsConnected] = useState(false);
   const [connectedPeerId, setConnectedPeerId] = useState<string | null>(null);
   const [isHost, setIsHost] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   
   // File preview state
   const [previewFiles, setPreviewFiles] = useState<File[]>([]);
@@ -44,18 +46,25 @@ export const AirShareProvider: React.FC<AirShareProviderProps> = ({ children }) 
   const [isReceivingFile, setIsReceivingFile] = useState(false);
   
   // Get peer functionality
-  const { peer, createNewPeer, peerId } = usePeer();
+  const { peer, createNewPeer, peerId, destroyPeer } = usePeer();
 
   // Generate new 6-digit connection code
   const generateNewCode = () => {
+    // Destroy any existing connection
+    destroyPeer();
+    
+    // Generate a new code
     const newCode = generateSixDigitCode();
+    
+    // Create new peer with the code as ID
+    createNewPeer(newCode);
+    
     setConnectCode(newCode);
     setIsHost(true);
     
-    if (peer) {
-      // Use the code as our peer ID, making it easy for others to connect
-      createNewPeer(newCode);
-    }
+    // Reset connection state
+    setIsConnected(false);
+    setConnectedPeerId(null);
     
     toast.success(`Your connection code is: ${newCode}`);
     return newCode;
@@ -63,38 +72,61 @@ export const AirShareProvider: React.FC<AirShareProviderProps> = ({ children }) 
 
   // Connect to another peer using their code
   const connectWithCode = async (code: string): Promise<boolean> => {
-    if (!peer) {
-      toast.error("Connection not ready. Please try again.");
+    // Validate the code format
+    if (!validateCode(code)) {
+      toast.error("Please enter a valid 6-digit code");
       return false;
     }
     
+    // Set connecting state
+    setIsConnecting(true);
+    
     try {
-      // First ensure we have our own peer ID
-      if (!peerId) {
-        await new Promise((resolve) => {
-          createNewPeer();
-          // Wait for peer creation
-          setTimeout(resolve, 1000);
-        });
+      // Destroy any previous peer connection
+      destroyPeer();
+      
+      // Create a new peer for this connection
+      await createNewPeer();
+      
+      // Wait for peer to be initialized
+      let waitAttempts = 0;
+      while (!peer && waitAttempts < 10) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        waitAttempts++;
       }
       
-      // The connection code is the remote peer's ID
+      // If peer creation failed
+      if (!peer) {
+        toast.error("Connection initialization failed. Please try again.");
+        setIsConnecting(false);
+        return false;
+      }
+      
+      // Connect to the remote peer using the code
+      console.log("Connecting to remote peer with ID:", code);
       const conn = peer.connect(code, {
         reliable: true,
         serialization: 'binary'
       });
       
-      return new Promise((resolve) => {
-        const timeout = setTimeout(() => {
+      // Set up timeout for connection attempt
+      const connectionTimeout = setTimeout(() => {
+        if (conn.open === false) {
           toast.error("Connection timed out. Please check the code and try again.");
-          resolve(false);
-        }, 10000);
-        
+          setIsConnecting(false);
+        }
+      }, 10000);
+      
+      // Return a promise that resolves when connection is established
+      return new Promise((resolve) => {
         conn.on('open', () => {
-          clearTimeout(timeout);
+          clearTimeout(connectionTimeout);
+          
+          console.log("Connection established with peer:", code);
           setConnectedPeerId(code);
           setIsConnected(true);
           setIsHost(false);
+          setIsConnecting(false);
           
           // Send our info to the host
           conn.send({
@@ -110,15 +142,24 @@ export const AirShareProvider: React.FC<AirShareProviderProps> = ({ children }) 
         });
         
         conn.on('error', (err) => {
-          clearTimeout(timeout);
+          clearTimeout(connectionTimeout);
           console.error("Connection error:", err);
           toast.error("Failed to connect. Please check the code and try again.");
+          setIsConnecting(false);
           resolve(false);
         });
+        
+        conn.on('close', () => {
+          console.log("Connection closed with peer:", code);
+          setIsConnected(false);
+          setConnectedPeerId(null);
+        });
       });
+      
     } catch (error) {
       console.error("Connection error:", error);
       toast.error("Failed to connect. Please check the code and try again.");
+      setIsConnecting(false);
       return false;
     }
   };
@@ -157,64 +198,86 @@ export const AirShareProvider: React.FC<AirShareProviderProps> = ({ children }) 
     if (!peer) return;
     
     try {
-      const conn = peer.connect(remotePeerId);
+      // Check if we're already connected to this peer
+      let conn = peer.connections[remotePeerId]?.[0];
       
-      conn.on('open', async () => {
-        // Send metadata first
-        const fileMetadata = files.map(file => ({
-          name: file.name,
-          type: file.type,
-          size: file.size
-        }));
+      // If not connected, establish a new connection
+      if (!conn) {
+        conn = peer.connect(remotePeerId);
         
-        conn.send({
-          type: 'file-preview-start',
-          files: fileMetadata
-        });
-        
-        // Process and send each file
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          const reader = new FileReader();
+        // Wait for connection to open
+        await new Promise<void>((resolve, reject) => {
+          const timeout = setTimeout(() => reject(new Error("Connection timeout")), 10000);
           
-          // Read file as data URL for preview
-          await new Promise<void>((resolve) => {
-            reader.onloadend = () => {
-              if (reader.result) {
-                conn.send({
-                  type: 'file-preview-data',
-                  index: i,
-                  name: file.name,
-                  data: reader.result,
-                  mimeType: file.type
-                });
-                resolve();
-              }
-            };
-            reader.readAsDataURL(file);
+          conn.on('open', () => {
+            clearTimeout(timeout);
+            resolve();
           });
-        }
-        
-        conn.send({
-          type: 'file-preview-complete'
+          
+          conn.on('error', (err) => {
+            clearTimeout(timeout);
+            reject(err);
+          });
         });
-        
-        toast.success("Files shared for preview!");
+      }
+      
+      // Send metadata first
+      const fileMetadata = files.map(file => ({
+        name: file.name,
+        type: file.type,
+        size: file.size
+      }));
+      
+      conn.send({
+        type: 'file-preview-start',
+        files: fileMetadata
       });
       
-      conn.on('error', (error) => {
-        console.error("Error sending files:", error);
-        toast.error("Failed to send files for preview");
+      toast.success(`Starting file preview with ${remotePeerId}...`);
+      
+      // Process and send each file
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+        
+        // Read file as data URL for preview
+        await new Promise<void>((resolve) => {
+          reader.onloadend = () => {
+            if (reader.result) {
+              conn.send({
+                type: 'file-preview-data',
+                index: i,
+                name: file.name,
+                data: reader.result,
+                mimeType: file.type
+              });
+              resolve();
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+      
+      conn.send({
+        type: 'file-preview-complete'
       });
+      
+      toast.success("Files shared for preview!");
+      
     } catch (error) {
-      console.error("Error connecting to peer:", error);
-      toast.error("Failed to connect to the other device");
+      console.error("Error sending files:", error);
+      toast.error("Failed to send files for preview");
     }
   };
   
   // Set up listeners for incoming data
   const setupConnectionListeners = (conn: any) => {
+    // Remove any existing data listeners to prevent duplicates
+    conn.removeAllListeners('data');
+    
     conn.on('data', (data: any) => {
+      console.log("Received data:", data.type);
+      
       if (data.type === 'connected') {
         // Another peer connected to us
         setConnectedPeerId(data.peerId);
@@ -256,9 +319,17 @@ export const AirShareProvider: React.FC<AirShareProviderProps> = ({ children }) 
         toast.success("Files received for preview!");
       }
     });
+    
+    // Set up disconnection handler
+    conn.on('close', () => {
+      console.log("Connection closed");
+      setIsConnected(false);
+      setConnectedPeerId(null);
+      toast.info("Device disconnected");
+    });
   };
   
-  // Set up peer connection listener
+  // Set up peer connection listener when acting as host
   useEffect(() => {
     if (peer && connectCode) {
       // Remove any existing listeners to prevent duplicates
@@ -269,6 +340,8 @@ export const AirShareProvider: React.FC<AirShareProviderProps> = ({ children }) 
         console.log('New AirShare connection received from:', conn.peer);
         
         conn.on('open', () => {
+          console.log("Connection opened with:", conn.peer);
+          
           // Setup listeners for this connection
           setupConnectionListeners(conn);
         });
@@ -283,11 +356,21 @@ export const AirShareProvider: React.FC<AirShareProviderProps> = ({ children }) 
     };
   }, [previewUrls]);
 
+  // Clean up connections on unmount
+  useEffect(() => {
+    return () => {
+      if (peer) {
+        destroyPeer();
+      }
+    };
+  }, []);
+
   const value = {
     connectCode,
     isConnected,
     connectedPeerId,
     isHost,
+    isConnecting,
     previewFiles,
     previewUrls,
     isReceivingFile,

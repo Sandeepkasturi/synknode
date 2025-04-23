@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RefreshCcw, Link } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,11 +13,17 @@ import {
 import { Input } from '@/components/ui/input';
 import { useAirShare } from '@/context/AirShareContext';
 import { toast } from 'sonner';
+import { validateCode } from '@/utils/codeGenerator';
 
 export const ConnectionCode: React.FC = () => {
-  const { connectCode, generateNewCode, connectWithCode, isConnected } = useAirShare();
+  const { connectCode, generateNewCode, connectWithCode, isConnected, isConnecting } = useAirShare();
   const [inputCode, setInputCode] = useState('');
-  const [isConnecting, setIsConnecting] = useState(false);
+  const [isValidInput, setIsValidInput] = useState(false);
+
+  // Validate input code on change
+  useEffect(() => {
+    setIsValidInput(validateCode(inputCode));
+  }, [inputCode]);
 
   // Handle code generation
   const handleGenerateCode = () => {
@@ -26,15 +32,12 @@ export const ConnectionCode: React.FC = () => {
 
   // Handle connection with entered code
   const handleConnect = async () => {
-    if (!inputCode || inputCode.length !== 6) {
+    if (!isValidInput) {
       toast.error("Please enter a valid 6-digit code");
       return;
     }
 
-    setIsConnecting(true);
     const success = await connectWithCode(inputCode);
-    setIsConnecting(false);
-
     if (success) {
       setInputCode('');
     }
@@ -112,9 +115,9 @@ export const ConnectionCode: React.FC = () => {
               />
               <Button 
                 onClick={handleConnect} 
-                disabled={isConnecting || inputCode.length !== 6}
+                disabled={isConnecting || !isValidInput}
               >
-                Connect
+                {isConnecting ? 'Connecting...' : 'Connect'}
               </Button>
             </div>
           </div>
