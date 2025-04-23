@@ -1,53 +1,81 @@
 
 import React from 'react';
-import { Upload, Shield, Share2, Zap } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Smartphone, Wifi, ArrowRight } from 'lucide-react';
 
 export const HeroSection: React.FC = () => {
   return (
-    <div className="text-center mb-16 space-y-6 animate-fade-in">
-      <div className="relative mx-auto mb-6">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-brand-purple/30 via-transparent to-brand-pink/30 blur-3xl rounded-full opacity-70" />
-        <div className="relative">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4 rainbow-text">
-            SynkNode
-          </h1>
-          <span className="text-lg text-brand-purple/90 font-medium flex items-center justify-center gap-1.5">
-            <Zap size={18} className="text-brand-amber" /> 
-            Secure P2P File Transfer
-          </span>
-        </div>
-      </div>
+    <div className="text-center py-12 px-4">
+      <motion.h1 
+        className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        SynkNode
+      </motion.h1>
       
-      <p className="text-xl text-gray-700 max-w-2xl mx-auto">
-        Share files securely with peers across any network with zero configuration.
-      </p>
+      <motion.p 
+        className="mt-4 text-xl text-gray-600 max-w-2xl mx-auto"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        Transfer files securely between devices without uploading to the cloud.
+        Your data stays with you, not on servers.
+      </motion.p>
       
-      {/* Features Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-        <div className="glass-card rounded-xl p-6 hover:scale-105 transition-all duration-300 shadow-md hover:shadow-brand-purple/20">
-          <div className="bg-gradient-to-br from-brand-purple to-brand-indigo rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-4">
-            <Upload className="w-7 h-7 text-white" />
+      <motion.div 
+        className="mt-8 space-x-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <Button className="bg-indigo-600 hover:bg-indigo-700">
+          <Wifi className="mr-2 h-4 w-4" /> 
+          Share Now
+        </Button>
+        
+        <Link to="/airshare">
+          <Button variant="outline" className="border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700">
+            Try AirShare <ArrowRight className="ml-2 h-4 w-4" /> 
+          </Button>
+        </Link>
+      </motion.div>
+      
+      <motion.div 
+        className="mt-12 flex justify-center gap-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.3 }}
+      >
+        <div className="flex flex-col items-center">
+          <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Easy Sharing</h3>
-          <p className="text-gray-600">Multiple file uploads with drag & drop simplicity</p>
+          <p className="mt-2 font-medium">End-to-End Encrypted</p>
         </div>
         
-        <div className="glass-card rounded-xl p-6 hover:scale-105 transition-all duration-300 shadow-md hover:shadow-brand-teal/20">
-          <div className="bg-gradient-to-br from-brand-blue to-brand-teal rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-4">
-            <Shield className="w-7 h-7 text-white" />
+        <div className="flex flex-col items-center">
+          <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
+            <Smartphone className="h-6 w-6 text-indigo-600" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Secure Transfer</h3>
-          <p className="text-gray-600">End-to-end encryption with permission controls</p>
+          <p className="mt-2 font-medium">Device to Device</p>
         </div>
         
-        <div className="glass-card rounded-xl p-6 hover:scale-105 transition-all duration-300 shadow-md hover:shadow-brand-orange/20">
-          <div className="bg-gradient-to-br from-brand-amber to-brand-orange rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-4">
-            <Share2 className="w-7 h-7 text-white" />
+        <div className="flex flex-col items-center">
+          <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Cross-Network</h3>
-          <p className="text-gray-600">Works across different networks and devices</p>
+          <p className="mt-2 font-medium">Lightning Fast</p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
