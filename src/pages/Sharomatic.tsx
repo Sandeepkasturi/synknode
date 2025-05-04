@@ -111,7 +111,7 @@ const Sharomatic: React.FC = () => {
     return () => {
       clearFiles();
     };
-  }, []);
+  }, [clearFiles]);
 
   const renderFilePreview = () => {
     if (!presentationUrl) return null;
