@@ -23,7 +23,15 @@ const Sharomatic: React.FC = () => {
 
   // Get peer functionality from context
   const { peer, peerId, isConnected: isPeerConnected } = usePeer();
-  const { generateNewCode, connectCode, connectWithCode, previewFiles, previewUrls, uploadFiles, clearFiles } = useAirShare();
+  const { 
+    generateNewCode, 
+    connectCode, 
+    connectWithCode, 
+    previewFiles, 
+    previewUrls, 
+    uploadFiles, 
+    clearFiles 
+  } = useAirShare();
 
   // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,6 +64,7 @@ const Sharomatic: React.FC = () => {
       
       if (success) {
         setActiveTab('view');
+        toast.success("Connected successfully! Loading presentation...");
       } else {
         toast.error("Invalid token or presentation has expired");
       }
@@ -106,12 +115,14 @@ const Sharomatic: React.FC = () => {
     }
   }, [previewFiles, previewUrls]);
 
-  // Clean up URLs when component unmounts
+  // Clean up URLs when component unmounts - FIX: Add proper dependency array to prevent infinite updates
   useEffect(() => {
     return () => {
-      clearFiles();
+      if (clearFiles) {
+        clearFiles();
+      }
     };
-  }, [clearFiles]);
+  }, []); // Intentionally empty array to run only on mount/unmount
 
   const renderFilePreview = () => {
     if (!presentationUrl) return null;
@@ -308,8 +319,9 @@ const Sharomatic: React.FC = () => {
                       <Button 
                         onClick={handleViewPresentation}
                         disabled={viewToken.length !== 6 || isLoading}
+                        className="flex items-center gap-2"
                       >
-                        {isLoading ? 'Connecting...' : 'View Presentation'}
+                        {isLoading ? 'Connecting...' : 'See Presentation'}
                       </Button>
                     </div>
                   </CardContent>
