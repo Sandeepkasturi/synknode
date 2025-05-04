@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AirShare from "./pages/AirShare";
+import Sharomatic from "./pages/Sharomatic";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/airshare" element={<AirShare />} />
+          <Route path="/sharomatic" element={<Sharomatic />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
