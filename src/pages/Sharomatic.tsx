@@ -8,15 +8,22 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { validateCode } from '../utils/codeGenerator';
+import { usePeer } from '../context/PeerContext';
+import { useAirShare } from '../context/AirShareContext';
 
 const Sharomatic: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
-  const [presentationToken, setPresentationToken] = useState<string>('');
   const [viewToken, setViewToken] = useState<string>('');
   const [presentationUrl, setPresentationUrl] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [activeTab, setActiveTab] = useState('share');
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [fileType, setFileType] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Get peer functionality from context
+  const { peer, peerId, isConnected: isPeerConnected } = usePeer();
+  const { generateNewCode, connectCode, connectWithCode, previewFiles, previewUrls, uploadFiles, clearFiles } = useAirShare();
 
   // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,50 +31,39 @@ const Sharomatic: React.FC = () => {
       const selectedFile = e.target.files[0];
       setFile(selectedFile);
       
-      // Generate a random 6-character token
-      const token = generateToken();
-      setPresentationToken(token);
+      // Generate a connection code for sharing
+      generateNewCode();
       
-      // Create a URL for the file
-      const fileUrl = URL.createObjectURL(selectedFile);
-      setPresentationUrl(fileUrl);
+      // Upload file for sharing
+      uploadFiles([selectedFile]);
       
-      // Store in localStorage to simulate a database
-      localStorage.setItem(token, fileUrl);
-      localStorage.setItem(`${token}_name`, selectedFile.name);
-      localStorage.setItem(`${token}_type`, selectedFile.type);
-      
-      toast.success(`File ready to present! Your token is: ${token}`);
+      toast.success(`File ready to present!`);
     }
   };
 
-  // Generate a random 6-character token
-  const generateToken = (): string => {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Avoiding confusing characters like 0/O and 1/I
-    let token = '';
-    for (let i = 0; i < 6; i++) {
-      token += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return token;
-  };
-
-  // View presentation with token
-  const handleViewPresentation = () => {
-    if (!validateCode(viewToken)) {
-      toast.error("Please enter a valid 6-character token");
+  // Connect to presenter using the token
+  const handleViewPresentation = async () => {
+    if (!viewToken) {
+      toast.error("Please enter a valid 6-digit token");
       return;
     }
-
-    // Get the file URL from localStorage
-    const fileUrl = localStorage.getItem(viewToken);
-    const fileName = localStorage.getItem(`${viewToken}_name`);
     
-    if (fileUrl) {
-      setPresentationUrl(fileUrl);
-      toast.success(`Now presenting: ${fileName || "Shared content"}`);
-      setActiveTab('view');
-    } else {
-      toast.error("Invalid token or presentation has expired");
+    setIsLoading(true);
+    
+    try {
+      // Connect to the peer with the provided token
+      const success = await connectWithCode(viewToken);
+      
+      if (success) {
+        setActiveTab('view');
+      } else {
+        toast.error("Invalid token or presentation has expired");
+      }
+    } catch (error) {
+      console.error("Connection error:", error);
+      toast.error("Connection error occurred");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -98,41 +94,48 @@ const Sharomatic: React.FC = () => {
     };
   }, []);
 
+  // Monitor preview files from AirShare to show the presentation
+  useEffect(() => {
+    if (previewFiles.length > 0 && previewUrls.length > 0) {
+      const currentFile = previewFiles[0];
+      const currentUrl = previewUrls[0];
+      
+      setFileName(currentFile.name);
+      setFileType(currentFile.type);
+      setPresentationUrl(currentUrl);
+    }
+  }, [previewFiles, previewUrls]);
+
   // Clean up URLs when component unmounts
   useEffect(() => {
     return () => {
-      if (presentationUrl) {
-        URL.revokeObjectURL(presentationUrl);
-      }
+      clearFiles();
     };
-  }, [presentationUrl]);
+  }, []);
 
   const renderFilePreview = () => {
     if (!presentationUrl) return null;
 
-    const fileType = file?.type || localStorage.getItem(`${viewToken}_type`) || '';
-    const fileName = file?.name || localStorage.getItem(`${viewToken}_name`) || 'Shared file';
-
-    if (fileType.includes('pdf')) {
+    if (fileType && fileType.includes('pdf')) {
       return (
         <object
           data={presentationUrl}
           type="application/pdf"
           className="w-full h-[70vh] border rounded-lg"
-          title={fileName}
+          title={fileName || 'PDF Presentation'}
         >
           <p>Unable to display PDF. <a href={presentationUrl} target="_blank" rel="noopener noreferrer">Download</a> instead.</p>
         </object>
       );
-    } else if (fileType.includes('image')) {
+    } else if (fileType && fileType.includes('image')) {
       return (
         <img 
           src={presentationUrl} 
-          alt={fileName}
+          alt={fileName || 'Image Presentation'}
           className="max-w-full max-h-[70vh] mx-auto object-contain border rounded-lg"
         />
       );
-    } else if (fileType.includes('video')) {
+    } else if (fileType && fileType.includes('video')) {
       return (
         <video 
           src={presentationUrl} 
@@ -142,12 +145,12 @@ const Sharomatic: React.FC = () => {
           Your browser does not support the video tag.
         </video>
       );
-    } else if (fileType.includes('presentation') || fileType.includes('powerpoint') || fileType.includes('pptx')) {
+    } else if (fileType && (fileType.includes('presentation') || fileType.includes('powerpoint') || fileType.includes('pptx'))) {
       return (
         <div className="w-full h-[70vh] flex items-center justify-center bg-gray-100 rounded-lg">
           <div className="text-center p-8">
             <FileText className="w-16 h-16 mx-auto mb-4 text-indigo-500" />
-            <h3 className="text-xl font-semibold mb-2">{fileName}</h3>
+            <h3 className="text-xl font-semibold mb-2">{fileName || 'Presentation'}</h3>
             <p className="text-gray-500 mb-4">PowerPoint presentations require Google Slides or Office Online for viewing</p>
             <a 
               href={presentationUrl} 
@@ -164,7 +167,7 @@ const Sharomatic: React.FC = () => {
         <div className="w-full h-[70vh] flex items-center justify-center bg-gray-100 rounded-lg">
           <div className="text-center p-8">
             <FileImage className="w-16 h-16 mx-auto mb-4 text-indigo-500" />
-            <h3 className="text-xl font-semibold mb-2">{fileName}</h3>
+            <h3 className="text-xl font-semibold mb-2">{fileName || 'File'}</h3>
             <p className="text-gray-500 mb-4">This file type cannot be previewed directly</p>
             <a 
               href={presentationUrl} 
@@ -244,13 +247,13 @@ const Sharomatic: React.FC = () => {
                     </div>
                   </div>
 
-                  {presentationToken && (
+                  {connectCode && (
                     <div className="mt-8 p-4 bg-indigo-50 rounded-lg">
                       <h3 className="text-center font-medium text-lg text-indigo-800 mb-3">
                         Your Presentation Token
                       </h3>
                       <div className="flex justify-center items-center gap-4 mb-3">
-                        {presentationToken.split('').map((char, i) => (
+                        {connectCode.split('').map((char, i) => (
                           <div
                             key={i}
                             className="w-12 h-12 flex items-center justify-center rounded-lg bg-white border-2 border-indigo-300 text-xl font-bold text-indigo-800"
@@ -265,7 +268,7 @@ const Sharomatic: React.FC = () => {
                       <div className="mt-4 flex justify-center">
                         <Button
                           onClick={() => {
-                            navigator.clipboard.writeText(presentationToken);
+                            navigator.clipboard.writeText(connectCode);
                             toast.success("Token copied to clipboard!");
                           }}
                           className="flex items-center gap-2"
@@ -304,9 +307,9 @@ const Sharomatic: React.FC = () => {
                       </div>
                       <Button 
                         onClick={handleViewPresentation}
-                        disabled={viewToken.length !== 6}
+                        disabled={viewToken.length !== 6 || isLoading}
                       >
-                        View Presentation
+                        {isLoading ? 'Connecting...' : 'View Presentation'}
                       </Button>
                     </div>
                   </CardContent>
