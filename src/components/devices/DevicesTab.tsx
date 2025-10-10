@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePeer } from '@/context/PeerContext';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,6 +18,23 @@ export const DevicesTab: React.FC = () => {
   } = usePeer();
 
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isAutoScanning, setIsAutoScanning] = useState(true);
+
+  // Auto-scan for devices every 5 seconds
+  useEffect(() => {
+    if (isAutoScanning && !isChatOpen) {
+      const interval = setInterval(() => {
+        announcePresence();
+      }, 5000);
+
+      return () => clearInterval(interval);
+    }
+  }, [isAutoScanning, isChatOpen, announcePresence]);
+
+  // Initial scan on mount
+  useEffect(() => {
+    announcePresence();
+  }, [announcePresence]);
 
   const handleConnect = (deviceId: string) => {
     setActiveChatPeer(deviceId);
@@ -33,9 +50,8 @@ export const DevicesTab: React.FC = () => {
   const refreshDevices = () => {
     setIsRefreshing(true);
     announcePresence();
-    toast.info("Scanning for devices...");
+    toast.info("Scanning for nearby devices...");
     
-    // Reset refreshing state after animation completes
     setTimeout(() => setIsRefreshing(false), 1000);
   };
 
@@ -47,19 +63,27 @@ export const DevicesTab: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="space-y-6 animate-fade-up"
+          className="space-y-6"
         >
-          <div className="text-center mb-6">
-            <h2 className="text-xl font-medium text-gray-900">Available Devices</h2>
-            <p className="text-sm text-gray-500 mt-1">
-              Connect to another device to chat and share files
+          <motion.div 
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="text-center mb-6"
+          >
+            <h2 className="text-2xl font-semibold text-foreground mb-2">
+              Nearby Devices
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Automatically discovering devices on your network
             </p>
-          </div>
+          </motion.div>
 
           <DevicesList 
             handleConnect={handleConnect}
             isRefreshing={isRefreshing}
             refreshDevices={refreshDevices}
+            isAutoScanning={isAutoScanning}
           />
           
           <DeviceStatusBadge />

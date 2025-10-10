@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { usePeer } from '@/context/PeerContext';
 import { useFileTransfer } from '@/context/FileTransferContext';
-import { Laptop, User, Share2, RefreshCw, Users, Shield, MessageSquare } from 'lucide-react';
+import { Laptop, Smartphone, Tablet, Share2, RefreshCw, Users, Wifi, MessageSquare, Radio } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 
 // Animation variants
 const containerVariants = {
@@ -28,12 +29,14 @@ interface DevicesListProps {
   handleConnect: (deviceId: string) => void;
   isRefreshing: boolean;
   refreshDevices: () => void;
+  isAutoScanning: boolean;
 }
 
 export const DevicesList: React.FC<DevicesListProps> = ({ 
   handleConnect, 
   isRefreshing, 
-  refreshDevices 
+  refreshDevices,
+  isAutoScanning 
 }) => {
   const { onlineDevices } = usePeer();
   const { handlePeerConnect } = useFileTransfer();
@@ -43,14 +46,54 @@ export const DevicesList: React.FC<DevicesListProps> = ({
     return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
   };
 
+  const getDeviceIcon = (deviceId: string) => {
+    // Simulate device type based on ID (in real app, this would come from device info)
+    const hash = deviceId.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+    const types = [Laptop, Smartphone, Tablet];
+    const Icon = types[hash % types.length];
+    return Icon;
+  };
+
+  const getSignalStrength = (deviceId: string) => {
+    // Simulate signal strength (in real app, this would be actual connection quality)
+    const hash = deviceId.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+    return Math.max(50, hash % 100);
+  };
+
   return (
     <>
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center gap-2">
-          <Users className="h-5 w-5 text-indigo-600" />
-          <span className="font-medium text-sm">
-            {onlineDevices.length} {onlineDevices.length === 1 ? 'device' : 'devices'} found
-          </span>
+      <motion.div 
+        initial={{ y: 10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="flex justify-between items-center mb-6 p-4 rounded-lg bg-card border border-border"
+      >
+        <div className="flex items-center gap-3">
+          <motion.div
+            animate={isAutoScanning ? {
+              scale: [1, 1.2, 1],
+              opacity: [0.5, 1, 0.5],
+            } : {}}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <Radio className="h-5 w-5 text-primary" />
+          </motion.div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-foreground">
+                {onlineDevices.length} {onlineDevices.length === 1 ? 'Device' : 'Devices'}
+              </span>
+              {isAutoScanning && (
+                <Badge variant="secondary" className="text-xs">
+                  <Wifi className="h-3 w-3 mr-1" />
+                  Scanning
+                </Badge>
+              )}
+            </div>
+            <span className="text-xs text-muted-foreground">
+              P2P Network Discovery Active
+            </span>
+          </div>
         </div>
         <Button 
           variant="outline" 
@@ -59,86 +102,151 @@ export const DevicesList: React.FC<DevicesListProps> = ({
           className="flex items-center gap-2"
         >
           <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-          Refresh
+          Scan
         </Button>
-      </div>
+      </motion.div>
 
       {onlineDevices.length === 0 ? (
-        <div className="text-center py-10 bg-gradient-to-br from-gray-50 to-indigo-50 rounded-lg border border-dashed border-gray-300">
+        <motion.div 
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="text-center py-12 bg-muted/30 rounded-xl border-2 border-dashed border-border"
+        >
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5 }}
+            animate={{
+              scale: [1, 1.1, 1],
+              rotate: [0, 5, -5, 0],
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
           >
-            <Laptop className="mx-auto h-12 w-12 text-indigo-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No devices found</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              Waiting for other devices to come online
-            </p>
-            <Button 
-              variant="outline"
-              size="sm" 
-              onClick={refreshDevices}
-              className="mt-4"
-            >
-              Scan for devices
-            </Button>
+            <Wifi className="mx-auto h-16 w-16 text-primary/40" />
           </motion.div>
-        </div>
+          <h3 className="mt-4 text-lg font-semibold text-foreground">Searching for devices...</h3>
+          <p className="mt-2 text-sm text-muted-foreground max-w-xs mx-auto">
+            Make sure other devices are on the same network and have the app open
+          </p>
+          <Button 
+            variant="default"
+            size="sm" 
+            onClick={refreshDevices}
+            className="mt-6"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Scan Again
+          </Button>
+        </motion.div>
       ) : (
         <motion.div 
-          className="grid gap-4"
+          className="space-y-3"
           variants={containerVariants}
           initial="hidden"
           animate="show"
         >
-          {onlineDevices.map((device) => (
-            <motion.div 
-              key={device.id}
-              variants={itemVariants}
-              className={`flex items-center justify-between p-4 
-                ${selectedDevice === device.id 
-                  ? 'bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-300 shadow-md' 
-                  : 'bg-white hover:bg-gray-50'
-                } rounded-lg border transition-all duration-200 hover:shadow-sm`}
-              whileHover={{ y: -2 }}
-            >
-              <div className="flex items-center space-x-3">
-                <Avatar className="h-10 w-10 bg-gradient-to-br from-indigo-400 to-purple-500">
-                  <AvatarFallback>{getInitials(device.username)}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-900">{device.username}</h3>
+          {onlineDevices.map((device, index) => {
+            const DeviceIcon = getDeviceIcon(device.id);
+            const signalStrength = getSignalStrength(device.id);
+            
+            return (
+              <motion.div 
+                key={device.id}
+                variants={itemVariants}
+                whileHover={{ scale: 1.01, x: 4 }}
+                className={`group relative overflow-hidden rounded-xl border-2 transition-all duration-300
+                  ${selectedDevice === device.id 
+                    ? 'bg-primary/5 border-primary shadow-lg shadow-primary/20' 
+                    : 'bg-card border-border hover:border-primary/50 hover:shadow-md'
+                  }`}
+              >
+                {/* Signal strength indicator */}
+                <div className="absolute top-0 right-0 p-3">
                   <div className="flex items-center gap-1">
-                    <Shield className="h-3 w-3 text-gray-400" />
-                    <p className="text-xs text-gray-500">ID: {device.id}</p>
+                    {[...Array(4)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ height: 4 }}
+                        animate={{ 
+                          height: i * 25 < signalStrength ? 4 + i * 3 : 4,
+                          opacity: i * 25 < signalStrength ? 1 : 0.3
+                        }}
+                        className={`w-1 rounded-full ${
+                          i * 25 < signalStrength ? 'bg-primary' : 'bg-muted-foreground'
+                        }`}
+                      />
+                    ))}
                   </div>
                 </div>
-              </div>
-              <div className="flex gap-2">
-                <Button 
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    setSelectedDevice(device.id);
-                    handleConnect(device.id);
-                  }}
-                  className="flex items-center gap-1"
-                >
-                  <MessageSquare className="h-4 w-4 mr-1" />
-                  Chat
-                </Button>
-                <Button 
-                  size="sm"
-                  onClick={() => handlePeerConnect(device.id)}
-                  className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700"
-                >
-                  <Share2 className="h-4 w-4 mr-1" />
-                  Connect
-                </Button>
-              </div>
-            </motion.div>
-          ))}
+
+                <div className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4 flex-1">
+                      {/* Device icon with animation */}
+                      <motion.div
+                        whileHover={{ rotate: [0, -10, 10, 0] }}
+                        transition={{ duration: 0.5 }}
+                        className="relative"
+                      >
+                        <div className="p-3 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                          <DeviceIcon className="h-6 w-6 text-primary" />
+                        </div>
+                        <motion.div
+                          animate={{
+                            scale: [1, 1.5, 1],
+                            opacity: [0.5, 0, 0.5],
+                          }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                          className="absolute inset-0 rounded-full bg-primary/20"
+                        />
+                      </motion.div>
+
+                      {/* Device info */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base font-semibold text-foreground truncate">
+                          {device.username}
+                        </h3>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="text-xs">
+                            <Wifi className="h-3 w-3 mr-1" />
+                            P2P
+                          </Badge>
+                          <span className="text-xs text-muted-foreground truncate">
+                            {device.id}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="flex gap-2 ml-4">
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button 
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedDevice(device.id);
+                            handleConnect(device.id);
+                          }}
+                          className="flex items-center gap-1"
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                          <span className="hidden sm:inline">Chat</span>
+                        </Button>
+                      </motion.div>
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button 
+                          size="sm"
+                          onClick={() => handlePeerConnect(device.id)}
+                          className="flex items-center gap-1"
+                        >
+                          <Share2 className="h-4 w-4" />
+                          <span className="hidden sm:inline">Share</span>
+                        </Button>
+                      </motion.div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
         </motion.div>
       )}
     </>
