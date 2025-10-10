@@ -4,6 +4,7 @@ import Peer from "peerjs";
 import { toast } from "sonner";
 import { generatePeerId } from "../utils/peer.utils";
 import { ChatMessage, OnlineDevice } from "../types/peer.types";
+import { usePresenceChannel } from "./usePresenceChannel";
 
 export const usePeerState = () => {
   const [peer, setPeer] = useState<Peer | null>(null);
@@ -16,6 +17,18 @@ export const usePeerState = () => {
   const [chatMessages, setChatMessages] = useState<Record<string, ChatMessage[]>>({});
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [activeChatPeer, setActiveChatPeer] = useState<string | null>(null);
+
+  // Use presence channel for automatic device discovery
+  const { onlineUsers } = usePresenceChannel(peerId, username);
+
+  // Sync presence users with onlineDevices
+  useEffect(() => {
+    const devices: OnlineDevice[] = onlineUsers.map(user => ({
+      id: user.peerId,
+      username: user.username
+    }));
+    setOnlineDevices(devices);
+  }, [onlineUsers]);
 
   // Save username to localStorage whenever it changes
   useEffect(() => {
@@ -113,10 +126,8 @@ export const usePeerState = () => {
         toast.success("Connected to P2P network!");
       }
       
-      // Announce presence to other peers
-      if (username) {
-        announcePresence();
-      }
+      // Presence is now automatically tracked via usePresenceChannel hook
+      console.log("Presence will be tracked automatically");
     });
 
     newPeer.on('error', (error) => {
@@ -138,21 +149,11 @@ export const usePeerState = () => {
       }
     });
 
-    // Listen for connection events for debugging and device discovery
+    // Listen for connection events for chat messages
     newPeer.on('connection', (conn) => {
-      console.log("PeerContext: New connection from", conn.peer);
+      console.log("P2P connection from", conn.peer);
       
-      // Handle discovery messages
       conn.on('data', (data: unknown) => {
-        // Type guard to check if data is a device announcement
-        const isDeviceAnnouncement = 
-          typeof data === 'object' && 
-          data !== null && 
-          'type' in data && 
-          (data as any).type === 'device-announcement' && 
-          'username' in data && 
-          typeof (data as any).username === 'string';
-        
         // Type guard to check if data is a chat message
         const isChatMessage = 
           typeof data === 'object' && 
@@ -162,22 +163,7 @@ export const usePeerState = () => {
           'message' in data && 
           typeof (data as any).message === 'object';
         
-        if (isDeviceAnnouncement) {
-          const announcementData = data as any;
-          registerDevice(conn.peer, announcementData.username);
-          
-          // Reply with our own username to let them know we're also online
-          if (username) {
-            try {
-              conn.send({
-                type: 'device-announcement',
-                username: username
-              });
-            } catch (err) {
-              console.error("Error sending device announcement reply:", err);
-            }
-          }
-        } else if (isChatMessage) {
+        if (isChatMessage) {
           // Handle incoming chat message
           const messageData = (data as any).message as ChatMessage;
           
@@ -208,51 +194,15 @@ export const usePeerState = () => {
     setPeer(newPeer);
   };
 
-  // Announce presence to the network
+  // Legacy functions kept for compatibility
   const announcePresence = () => {
-    if (!peer || !username) return;
-    
-    // Get all known peer IDs from onlineDevices
-    const peerIds = onlineDevices.map(device => device.id);
-    
-    // Connect to each peer and announce our presence
-    peerIds.forEach(peerId => {
-      try {
-        const conn = peer.connect(peerId);
-        conn.on('open', () => {
-          conn.send({
-            type: 'device-announcement',
-            username: username
-          });
-        });
-      } catch (err) {
-        console.error(`Failed to announce to peer ${peerId}:`, err);
-      }
-    });
-    
-    console.log("Announced presence to", peerIds.length, "peers");
+    // Presence is now handled automatically by usePresenceChannel
+    console.log("Presence tracking is automatic via Lovable Cloud");
   };
 
-  // Register a device in our online devices list
   const registerDevice = (deviceId: string, deviceUsername: string) => {
-    if (deviceId === peerId) return; // Don't add ourselves
-    
-    setOnlineDevices(prev => {
-      // Check if device already exists
-      const exists = prev.some(device => device.id === deviceId);
-      if (exists) {
-        // Update username if needed
-        return prev.map(device => 
-          device.id === deviceId 
-            ? { ...device, username: deviceUsername } 
-            : device
-        );
-      } else {
-        // Add new device
-        toast.info(`${deviceUsername} is now online`);
-        return [...prev, { id: deviceId, username: deviceUsername }];
-      }
-    });
+    // Device registration is now handled automatically by usePresenceChannel
+    console.log("Device registration is automatic via Lovable Cloud");
   };
 
   const destroyPeer = () => {
@@ -264,49 +214,8 @@ export const usePeerState = () => {
     }
   };
 
-  // Clean up and remove disconnected peers periodically
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (peer && username) {
-        // Periodically ping known peers to check if they're still online
-        onlineDevices.forEach(device => {
-          try {
-            const conn = peer.connect(device.id);
-            let isResponding = false;
-            
-            conn.on('open', () => {
-              isResponding = true;
-              conn.send({
-                type: 'ping'
-              });
-              
-              // Close connection after sending ping
-              setTimeout(() => conn.close(), 1000);
-            });
-            
-            // If connection fails, remove the device
-            setTimeout(() => {
-              if (!isResponding) {
-                setOnlineDevices(prev => 
-                  prev.filter(d => d.id !== device.id)
-                );
-              }
-            }, 5000);
-          } catch (err) {
-            // If connection fails, remove from online devices
-            setOnlineDevices(prev => 
-              prev.filter(d => d.id !== device.id)
-            );
-          }
-        });
-        
-        // Re-announce presence periodically
-        announcePresence();
-      }
-    }, 30000); // Every 30 seconds
-    
-    return () => clearInterval(interval);
-  }, [peer, onlineDevices, username]);
+  // Presence tracking is now handled automatically by Lovable Cloud
+  // No need for periodic pinging or manual announcements
 
   // Initialize peer on component mount
   useEffect(() => {
