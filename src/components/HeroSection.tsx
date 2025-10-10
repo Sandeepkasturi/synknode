@@ -7,10 +7,10 @@ import { FileImage, Share, Presentation } from 'lucide-react';
 export const HeroSection: React.FC = () => {
   return (
     <div className="flex flex-col items-center text-center mb-16">
-      <h1 className="text-5xl font-bold tracking-tight text-gray-900 mb-6">
-        Share files and present content <span className="text-indigo-600">effortlessly</span>
+      <h1 className="text-5xl font-bold tracking-tight text-foreground mb-6">
+        Share files and present content <span className="text-primary">effortlessly</span>
       </h1>
-      <p className="text-xl text-gray-600 mb-10 max-w-2xl">
+      <p className="text-xl text-muted-foreground mb-10 max-w-2xl">
         Connect devices instantly and transfer files with complete privacy and speed.
         No accounts, no limits, no tracking.
       </p>

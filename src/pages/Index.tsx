@@ -17,7 +17,7 @@ const IndexContent: React.FC = () => {
   const { showPermissionDialog, pendingPermission, handlePermissionResponse } = useFileTransfer();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <div className="min-h-screen bg-background">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

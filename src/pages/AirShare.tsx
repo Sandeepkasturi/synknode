@@ -26,7 +26,7 @@ const AirShareContent: React.FC = () => {
   }, [isPeerConnected, createNewPeer]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 pt-12 pb-24">
         <div className="mb-8 flex justify-between items-center">
           <Link to="/">
@@ -42,8 +42,8 @@ const AirShareContent: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-12 text-center"
         >
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">AirShare</h1>
-          <p className="text-lg text-gray-600 max-w-xl mx-auto">
+          <h1 className="text-4xl font-bold text-foreground mb-3">AirShare</h1>
+          <p className="text-lg text-muted-foreground max-w-xl mx-auto">
             Easily share and preview files between devices in real time
           </p>
         </motion.div>
