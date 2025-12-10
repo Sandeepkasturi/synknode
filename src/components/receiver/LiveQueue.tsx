@@ -4,7 +4,6 @@ import { Download, User, Clock, FileIcon, Trash2, FolderOpen } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import JSZip from "jszip";
 
 export const LiveQueue: React.FC = () => {
   const { queue, removeFromQueue, updateEntryStatus } = useQueue();
@@ -21,6 +20,18 @@ export const LiveQueue: React.FC = () => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  const downloadFile = (blob: Blob, fileName: string, senderName: string) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    // Prefix filename with sender name for organization
+    a.download = `${senderName}_${fileName}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const downloadEntry = async (entryId: string) => {
     const entry = queue.find(e => e.id === entryId);
     if (!entry) return;
@@ -28,31 +39,17 @@ export const LiveQueue: React.FC = () => {
     updateEntryStatus(entryId, 'downloading');
 
     try {
-      // Create a zip file with sender's name as folder
-      const zip = new JSZip();
-      const folder = zip.folder(entry.senderName);
-
-      if (folder) {
-        for (const file of entry.files) {
-          if (file.blob) {
-            folder.file(file.name, file.blob);
-          }
+      // Download each file individually with sender name prefix
+      for (const file of entry.files) {
+        if (file.blob) {
+          downloadFile(file.blob, file.name, entry.senderName);
+          // Small delay between downloads to prevent browser blocking
+          await new Promise(resolve => setTimeout(resolve, 200));
         }
       }
 
-      // Generate and download zip
-      const zipBlob = await zip.generateAsync({ type: 'blob' });
-      const url = URL.createObjectURL(zipBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${entry.senderName}_files.zip`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
       updateEntryStatus(entryId, 'completed');
-      toast.success(`Downloaded files from ${entry.senderName}`);
+      toast.success(`Downloaded ${entry.files.length} file(s) from ${entry.senderName}`);
 
       // Auto-remove from queue after download
       setTimeout(() => {
