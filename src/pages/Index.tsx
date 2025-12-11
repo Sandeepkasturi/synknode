@@ -5,53 +5,21 @@ import { MainTabs } from "../components/MainTabs";
 import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
 import { motion } from "framer-motion";
+import Hyperspeed, { hyperspeedPresets } from "../components/Hyperspeed";
 
 const Index: React.FC = () => {
   return (
     <QueueProvider>
       <div className="min-h-screen bg-background relative overflow-hidden">
-        <Header />
-        
-        {/* Animated background */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {/* Gradient orbs */}
-          <motion.div
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.1, 0.2, 0.1],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute -top-1/2 -left-1/4 w-[800px] h-[800px] bg-gradient-to-r from-purple-500/20 to-cyan-400/20 rounded-full blur-3xl"
-          />
-          <motion.div
-            animate={{
-              scale: [1.2, 1, 1.2],
-              opacity: [0.1, 0.15, 0.1],
-            }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute -bottom-1/2 -right-1/4 w-[600px] h-[600px] bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-full blur-3xl"
-          />
-          
-          {/* Grid pattern */}
-          <div 
-            className="absolute inset-0 opacity-[0.02]"
-            style={{
-              backgroundImage: `
-                linear-gradient(hsl(var(--foreground)) 1px, transparent 1px),
-                linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)
-              `,
-              backgroundSize: '50px 50px',
-            }}
-          />
+        {/* Hyperspeed background */}
+        <div className="fixed inset-0 z-0">
+          <Hyperspeed effectOptions={hyperspeedPresets.one} />
         </div>
+        
+        {/* Overlay for readability */}
+        <div className="fixed inset-0 z-[1] bg-background/60 backdrop-blur-[1px]" />
+        
+        <Header />
 
         <motion.div
           initial={{ opacity: 0 }}
