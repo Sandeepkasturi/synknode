@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import logo from '@/assets/logo.png';
-import planet from '@/assets/planet.png';
+import planet from '@/assets/InShot_20251211_073704303.jpg';
 
 interface OrbitalAnimationProps {
   isTransferring?: boolean;
