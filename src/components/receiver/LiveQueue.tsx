@@ -1,6 +1,6 @@
 import React from "react";
 import { useQueue } from "@/context/QueueContext";
-import { Download, User, Clock, FileIcon, Trash2, FolderOpen } from "lucide-react";
+import { Download, User, Clock, FileIcon, Trash2, FolderOpen, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -24,7 +24,6 @@ export const LiveQueue: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    // Prefix filename with sender name for organization
     a.download = `${senderName}_${fileName}`;
     document.body.appendChild(a);
     a.click();
@@ -39,11 +38,9 @@ export const LiveQueue: React.FC = () => {
     updateEntryStatus(entryId, 'downloading');
 
     try {
-      // Download each file individually with sender name prefix
       for (const file of entry.files) {
         if (file.blob) {
           downloadFile(file.blob, file.name, entry.senderName);
-          // Small delay between downloads to prevent browser blocking
           await new Promise(resolve => setTimeout(resolve, 200));
         }
       }
@@ -51,7 +48,6 @@ export const LiveQueue: React.FC = () => {
       updateEntryStatus(entryId, 'completed');
       toast.success(`Downloaded ${entry.files.length} file(s) from ${entry.senderName}`);
 
-      // Auto-remove from queue after download
       setTimeout(() => {
         removeFromQueue(entryId);
       }, 2000);
@@ -69,21 +65,29 @@ export const LiveQueue: React.FC = () => {
 
   if (queue.length === 0) {
     return (
-      <div className="text-center py-12">
-        <FolderOpen className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="text-center py-12"
+      >
+        <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-secondary/50 flex items-center justify-center">
+          <FolderOpen className="h-10 w-10 text-muted-foreground/50" />
+        </div>
         <h3 className="text-lg font-medium text-foreground mb-2">Queue is empty</h3>
         <p className="text-sm text-muted-foreground">
-          Files sent to code SRGEC will appear here
+          Files sent to code <span className="font-mono font-bold text-primary">SRGEC</span> will appear here
         </p>
-      </div>
+      </motion.div>
     );
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-foreground">
-          Live Queue ({queue.length})
+        <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          Live Queue
+          <span className="text-sm font-normal text-muted-foreground">({queue.length})</span>
         </h3>
       </div>
 
@@ -95,41 +99,51 @@ export const LiveQueue: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, x: -100 }}
             transition={{ delay: index * 0.1 }}
-            className={`p-4 rounded-lg border transition-all ${
+            className={`p-4 rounded-xl border transition-all ${
               entry.status === 'downloading' 
-                ? 'bg-primary/10 border-primary/30' 
+                ? 'bg-primary/10 border-primary/30 shadow-lg shadow-primary/10' 
                 : entry.status === 'completed'
-                ? 'bg-green-500/10 border-green-500/30'
-                : 'bg-card border-border hover:border-primary/30'
+                ? 'bg-green-500/10 border-green-500/30 shadow-lg shadow-green-500/10'
+                : 'bg-secondary/30 border-border/50 hover:border-primary/30 hover:bg-secondary/50'
             }`}
           >
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 {/* Sender Info */}
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="p-2 rounded-full bg-primary/10">
-                    <User className="h-4 w-4 text-primary" />
+                <div className="flex items-center gap-3 mb-3">
+                  <div className={`p-2.5 rounded-full ${
+                    entry.status === 'completed' ? 'bg-green-500/20' : 'bg-primary/10'
+                  }`}>
+                    {entry.status === 'completed' ? (
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                    ) : (
+                      <User className="h-5 w-5 text-primary" />
+                    )}
                   </div>
                   <div>
-                    <p className="font-medium text-foreground">{entry.senderName}</p>
+                    <p className="font-semibold text-foreground">{entry.senderName}</p>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Clock className="h-3 w-3" />
                       {formatTime(entry.timestamp)}
+                      <span className="mx-1">•</span>
+                      <span>{entry.files.length} file(s)</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Files List */}
-                <div className="space-y-2 pl-10">
+                <div className="space-y-1.5 pl-12">
                   {entry.files.map((file, fileIndex) => (
                     <div 
                       key={fileIndex}
-                      className="flex items-center gap-2 text-sm"
+                      className="flex items-center gap-2 text-sm p-2 rounded-lg bg-background/50"
                     >
-                      <FileIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      <span className="text-foreground truncate">{file.name}</span>
-                      <span className="text-muted-foreground text-xs flex-shrink-0">
-                        ({formatFileSize(file.size)})
+                      <div className="w-7 h-7 rounded bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <FileIcon className="h-3.5 w-3.5 text-primary" />
+                      </div>
+                      <span className="text-foreground truncate flex-1">{file.name}</span>
+                      <span className="text-muted-foreground text-xs flex-shrink-0 font-mono">
+                        {formatFileSize(file.size)}
                       </span>
                     </div>
                   ))}
@@ -137,16 +151,37 @@ export const LiveQueue: React.FC = () => {
               </div>
 
               {/* Actions */}
-              <div className="flex gap-2 flex-shrink-0">
+              <div className="flex flex-col gap-2 flex-shrink-0">
                 <Button
                   size="sm"
                   onClick={() => downloadEntry(entry.id)}
                   disabled={entry.status === 'downloading' || entry.status === 'completed'}
-                  className="gap-1"
+                  className={`gap-1.5 ${
+                    entry.status === 'completed' 
+                      ? 'bg-green-500 hover:bg-green-600' 
+                      : 'bg-gradient-to-r from-primary via-purple-500 to-primary hover:opacity-90'
+                  }`}
                 >
-                  <Download className="h-4 w-4" />
-                  {entry.status === 'downloading' ? 'Downloading...' : 
-                   entry.status === 'completed' ? 'Done' : 'Download'}
+                  {entry.status === 'downloading' ? (
+                    <>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                      />
+                      Downloading
+                    </>
+                  ) : entry.status === 'completed' ? (
+                    <>
+                      <CheckCircle className="h-4 w-4" />
+                      Done
+                    </>
+                  ) : (
+                    <>
+                      <Download className="h-4 w-4" />
+                      Download
+                    </>
+                  )}
                 </Button>
                 <Button
                   size="sm"
