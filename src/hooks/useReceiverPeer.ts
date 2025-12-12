@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import Peer, { DataConnection } from "peerjs";
 import { toast } from "sonner";
 import { useAuth } from "../context/AuthContext";
 import { useQueue } from "../context/QueueContext";
 import { QueueFile } from "../types/queue.types";
-import { CHUNK_SIZE } from "../types/fileTransfer.types";
+import { supabase } from "@/integrations/supabase/client";
 
 const STATIC_RECEIVER_CODE = "SRGEC";
 
@@ -12,66 +12,14 @@ export const useReceiverPeer = () => {
   const [peer, setPeer] = useState<Peer | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isReceiver, setIsReceiver] = useState(false);
-  const { user, userRole } = useAuth();
+  const { user } = useAuth();
+  const { addToQueue } = useQueue();
+  
+  // Use ref to avoid stale closure issues
+  const addToQueueRef = useRef(addToQueue);
+  addToQueueRef.current = addToQueue;
 
-  const startReceiver = useCallback(async () => {
-    // Role check logic
-    if (STATIC_RECEIVER_CODE === "SRGEC") {
-      if (!user) {
-        toast.error("Authentication required for this receiver code");
-        return;
-      }
-      // We can also fetch the reserved code requirements from DB here if dynamic,
-      // but for now we hardcode the check as per plan to match AuthContext role.
-      if (!userRole || !['admin', 'editor'].includes(userRole)) {
-        toast.error("Insufficient permissions. 'Admin' or 'Editor' role required.");
-        return;
-      }
-    }
-
-    if (peer) {
-      peer.destroy();
-    }
-
-    console.log("Starting receiver with code:", STATIC_RECEIVER_CODE);
-
-    const newPeer = new Peer(STATIC_RECEIVER_CODE, {
-      debug: 2,
-      config: {
-        iceServers: [
-          { urls: "stun:stun.l.google.com:19302" },
-          { urls: "stun:stun1.l.google.com:19302" },
-          { urls: "stun:stun2.l.google.com:19302" },
-        ]
-      }
-    });
-
-    newPeer.on('open', (id) => {
-      console.log('Receiver connected with ID:', id);
-      setIsConnected(true);
-      setIsReceiver(true);
-      toast.success("Receiver mode active! Code: SRGEC");
-    });
-
-    newPeer.on('connection', (conn) => {
-      console.log('New sender connection from:', conn.peer);
-      handleSenderConnection(conn);
-    });
-
-    newPeer.on('error', (error) => {
-      console.error('Receiver peer error:', error);
-      if (error.type === 'unavailable-id') {
-        toast.error("Receiver code SRGEC is already in use");
-      } else {
-        toast.error("Receiver connection error");
-      }
-      setIsConnected(false);
-    });
-
-    setPeer(newPeer);
-  }, []);
-
-  const handleSenderConnection = (conn: DataConnection) => {
+  const handleSenderConnection = useCallback((conn: DataConnection) => {
     let senderName = "Unknown";
     let receivingFiles: Map<number, {
       name: string;
@@ -81,7 +29,6 @@ export const useReceiverPeer = () => {
       totalChunks: number;
     }> = new Map();
     let completedFiles: QueueFile[] = [];
-    let queueEntryId: string | null = null;
 
     conn.on('open', () => {
       console.log('Connection opened with sender:', conn.peer);
@@ -139,7 +86,7 @@ export const useReceiverPeer = () => {
       else if (data.type === 'transfer-complete') {
         // Add to queue with completed files
         if (completedFiles.length > 0) {
-          queueEntryId = addToQueue(senderName, completedFiles);
+          addToQueueRef.current(senderName, completedFiles);
           toast.success(`${senderName} sent ${completedFiles.length} file(s)`);
         }
 
@@ -157,7 +104,73 @@ export const useReceiverPeer = () => {
     conn.on('close', () => {
       console.log('Connection closed with:', conn.peer);
     });
-  };
+  }, []);
+
+  const startReceiver = useCallback(async () => {
+    if (!user) {
+      toast.error("Please login to access receiver mode");
+      return;
+    }
+
+    // Check if user's phone is in authorized_receivers
+    const userPhone = user.phone;
+    if (!userPhone) {
+      toast.error("Phone number not found. Please login with your phone.");
+      return;
+    }
+
+    const { data: authorized, error } = await supabase
+      .from('authorized_receivers')
+      .select('id')
+      .eq('phone_number', userPhone)
+      .single();
+
+    if (error || !authorized) {
+      toast.error("You are not authorized to use SRGEC receiver mode");
+      return;
+    }
+
+    if (peer) {
+      peer.destroy();
+    }
+
+    console.log("Starting receiver with code:", STATIC_RECEIVER_CODE);
+
+    const newPeer = new Peer(STATIC_RECEIVER_CODE, {
+      debug: 2,
+      config: {
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" },
+          { urls: "stun:stun1.l.google.com:19302" },
+          { urls: "stun:stun2.l.google.com:19302" },
+        ]
+      }
+    });
+
+    newPeer.on('open', (id) => {
+      console.log('Receiver connected with ID:', id);
+      setIsConnected(true);
+      setIsReceiver(true);
+      toast.success("Receiver mode active! Code: SRGEC");
+    });
+
+    newPeer.on('connection', (conn) => {
+      console.log('New sender connection from:', conn.peer);
+      handleSenderConnection(conn);
+    });
+
+    newPeer.on('error', (error) => {
+      console.error('Receiver peer error:', error);
+      if (error.type === 'unavailable-id') {
+        toast.error("Receiver code SRGEC is already in use");
+      } else {
+        toast.error("Receiver connection error");
+      }
+      setIsConnected(false);
+    });
+
+    setPeer(newPeer);
+  }, [user, peer, handleSenderConnection]);
 
   const stopReceiver = useCallback(() => {
     if (peer) {
