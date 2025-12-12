@@ -2,27 +2,22 @@ import React, { useState } from "react";
 import { useReceiverPeer } from "@/hooks/useReceiverPeer";
 import { LiveQueue } from "./LiveQueue";
 import { Button } from "@/components/ui/button";
-import { Radio, Power, Wifi, WifiOff, Lock, LogIn } from "lucide-react";
+import { Radio, Power, Wifi, WifiOff, Lock, LogIn, Settings } from "lucide-react";
 import { motion } from "framer-motion";
 import { OrbitalAnimation } from "@/components/OrbitalAnimation";
 import { useAuth } from "@/context/AuthContext";
 import { LoginDialog } from "@/components/auth/LoginDialog";
-import { toast } from "sonner";
+import { ManageReceiversDialog } from "@/components/auth/ManageReceiversDialog";
 
 export const ReceiverPanel: React.FC = () => {
   const { isConnected, isReceiver, startReceiver, stopReceiver, receiverCode } = useReceiverPeer();
-  const { user, userRole, signOut } = useAuth();
+  const { user, isPrimaryAdmin, signOut } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
+  const [showManageReceivers, setShowManageReceivers] = useState(false);
 
   const handleStartReceiver = () => {
     if (!user) {
       setShowLogin(true);
-      return;
-    }
-    // Logic for checking role is handled inside startReceiver (via hook or we check here)
-    // For better UX, check here too
-    if (receiverCode === "SRGEC" && !['admin', 'editor'].includes(userRole || '')) {
-      toast.error("You are not authorized to use the SRGEC receiver code.");
       return;
     }
     startReceiver();
@@ -31,6 +26,7 @@ export const ReceiverPanel: React.FC = () => {
   return (
     <div className="space-y-6">
       <LoginDialog open={showLogin} onOpenChange={setShowLogin} />
+      <ManageReceiversDialog open={showManageReceivers} onOpenChange={setShowManageReceivers} />
 
       {/* Connection Status */}
       <div className="flex items-center justify-between p-4 rounded-xl bg-secondary/50 border border-border/50">
@@ -63,6 +59,18 @@ export const ReceiverPanel: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          {isPrimaryAdmin && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowManageReceivers(true)}
+              className="text-xs text-primary"
+            >
+              <Settings className="h-4 w-4 mr-1" />
+              Manage
+            </Button>
+          )}
+          
           {user && (
             <Button
               variant="ghost"

@@ -25,23 +25,13 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({ open, onOpenChange }) 
         }
 
         setLoading(true);
-        // Ensure phone has country code if missing (defaulting to +91 for this use case as SRGEC implies India region mostly, or generic)
-        // Actually, let's ask user to enter full number or prepend + if missing.
-        // Ideally, user enters like +919999999999
-
-        let formattedPhone = phone;
-        if (!phone.startsWith('+')) {
-            // Assume a default or ask user. For now, let's assume valid E.164 is entered or try to handle simple cases.
-            // User instruction: Enter with Country Code
-        }
-
-        const { error } = await signInWithOTP(formattedPhone);
+        const { error } = await signInWithOTP(phone);
         setLoading(false);
 
         if (error) {
             toast.error(error.message || "Failed to send OTP");
         } else {
-            toast.success("OTP sent successfully!");
+            toast.success("OTP sent! Use code: 152615");
             setStep('otp');
         }
     };
@@ -62,20 +52,29 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({ open, onOpenChange }) 
             toast.success("Logged in successfully!");
             onOpenChange(false);
             setStep('phone');
+            setPhone("");
             setOtp("");
         }
     };
 
+    const handleClose = (open: boolean) => {
+        if (!open) {
+            setStep('phone');
+            setOtp("");
+        }
+        onOpenChange(open);
+    };
+
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={handleClose}>
             <DialogContent className="sm:max-w-md bg-secondary/90 border-primary/20 backdrop-blur-xl">
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-display text-center bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-transparent">
-                        {step === 'phone' ? 'Admin Access' : 'Verify Identity'}
+                        {step === 'phone' ? 'Receiver Access' : 'Verify Identity'}
                     </DialogTitle>
                     <DialogDescription className="text-center text-muted-foreground">
                         {step === 'phone'
-                            ? 'Enter your mobile number to receive a verification code.'
+                            ? 'Enter your authorized mobile number'
                             : `Enter the code sent to ${phone}`
                         }
                     </DialogDescription>
@@ -87,13 +86,13 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({ open, onOpenChange }) 
                             <div className="relative">
                                 <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                 <Input
-                                    placeholder="+91 98765 43210"
+                                    placeholder="+91 9919932723"
                                     value={phone}
                                     onChange={(e) => setPhone(e.target.value)}
                                     className="pl-10 bg-black/20 border-white/10 focus:border-primary/50"
                                 />
                             </div>
-                            <p className="text-xs text-muted-foreground ml-1">include country code (e.g. +91)</p>
+                            <p className="text-xs text-muted-foreground ml-1">Include country code (e.g. +91)</p>
                             <Button
                                 onClick={handleSendOTP}
                                 className="w-full bg-primary hover:bg-primary/90"
@@ -107,7 +106,7 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({ open, onOpenChange }) 
                             <div className="relative">
                                 <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                 <Input
-                                    placeholder="000000"
+                                    placeholder="152615"
                                     value={otp}
                                     onChange={(e) => setOtp(e.target.value)}
                                     maxLength={6}

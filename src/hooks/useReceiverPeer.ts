@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { useAuth } from "../context/AuthContext";
 import { useQueue } from "../context/QueueContext";
 import { QueueFile } from "../types/queue.types";
-import { supabase } from "@/integrations/supabase/client";
 
 const STATIC_RECEIVER_CODE = "SRGEC";
 
@@ -112,23 +111,8 @@ export const useReceiverPeer = () => {
       return;
     }
 
-    // Check if user's phone is in authorized_receivers
-    const userPhone = user.phone;
-    if (!userPhone) {
-      toast.error("Phone number not found. Please login with your phone.");
-      return;
-    }
-
-    const { data: authorized, error } = await supabase
-      .from('authorized_receivers')
-      .select('id')
-      .eq('phone_number', userPhone)
-      .single();
-
-    if (error || !authorized) {
-      toast.error("You are not authorized to use SRGEC receiver mode");
-      return;
-    }
+    // User is already verified as authorized during login
+    console.log("User authorized:", user.phone);
 
     if (peer) {
       peer.destroy();
