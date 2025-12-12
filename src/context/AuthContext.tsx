@@ -55,14 +55,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 .from('user_roles')
                 .select('role')
                 .eq('user_id', userId)
-                .single();
+                .maybeSingle();
 
             if (error) {
-                console.log('Error fetching role (user might not have one):', error.message);
+                console.log('Error fetching role:', error.message);
                 setUserRole(null);
             } else if (data) {
                 console.log('User role fetched:', data.role);
                 setUserRole(data.role as 'admin' | 'editor');
+            } else {
+                setUserRole(null);
             }
         } catch (err) {
             console.error('Unexpected error fetching role:', err);
