@@ -9,17 +9,17 @@ export const MainTabs: React.FC = () => {
   return (
     <div className="max-w-2xl mx-auto">
       <Tabs defaultValue="send" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-8 bg-secondary/50 p-1 rounded-xl">
-          <TabsTrigger 
-            value="send" 
-            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all"
+        <TabsList className="grid w-full grid-cols-2 mb-8 bg-black/20 backdrop-blur-sm p-1.5 rounded-2xl border border-white/10">
+          <TabsTrigger
+            value="send"
+            className="flex items-center gap-2 rounded-xl py-3 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 transition-all duration-300 font-display tracking-wide"
           >
             <Upload className="h-4 w-4" />
             Send Files
           </TabsTrigger>
-          <TabsTrigger 
-            value="receive" 
-            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all"
+          <TabsTrigger
+            value="receive"
+            className="flex items-center gap-2 rounded-xl py-3 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 transition-all duration-300 font-display tracking-wide"
           >
             <Download className="h-4 w-4" />
             Receive Files

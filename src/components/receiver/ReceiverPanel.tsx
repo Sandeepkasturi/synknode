@@ -1,16 +1,37 @@
-import React from "react";
+import React, { useState } from "react";
 import { useReceiverPeer } from "@/hooks/useReceiverPeer";
 import { LiveQueue } from "./LiveQueue";
 import { Button } from "@/components/ui/button";
-import { Radio, Power, Wifi, WifiOff } from "lucide-react";
+import { Radio, Power, Wifi, WifiOff, Lock, LogIn } from "lucide-react";
 import { motion } from "framer-motion";
 import { OrbitalAnimation } from "@/components/OrbitalAnimation";
+import { useAuth } from "@/context/AuthContext";
+import { LoginDialog } from "@/components/auth/LoginDialog";
+import { toast } from "sonner";
 
 export const ReceiverPanel: React.FC = () => {
   const { isConnected, isReceiver, startReceiver, stopReceiver, receiverCode } = useReceiverPeer();
+  const { user, userRole, signOut } = useAuth();
+  const [showLogin, setShowLogin] = useState(false);
+
+  const handleStartReceiver = () => {
+    if (!user) {
+      setShowLogin(true);
+      return;
+    }
+    // Logic for checking role is handled inside startReceiver (via hook or we check here)
+    // For better UX, check here too
+    if (receiverCode === "SRGEC" && !['admin', 'editor'].includes(userRole || '')) {
+      toast.error("You are not authorized to use the SRGEC receiver code.");
+      return;
+    }
+    startReceiver();
+  };
 
   return (
     <div className="space-y-6">
+      <LoginDialog open={showLogin} onOpenChange={setShowLogin} />
+
       {/* Connection Status */}
       <div className="flex items-center justify-between p-4 rounded-xl bg-secondary/50 border border-border/50">
         <div className="flex items-center gap-3">
@@ -24,7 +45,7 @@ export const ReceiverPanel: React.FC = () => {
             </motion.div>
           ) : (
             <div className="p-2.5 rounded-full bg-muted">
-              <WifiOff className="h-5 w-5 text-muted-foreground" />
+              {user ? <WifiOff className="h-5 w-5 text-muted-foreground" /> : <Lock className="h-5 w-5 text-muted-foreground" />}
             </div>
           )}
           <div>
@@ -32,28 +53,45 @@ export const ReceiverPanel: React.FC = () => {
               {isReceiver ? 'Receiver Active' : 'Receiver Inactive'}
             </p>
             <p className="text-sm text-muted-foreground">
-              {isReceiver ? `Listening on code: ${receiverCode}` : 'Click to start receiving files'}
+              {isReceiver
+                ? `Listening on code: ${receiverCode}`
+                : user
+                  ? 'Click to start receiving files'
+                  : 'Login required to receive files'}
             </p>
           </div>
         </div>
 
-        <Button
-          onClick={isReceiver ? stopReceiver : startReceiver}
-          variant={isReceiver ? "destructive" : "default"}
-          className={`gap-2 ${!isReceiver ? 'bg-gradient-to-r from-primary via-purple-500 to-primary hover:opacity-90' : ''}`}
-        >
-          {isReceiver ? (
-            <>
-              <Power className="h-4 w-4" />
-              Stop
-            </>
-          ) : (
-            <>
-              <Radio className="h-4 w-4" />
-              Start Receiver
-            </>
+        <div className="flex items-center gap-2">
+          {user && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => signOut()}
+              className="text-xs text-muted-foreground"
+            >
+              Sign Out
+            </Button>
           )}
-        </Button>
+
+          <Button
+            onClick={isReceiver ? stopReceiver : handleStartReceiver}
+            variant={isReceiver ? "destructive" : "default"}
+            className={`gap-2 ${!isReceiver && user ? 'bg-gradient-to-r from-primary via-purple-500 to-primary hover:opacity-90' : ''}`}
+          >
+            {isReceiver ? (
+              <>
+                <Power className="h-4 w-4" />
+                Stop
+              </>
+            ) : (
+              <>
+                {user ? <Radio className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
+                {user ? "Start Receiver" : "Login to Access"}
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Static Code Display with Orbital Animation */}

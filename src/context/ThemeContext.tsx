@@ -11,12 +11,12 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem('synknode-theme');
+    const saved = localStorage.getItem('synknode-theme-v2');
     return (saved as Theme) || 'dark';
   });
 
   useEffect(() => {
-    localStorage.setItem('synknode-theme', theme);
+    localStorage.setItem('synknode-theme-v2', theme);
     document.documentElement.classList.remove('light', 'dark');
     document.documentElement.classList.add(theme);
   }, [theme]);

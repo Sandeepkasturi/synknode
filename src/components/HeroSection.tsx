@@ -13,23 +13,23 @@ export const HeroSection: React.FC = () => {
       >
         <OrbitalAnimation size="lg" />
       </motion.div>
-      
+
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.3, duration: 0.6 }}
-        className="space-y-3"
+        className="space-y-4"
       >
-        <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-          <span className="bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+        <h2 className="text-4xl md:text-6xl font-bold tracking-tight font-display">
+          <span className="bg-gradient-to-r from-white via-primary to-cyan-400 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(139,92,246,0.3)]">
             Share Files
           </span>
           <br />
-          <span className="text-xl md:text-2xl font-medium text-muted-foreground">
+          <span className="text-2xl md:text-3xl font-light text-muted-foreground mt-2 block ">
             Across the Universe
           </span>
         </h2>
-        
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -43,7 +43,7 @@ export const HeroSection: React.FC = () => {
           <span>Instant P2P Transfer</span>
         </motion.div>
       </motion.div>
-      
+
       <motion.p
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}

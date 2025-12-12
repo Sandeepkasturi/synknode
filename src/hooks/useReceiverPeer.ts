@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Peer, { DataConnection } from "peerjs";
 import { toast } from "sonner";
+import { useAuth } from "../context/AuthContext";
 import { useQueue } from "../context/QueueContext";
 import { QueueFile } from "../types/queue.types";
 import { CHUNK_SIZE } from "../types/fileTransfer.types";
@@ -11,9 +12,23 @@ export const useReceiverPeer = () => {
   const [peer, setPeer] = useState<Peer | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isReceiver, setIsReceiver] = useState(false);
-  const { addToQueue, updateEntryStatus, getQueueEntry, removeFromQueue } = useQueue();
+  const { user, userRole } = useAuth();
 
-  const startReceiver = useCallback(() => {
+  const startReceiver = useCallback(async () => {
+    // Role check logic
+    if (STATIC_RECEIVER_CODE === "SRGEC") {
+      if (!user) {
+        toast.error("Authentication required for this receiver code");
+        return;
+      }
+      // We can also fetch the reserved code requirements from DB here if dynamic,
+      // but for now we hardcode the check as per plan to match AuthContext role.
+      if (!userRole || !['admin', 'editor'].includes(userRole)) {
+        toast.error("Insufficient permissions. 'Admin' or 'Editor' role required.");
+        return;
+      }
+    }
+
     if (peer) {
       peer.destroy();
     }
@@ -91,9 +106,9 @@ export const useReceiverPeer = () => {
       else if (data.type === 'file-chunk') {
         const { fileIndex, chunkIndex, data: chunkData } = data;
         const fileInfo = receivingFiles.get(fileIndex);
-        
+
         if (!fileInfo) return;
-        
+
         fileInfo.chunks.set(chunkIndex, chunkData);
 
         // Check if file is complete
@@ -110,7 +125,7 @@ export const useReceiverPeer = () => {
           }
 
           const blob = new Blob([fileData], { type: fileInfo.type || 'application/octet-stream' });
-          
+
           completedFiles.push({
             name: fileInfo.name,
             size: fileInfo.size,
@@ -127,7 +142,7 @@ export const useReceiverPeer = () => {
           queueEntryId = addToQueue(senderName, completedFiles);
           toast.success(`${senderName} sent ${completedFiles.length} file(s)`);
         }
-        
+
         // Reset state
         completedFiles = [];
         receivingFiles.clear();

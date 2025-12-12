@@ -6,19 +6,20 @@ import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
 import { motion } from "framer-motion";
 import Hyperspeed, { hyperspeedPresets } from "../components/Hyperspeed";
+import Lightning from "../components/Lightning";
 
 const Index: React.FC = () => {
   return (
     <QueueProvider>
       <div className="min-h-screen bg-background relative overflow-hidden">
-        {/* Hyperspeed background */}
+        {/* Lightning background */}
         <div className="fixed inset-0 z-0">
-          <Hyperspeed effectOptions={hyperspeedPresets.one} />
+          <Lightning hue={220} speed={1} intensity={1} />
         </div>
-        
+
         {/* Overlay for readability */}
         <div className="fixed inset-0 z-[1] bg-background/60 backdrop-blur-[1px]" />
-        
+
         <Header />
 
         <motion.div
@@ -34,7 +35,7 @@ const Index: React.FC = () => {
           >
             <HeroSection />
           </motion.div>
-          
+
           <motion.div
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -43,7 +44,7 @@ const Index: React.FC = () => {
           >
             <MainTabs />
           </motion.div>
-          
+
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}

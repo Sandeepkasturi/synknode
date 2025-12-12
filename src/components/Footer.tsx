@@ -2,6 +2,7 @@ import React from 'react';
 import { Github, Globe, Mail, Heart, Shield, Zap, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import logo from '@/assets/logo.png';
+import { TrustedBadge } from './TrustedBadge';
 
 export const Footer: React.FC = () => {
   const features = [
@@ -21,8 +22,8 @@ export const Footer: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Brand Section */}
-          <motion.div 
-            className="text-center md:text-left"
+          <motion.div
+            className="text-center md:text-left space-y-4"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -31,18 +32,23 @@ export const Footer: React.FC = () => {
               <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-primary/30">
                 <img src={logo} alt="SynkNode" className="w-full h-full object-cover" />
               </div>
-              <h3 className="text-lg font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
+              <h3 className="text-xl font-bold font-display bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
                 SynkNode
               </h3>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              A modern peer-to-peer file sharing platform designed for privacy and speed.
+
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto md:mx-0">
+              A modern peer-to-peer file sharing platform designed for privacy, speed, and unlimited transfers.
             </p>
+
+            <div className="flex justify-center md:justify-start pt-2">
+              <TrustedBadge />
+            </div>
           </motion.div>
-          
+
           {/* Features Section */}
-          <motion.div 
-            className="text-center" 
+          <motion.div
+            className="text-center"
             id="features"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -59,9 +65,9 @@ export const Footer: React.FC = () => {
               ))}
             </ul>
           </motion.div>
-          
+
           {/* Developer Section */}
-          <motion.div 
+          <motion.div
             className="text-center md:text-right"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -90,8 +96,8 @@ export const Footer: React.FC = () => {
           </motion.div>
         </div>
       </div>
-      
-      <motion.div 
+
+      <motion.div
         className="py-6 border-t border-border/50 mt-8"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
