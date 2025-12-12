@@ -59,6 +59,14 @@ RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO public.profiles (id, phone_number)
   VALUES (new.id, new.phone);
+
+  -- Auto-assign admin role to authorized numbers (e.g. +91 9919932723)
+  -- Note: Supabase stores phones in E.164 format (e.g. +919919932723)
+  IF new.phone = '+919919932723' THEN
+    INSERT INTO public.user_roles (user_id, role)
+    VALUES (new.id, 'admin');
+  END IF;
+
   RETURN new;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
