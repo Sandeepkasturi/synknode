@@ -1,109 +1,109 @@
-import { useState, useCallback, useRef } from "react";
-import Peer, { DataConnection } from "peerjs";
+import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { useAuth } from "../context/AuthContext";
 import { useQueue } from "../context/QueueContext";
-import { QueueFile } from "../types/queue.types";
+import { supabase } from "@/integrations/supabase/client";
 
 const STATIC_RECEIVER_CODE = "SRGEC";
 
 export const useReceiverPeer = () => {
-  const [peer, setPeer] = useState<Peer | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isReceiver, setIsReceiver] = useState(false);
   const { user } = useAuth();
   const { addToQueue } = useQueue();
-  
-  // Use ref to avoid stale closure issues
-  const addToQueueRef = useRef(addToQueue);
-  addToQueueRef.current = addToQueue;
 
-  const handleSenderConnection = useCallback((conn: DataConnection) => {
-    let senderName = "Unknown";
-    let receivingFiles: Map<number, {
-      name: string;
-      type: string;
-      size: number;
-      chunks: Map<number, ArrayBuffer>;
-      totalChunks: number;
-    }> = new Map();
-    let completedFiles: QueueFile[] = [];
+  const fetchPendingFiles = useCallback(async () => {
+    console.log('Fetching pending files...');
+    
+    const { data: transfers, error } = await supabase
+      .from('pending_transfers')
+      .select('*')
+      .eq('downloaded', false)
+      .order('created_at', { ascending: true });
 
-    conn.on('open', () => {
-      console.log('Connection opened with sender:', conn.peer);
-    });
+    if (error) {
+      console.error('Error fetching pending transfers:', error);
+      return;
+    }
 
-    conn.on('data', (data: any) => {
-      console.log('Received data from sender:', data.type);
+    if (!transfers || transfers.length === 0) {
+      console.log('No pending files');
+      return;
+    }
 
-      if (data.type === 'sender-info') {
-        senderName = data.name || "Unknown";
-        console.log('Sender identified as:', senderName);
+    // Group files by sender
+    const senderGroups = transfers.reduce((acc, transfer) => {
+      if (!acc[transfer.sender_name]) {
+        acc[transfer.sender_name] = [];
       }
-      else if (data.type === 'file-info') {
-        receivingFiles.set(data.fileIndex, {
-          name: data.fileName,
-          type: data.fileType,
-          size: data.fileSize,
-          chunks: new Map(),
-          totalChunks: data.totalChunks
-        });
-      }
-      else if (data.type === 'file-chunk') {
-        const { fileIndex, chunkIndex, data: chunkData } = data;
-        const fileInfo = receivingFiles.get(fileIndex);
+      acc[transfer.sender_name].push(transfer);
+      return acc;
+    }, {} as Record<string, typeof transfers>);
 
-        if (!fileInfo) return;
+    // Process each sender's files
+    for (const [senderName, files] of Object.entries(senderGroups)) {
+      const queueFiles = [];
+      
+      for (const transfer of files) {
+        try {
+          // Download file from storage
+          const { data: fileData, error: downloadError } = await supabase.storage
+            .from('pending-files')
+            .download(transfer.storage_path);
 
-        fileInfo.chunks.set(chunkIndex, chunkData);
-
-        // Check if file is complete
-        if (fileInfo.chunks.size === fileInfo.totalChunks) {
-          const fileData = new Uint8Array(fileInfo.size);
-          let offset = 0;
-
-          for (let i = 0; i < fileInfo.totalChunks; i++) {
-            const chunk = fileInfo.chunks.get(i);
-            if (!chunk) continue;
-            const chunkView = new Uint8Array(chunk);
-            fileData.set(chunkView, offset);
-            offset += chunkView.length;
+          if (downloadError) {
+            console.error('Download error:', downloadError);
+            continue;
           }
 
-          const blob = new Blob([fileData], { type: fileInfo.type || 'application/octet-stream' });
-
-          completedFiles.push({
-            name: fileInfo.name,
-            size: fileInfo.size,
-            type: fileInfo.type,
-            blob
+          queueFiles.push({
+            name: transfer.file_name,
+            size: transfer.file_size,
+            type: transfer.file_type || 'application/octet-stream',
+            blob: fileData
           });
 
-          receivingFiles.delete(fileIndex);
+          // Mark as downloaded
+          await supabase
+            .from('pending_transfers')
+            .update({ downloaded: true })
+            .eq('id', transfer.id);
+
+          // Delete from storage
+          await supabase.storage
+            .from('pending-files')
+            .remove([transfer.storage_path]);
+
+          // Delete the record
+          await supabase
+            .from('pending_transfers')
+            .delete()
+            .eq('id', transfer.id);
+
+        } catch (err) {
+          console.error('Error processing file:', err);
         }
       }
-      else if (data.type === 'transfer-complete') {
-        // Add to queue with completed files
-        if (completedFiles.length > 0) {
-          addToQueueRef.current(senderName, completedFiles);
-          toast.success(`${senderName} sent ${completedFiles.length} file(s)`);
-        }
 
-        // Reset state
-        completedFiles = [];
-        receivingFiles.clear();
+      if (queueFiles.length > 0) {
+        addToQueue(senderName, queueFiles);
+        toast.success(`${senderName} sent ${queueFiles.length} file(s)`);
       }
-    });
+    }
+  }, [addToQueue]);
 
-    conn.on('error', (error) => {
-      console.error('Connection error:', error);
-      toast.error(`Connection error with ${senderName}`);
-    });
+  // Poll for new files when receiver is active
+  useEffect(() => {
+    if (!isReceiver) return;
 
-    conn.on('close', () => {
-      console.log('Connection closed with:', conn.peer);
-    });
-  }, []);
+    // Initial fetch
+    fetchPendingFiles();
+
+    // Poll every 5 seconds
+    const interval = setInterval(fetchPendingFiles, 5000);
+
+    return () => clearInterval(interval);
+  }, [isReceiver, fetchPendingFiles]);
 
   const startReceiver = useCallback(async () => {
     if (!user) {
@@ -111,60 +111,22 @@ export const useReceiverPeer = () => {
       return;
     }
 
-    // User is already verified as authorized during login
     console.log("User authorized:", user.username);
-
-    if (peer) {
-      peer.destroy();
-    }
-
     console.log("Starting receiver with code:", STATIC_RECEIVER_CODE);
 
-    const newPeer = new Peer(STATIC_RECEIVER_CODE, {
-      debug: 2,
-      config: {
-        iceServers: [
-          { urls: "stun:stun.l.google.com:19302" },
-          { urls: "stun:stun1.l.google.com:19302" },
-          { urls: "stun:stun2.l.google.com:19302" },
-        ]
-      }
-    });
+    setIsConnected(true);
+    setIsReceiver(true);
+    toast.success("Receiver mode active! Code: SRGEC");
 
-    newPeer.on('open', (id) => {
-      console.log('Receiver connected with ID:', id);
-      setIsConnected(true);
-      setIsReceiver(true);
-      toast.success("Receiver mode active! Code: SRGEC");
-    });
-
-    newPeer.on('connection', (conn) => {
-      console.log('New sender connection from:', conn.peer);
-      handleSenderConnection(conn);
-    });
-
-    newPeer.on('error', (error) => {
-      console.error('Receiver peer error:', error);
-      if (error.type === 'unavailable-id') {
-        toast.error("Receiver code SRGEC is already in use");
-      } else {
-        toast.error("Receiver connection error");
-      }
-      setIsConnected(false);
-    });
-
-    setPeer(newPeer);
-  }, [user, peer, handleSenderConnection]);
+    // Fetch any pending files immediately
+    await fetchPendingFiles();
+  }, [user, fetchPendingFiles]);
 
   const stopReceiver = useCallback(() => {
-    if (peer) {
-      peer.destroy();
-      setPeer(null);
-      setIsConnected(false);
-      setIsReceiver(false);
-      toast.info("Receiver mode stopped");
-    }
-  }, [peer]);
+    setIsConnected(false);
+    setIsReceiver(false);
+    toast.info("Receiver mode stopped");
+  }, []);
 
   return {
     isConnected,

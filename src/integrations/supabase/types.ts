@@ -44,6 +44,39 @@ export type Database = {
         }
         Relationships: []
       }
+      pending_transfers: {
+        Row: {
+          created_at: string
+          downloaded: boolean | null
+          file_name: string
+          file_size: number
+          file_type: string | null
+          id: string
+          sender_name: string
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          downloaded?: boolean | null
+          file_name: string
+          file_size: number
+          file_type?: string | null
+          id?: string
+          sender_name: string
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          downloaded?: boolean | null
+          file_name?: string
+          file_size?: number
+          file_type?: string | null
+          id?: string
+          sender_name?: string
+          storage_path?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
