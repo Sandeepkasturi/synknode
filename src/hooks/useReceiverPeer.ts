@@ -112,7 +112,7 @@ export const useReceiverPeer = () => {
     }
 
     // User is already verified as authorized during login
-    console.log("User authorized:", user.phone);
+    console.log("User authorized:", user.username);
 
     if (peer) {
       peer.destroy();

@@ -2,30 +2,25 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-// Mock OTP for authorized users
-const MOCK_OTP = "152615";
-
-interface MockUser {
+interface AppUser {
     id: string;
-    phone: string;
+    username: string;
     isPrimary: boolean;
 }
 
 interface AuthContextType {
-    user: MockUser | null;
+    user: AppUser | null;
     isLoading: boolean;
     isPrimaryAdmin: boolean;
-    signInWithOTP: (phone: string) => Promise<{ error: any }>;
-    verifyOTP: (phone: string, token: string) => Promise<{ error: any }>;
+    login: (username: string, password: string) => Promise<{ error: any }>;
     signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [user, setUser] = useState<MockUser | null>(null);
+    const [user, setUser] = useState<AppUser | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [pendingPhone, setPendingPhone] = useState<string | null>(null);
 
     useEffect(() => {
         // Check for existing session in localStorage
@@ -40,76 +35,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoading(false);
     }, []);
 
-    const signInWithOTP = async (phone: string) => {
+    const login = async (username: string, password: string) => {
         try {
-            // Normalize phone number
-            let normalizedPhone = phone.replace(/\s+/g, '');
-            if (!normalizedPhone.startsWith('+')) {
-                normalizedPhone = '+91' + normalizedPhone;
-            }
-
-            // Check if phone is in authorized_receivers
+            // Check credentials against authorized_receivers table
             const { data: authorized, error } = await supabase
                 .from('authorized_receivers')
-                .select('id, is_primary')
-                .eq('phone_number', normalizedPhone)
-                .single();
+                .select('id, username, is_primary, password_hash')
+                .eq('username', username)
+                .maybeSingle();
 
-            if (error || !authorized) {
-                return { error: { message: "This phone number is not authorized. Contact admin." } };
+            if (error) {
+                console.error("Login error:", error);
+                return { error: { message: "Login failed. Please try again." } };
             }
 
-            // Store pending phone for OTP verification
-            setPendingPhone(normalizedPhone);
-            
-            // In production, you'd send SMS here. For now, we use mock OTP
-            console.log(`Mock OTP for ${normalizedPhone}: ${MOCK_OTP}`);
-            
-            return { error: null };
-        } catch (error: any) {
-            console.error("Error in signInWithOTP:", error);
-            return { error };
-        }
-    };
-
-    const verifyOTP = async (phone: string, token: string) => {
-        try {
-            // Normalize phone
-            let normalizedPhone = phone.replace(/\s+/g, '');
-            if (!normalizedPhone.startsWith('+')) {
-                normalizedPhone = '+91' + normalizedPhone;
+            if (!authorized) {
+                return { error: { message: "Invalid username. Please check your credentials." } };
             }
 
-            // Check mock OTP
-            if (token !== MOCK_OTP) {
-                return { error: { message: "Invalid OTP. Please try again." } };
+            // Check password
+            if (authorized.password_hash !== password) {
+                return { error: { message: "Invalid password. Please try again." } };
             }
 
-            // Get user info from authorized_receivers
-            const { data: authorized, error } = await supabase
-                .from('authorized_receivers')
-                .select('id, is_primary')
-                .eq('phone_number', normalizedPhone)
-                .single();
-
-            if (error || !authorized) {
-                return { error: { message: "Phone number not authorized." } };
-            }
-
-            // Create mock user session
-            const mockUser: MockUser = {
+            // Create user session
+            const appUser: AppUser = {
                 id: authorized.id,
-                phone: normalizedPhone,
+                username: authorized.username || username,
                 isPrimary: authorized.is_primary || false
             };
 
-            setUser(mockUser);
-            localStorage.setItem('synknode_user', JSON.stringify(mockUser));
-            setPendingPhone(null);
+            setUser(appUser);
+            localStorage.setItem('synknode_user', JSON.stringify(appUser));
 
             return { error: null };
         } catch (error: any) {
-            console.error("Error verifying OTP:", error);
+            console.error("Error in login:", error);
             return { error };
         }
     };
@@ -132,8 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             user, 
             isLoading, 
             isPrimaryAdmin,
-            signInWithOTP, 
-            verifyOTP, 
+            login, 
             signOut 
         }}>
             {children}
