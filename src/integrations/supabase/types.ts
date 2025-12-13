@@ -20,21 +20,27 @@ export type Database = {
           created_at: string | null
           id: string
           is_primary: boolean | null
-          phone_number: string
+          password_hash: string | null
+          phone_number: string | null
+          username: string | null
         }
         Insert: {
           added_by?: string | null
           created_at?: string | null
           id?: string
           is_primary?: boolean | null
-          phone_number: string
+          password_hash?: string | null
+          phone_number?: string | null
+          username?: string | null
         }
         Update: {
           added_by?: string | null
           created_at?: string | null
           id?: string
           is_primary?: boolean | null
-          phone_number?: string
+          password_hash?: string | null
+          phone_number?: string | null
+          username?: string | null
         }
         Relationships: []
       }
