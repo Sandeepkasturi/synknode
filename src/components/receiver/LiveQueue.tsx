@@ -108,6 +108,11 @@ export const LiveQueue: React.FC = () => {
             }`}
           >
             <div className="flex items-start justify-between gap-4">
+              {/* Queue Number Badge */}
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-primary via-purple-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-primary/20">
+                <span className="text-sm font-bold text-white">#{index + 1}</span>
+              </div>
+
               <div className="flex-1 min-w-0">
                 {/* Sender Info */}
                 <div className="flex items-center gap-3 mb-3">
@@ -138,6 +143,7 @@ export const LiveQueue: React.FC = () => {
                       key={fileIndex}
                       className="flex items-center gap-2 text-sm p-2 rounded-lg bg-background/50"
                     >
+                      <span className="text-xs text-muted-foreground font-mono w-5">#{fileIndex + 1}</span>
                       <div className="w-7 h-7 rounded bg-primary/10 flex items-center justify-center flex-shrink-0">
                         <FileIcon className="h-3.5 w-3.5 text-primary" />
                       </div>

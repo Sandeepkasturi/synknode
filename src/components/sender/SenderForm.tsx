@@ -8,6 +8,7 @@ import { useSenderPeer } from "@/hooks/useSenderPeer";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { OrbitalAnimation } from "@/components/OrbitalAnimation";
+import { SenderQueue } from "./SenderQueue";
 
 export const SenderForm: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -203,6 +204,11 @@ export const SenderForm: React.FC = () => {
         <Send className="h-4 w-4 mr-2" />
         {transferProgress.active ? 'Sending...' : `Send ${selectedFiles.length} File(s)`}
       </Button>
+
+      {/* Queue Display */}
+      <div className="mt-6 pt-6 border-t border-border/50">
+        <SenderQueue />
+      </div>
     </div>
   );
 };
