@@ -5,20 +5,31 @@ import { MainTabs } from "../components/MainTabs";
 import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
 import { motion } from "framer-motion";
-import Hyperspeed, { hyperspeedPresets } from "../components/Hyperspeed";
-import Lightning from "../components/Lightning";
+import LightPillar from "../components/LightPillar";
 
 const Index: React.FC = () => {
   return (
     <QueueProvider>
       <div className="min-h-screen bg-background relative overflow-hidden">
-        {/* Lightning background */}
+        {/* LightPillar background */}
         <div className="fixed inset-0 z-0">
-          <Lightning hue={220} speed={1} intensity={1} />
+          <LightPillar
+            topColor="#5227FF"
+            bottomColor="#FF9FFC"
+            intensity={1.0}
+            rotationSpeed={0.3}
+            glowAmount={0.005}
+            pillarWidth={3.0}
+            pillarHeight={0.4}
+            noiseIntensity={0.5}
+            pillarRotation={0}
+            interactive={false}
+            mixBlendMode="normal"
+          />
         </div>
 
         {/* Overlay for readability */}
-        <div className="fixed inset-0 z-[1] bg-background/60 backdrop-blur-[1px]" />
+        <div className="fixed inset-0 z-[1] bg-background/70 backdrop-blur-[2px]" />
 
         <Header />
 
