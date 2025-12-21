@@ -4,66 +4,29 @@ import { HeroSection } from "../components/HeroSection";
 import { MainTabs } from "../components/MainTabs";
 import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
-import { motion } from "framer-motion";
-import LightPillar from "../components/LightPillar";
 
 const Index: React.FC = () => {
   return (
     <QueueProvider>
-      <div className="min-h-screen bg-background relative overflow-hidden">
-        {/* LightPillar background */}
-        <div className="fixed inset-0 z-0">
-          <LightPillar
-            topColor="#5227FF"
-            bottomColor="#FF9FFC"
-            intensity={1.0}
-            rotationSpeed={0.3}
-            glowAmount={0.005}
-            pillarWidth={3.0}
-            pillarHeight={0.4}
-            noiseIntensity={0.5}
-            pillarRotation={0}
-            interactive={false}
-            mixBlendMode="normal"
-          />
+      <div className="min-h-screen bg-background relative selection:bg-primary/20">
+        {/* Subtle nice background gradient */}
+        <div className="absolute inset-0 -z-10 h-full w-full bg-white dark:bg-[#0a0a0a] bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#ffffff33_1px,#00091d_1px)] [background-size:16px_16px]">
+          <div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_800px_at_100%_200px,#d5c5ff,transparent)] dark:bg-[radial-gradient(circle_800px_at_100%_200px,#4c1d95,transparent)] opacity-40"></div>
         </div>
-
-        {/* Overlay for readability */}
-        <div className="fixed inset-0 z-[1] bg-background/70 backdrop-blur-[2px]" />
 
         <Header />
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
-          className="container max-w-4xl mx-auto px-4 pt-24 pb-12 relative z-10"
-        >
-          <motion.div
-            initial={{ y: 30, opacity: 0, scale: 0.95 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.7, type: "spring", stiffness: 100 }}
-          >
+        <main className="container max-w-5xl mx-auto px-4 pt-32 pb-16">
+          <div className="flex flex-col items-center gap-12">
             <HeroSection />
-          </motion.div>
 
-          <motion.div
-            initial={{ y: 30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.7 }}
-            className="glass rounded-2xl shadow-2xl p-6 md:p-8"
-          >
-            <MainTabs />
-          </motion.div>
+            <div className="w-full max-w-3xl glass-card rounded-2xl shadow-sm border border-border/50 bg-card/50 backdrop-blur-xl p-1">
+              <MainTabs />
+            </div>
+          </div>
+        </main>
 
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.7 }}
-          >
-            <Footer />
-          </motion.div>
-        </motion.div>
+        <Footer />
       </div>
     </QueueProvider>
   );

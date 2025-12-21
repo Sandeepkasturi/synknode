@@ -3,47 +3,36 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Upload, Download } from "lucide-react";
 import { SenderForm } from "./sender/SenderForm";
 import { ReceiverPanel } from "./receiver/ReceiverPanel";
-import { motion } from "framer-motion";
 
 export const MainTabs: React.FC = () => {
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="w-full">
       <Tabs defaultValue="send" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-8 bg-black/20 backdrop-blur-sm p-1.5 rounded-2xl border border-white/10">
-          <TabsTrigger
-            value="send"
-            className="flex items-center gap-2 rounded-xl py-3 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 transition-all duration-300 font-display tracking-wide"
-          >
-            <Upload className="h-4 w-4" />
-            Send Files
-          </TabsTrigger>
-          <TabsTrigger
-            value="receive"
-            className="flex items-center gap-2 rounded-xl py-3 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 transition-all duration-300 font-display tracking-wide"
-          >
-            <Download className="h-4 w-4" />
-            Receive Files
-          </TabsTrigger>
-        </TabsList>
+        <div className="flex justify-center mb-8">
+          <TabsList className="grid w-full max-w-md grid-cols-2 p-1 bg-secondary/50 rounded-xl">
+            <TabsTrigger
+              value="send"
+              className="flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+            >
+              <Upload className="h-4 w-4" />
+              Send Files
+            </TabsTrigger>
+            <TabsTrigger
+              value="receive"
+              className="flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+            >
+              <Download className="h-4 w-4" />
+              Receive Files
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
-        <TabsContent value="send" className="mt-0">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <SenderForm />
-          </motion.div>
+        <TabsContent value="send" className="mt-0 focus-visible:outline-none">
+          <SenderForm />
         </TabsContent>
 
-        <TabsContent value="receive" className="mt-0">
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <ReceiverPanel />
-          </motion.div>
+        <TabsContent value="receive" className="mt-0 focus-visible:outline-none">
+          <ReceiverPanel />
         </TabsContent>
       </Tabs>
     </div>
