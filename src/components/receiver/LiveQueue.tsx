@@ -1,5 +1,6 @@
 import React from "react";
 import { useQueue } from "@/context/QueueContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Download, User, Clock, FileIcon, Trash2, FolderOpen, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -41,8 +42,25 @@ export const LiveQueue: React.FC = () => {
       for (const file of entry.files) {
         if (file.blob) {
           downloadFile(file.blob, file.name, entry.senderName);
-          await new Promise(resolve => setTimeout(resolve, 200));
+        } else if (file.storagePath) {
+          // Download from Supabase
+          const { data, error } = await supabase.storage
+            .from('pending-files')
+            .download(file.storagePath);
+
+          if (error) throw error;
+
+          if (data) {
+            downloadFile(data, file.name, entry.senderName);
+
+            // Update downloaded status in DB
+            await supabase
+              .from('pending_transfers')
+              .update({ downloaded: true })
+              .eq('id', entryId);
+          }
         }
+        await new Promise(resolve => setTimeout(resolve, 200));
       }
 
       updateEntryStatus(entryId, 'completed');
@@ -65,7 +83,7 @@ export const LiveQueue: React.FC = () => {
 
   if (queue.length === 0) {
     return (
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="text-center py-12"
@@ -99,13 +117,12 @@ export const LiveQueue: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, x: -100 }}
             transition={{ delay: index * 0.1 }}
-            className={`p-4 rounded-xl border transition-all ${
-              entry.status === 'downloading' 
-                ? 'bg-primary/10 border-primary/30 shadow-lg shadow-primary/10' 
-                : entry.status === 'completed'
+            className={`p-4 rounded-xl border transition-all ${entry.status === 'downloading'
+              ? 'bg-primary/10 border-primary/30 shadow-lg shadow-primary/10'
+              : entry.status === 'completed'
                 ? 'bg-green-500/10 border-green-500/30 shadow-lg shadow-green-500/10'
                 : 'bg-secondary/30 border-border/50 hover:border-primary/30 hover:bg-secondary/50'
-            }`}
+              }`}
           >
             <div className="flex items-start justify-between gap-4">
               {/* Queue Number Badge */}
@@ -116,9 +133,8 @@ export const LiveQueue: React.FC = () => {
               <div className="flex-1 min-w-0">
                 {/* Sender Info */}
                 <div className="flex items-center gap-3 mb-3">
-                  <div className={`p-2.5 rounded-full ${
-                    entry.status === 'completed' ? 'bg-green-500/20' : 'bg-primary/10'
-                  }`}>
+                  <div className={`p-2.5 rounded-full ${entry.status === 'completed' ? 'bg-green-500/20' : 'bg-primary/10'
+                    }`}>
                     {entry.status === 'completed' ? (
                       <CheckCircle className="h-5 w-5 text-green-500" />
                     ) : (
@@ -139,7 +155,7 @@ export const LiveQueue: React.FC = () => {
                 {/* Files List */}
                 <div className="space-y-1.5 pl-12">
                   {entry.files.map((file, fileIndex) => (
-                    <div 
+                    <div
                       key={fileIndex}
                       className="flex items-center gap-2 text-sm p-2 rounded-lg bg-background/50"
                     >
@@ -162,11 +178,10 @@ export const LiveQueue: React.FC = () => {
                   size="sm"
                   onClick={() => downloadEntry(entry.id)}
                   disabled={entry.status === 'downloading' || entry.status === 'completed'}
-                  className={`gap-1.5 ${
-                    entry.status === 'completed' 
-                      ? 'bg-green-500 hover:bg-green-600' 
-                      : 'bg-gradient-to-r from-primary via-purple-500 to-primary hover:opacity-90'
-                  }`}
+                  className={`gap-1.5 ${entry.status === 'completed'
+                    ? 'bg-green-500 hover:bg-green-600'
+                    : 'bg-gradient-to-r from-primary via-purple-500 to-primary hover:opacity-90'
+                    }`}
                 >
                   {entry.status === 'downloading' ? (
                     <>

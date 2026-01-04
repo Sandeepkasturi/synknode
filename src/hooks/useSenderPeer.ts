@@ -48,53 +48,85 @@ export const useSenderPeer = () => {
       });
 
       const totalFiles = files.length;
-      
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const fileId = crypto.randomUUID();
-        const storagePath = `${fileId}/${file.name}`;
+      let completedFiles = 0;
+      const batchSize = 3; // Upload 3 files concurrently
 
-        setTransferProgress({
-          active: true,
-          progress: Math.round((i / totalFiles) * 100),
-          status: 'transferring',
-          currentFile: file.name
-        });
+      // Process files in batches
+      for (let i = 0; i < files.length; i += batchSize) {
+        const batch = files.slice(i, i + batchSize);
 
-        // Upload file to Supabase Storage
-        const { error: uploadError } = await supabase.storage
-          .from('pending-files')
-          .upload(storagePath, file);
+        await Promise.all(batch.map(async (file) => {
+          // Check for existing duplicate
+          const { data: existingFiles } = await supabase
+            .from('pending_transfers')
+            .select('id')
+            .eq('sender_name', name.trim())
+            .eq('file_name', file.name)
+            .eq('file_size', file.size)
+            .eq('downloaded', false)
+            .single();
 
-        if (uploadError) {
-          console.error('Upload error:', uploadError);
-          throw new Error(`Failed to upload ${file.name}`);
-        }
+          if (existingFiles) {
+            console.log(`Skipping duplicate file: ${file.name}`);
+            completedFiles++;
+            setTransferProgress({
+              active: true,
+              progress: Math.round((completedFiles / totalFiles) * 100),
+              status: 'transferring',
+              currentFile: `Skipped duplicate: ${file.name}`
+            });
+            return;
+          }
 
-        // Create pending transfer record
-        const { error: insertError } = await supabase
-          .from('pending_transfers')
-          .insert({
-            sender_name: name.trim(),
-            file_name: file.name,
-            file_type: file.type,
-            file_size: file.size,
-            storage_path: storagePath
+          const fileId = crypto.randomUUID();
+          const storagePath = `${fileId}/${file.name}`;
+
+          setTransferProgress({
+            active: true,
+            progress: Math.round((completedFiles / totalFiles) * 100),
+            status: 'transferring',
+            currentFile: `Uploading: ${file.name}`
           });
 
-        if (insertError) {
-          console.error('Insert error:', insertError);
-          // Clean up uploaded file
-          await supabase.storage.from('pending-files').remove([storagePath]);
-          throw new Error(`Failed to register ${file.name}`);
-        }
+          // Upload file to Supabase Storage
+          const { error: uploadError } = await supabase.storage
+            .from('pending-files')
+            .upload(storagePath, file);
 
-        setTransferProgress({
-          active: true,
-          progress: Math.round(((i + 1) / totalFiles) * 100),
-          status: 'transferring',
-          currentFile: file.name
-        });
+          if (uploadError) {
+            console.error('Upload error:', uploadError);
+            // Verify if it's already there just in case
+            if ((uploadError as any)?.statusCode !== '409') { // 409 is conflict
+              throw new Error(`Failed to upload ${file.name}`);
+            }
+          }
+
+          // Create pending transfer record
+          const { error: insertError } = await supabase
+            .from('pending_transfers')
+            .insert({
+              sender_name: name.trim(),
+              file_name: file.name,
+              file_type: file.type,
+              file_size: file.size,
+              storage_path: storagePath
+            });
+
+          if (insertError) {
+            console.error('Insert error:', insertError);
+            // Clean up uploaded file if DB insert fails
+            await supabase.storage.from('pending-files').remove([storagePath]);
+            throw new Error(`Failed to register ${file.name}`);
+          }
+
+          completedFiles++;
+          setTransferProgress({
+            active: true,
+            progress: Math.round((completedFiles / totalFiles) * 100),
+            status: 'transferring',
+            currentFile: file.name
+          });
+        }));
       }
 
       setTransferProgress({
@@ -103,7 +135,7 @@ export const useSenderPeer = () => {
         status: 'completed'
       });
 
-      toast.success("Files sent successfully!");
+      toast.success("Files processed successfully!");
 
       // Clean up after delay
       setTimeout(() => {

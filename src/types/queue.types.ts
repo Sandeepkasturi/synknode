@@ -11,6 +11,7 @@ export interface QueueFile {
   size: number;
   type: string;
   blob?: Blob;
+  storagePath?: string;
 }
 
 export interface SenderInfo {
