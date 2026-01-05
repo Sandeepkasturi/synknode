@@ -23,6 +23,7 @@ export const QueueProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [isReceiverMode, setReceiverMode] = useState(false);
 
   const fetchQueue = useCallback(async () => {
+    console.log('Fetching queue from database...');
     // Fetch ALL pending files for receiver mode
     const { data, error } = await supabase
       .from('pending_transfers')
@@ -35,7 +36,9 @@ export const QueueProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       return;
     }
 
-    const formattedQueue: QueueEntry[] = data.map(item => ({
+    console.log('Queue data fetched:', data?.length || 0, 'items', data);
+
+    const formattedQueue: QueueEntry[] = (data || []).map(item => ({
       id: item.id,
       senderName: item.sender_name,
       files: [{
@@ -53,6 +56,8 @@ export const QueueProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   // Fetch initial queue and subscribe to changes when in receiver mode
   React.useEffect(() => {
+    console.log('ReceiverMode changed:', isReceiverMode);
+    
     if (!isReceiverMode) {
       setQueue([]);
       return;
@@ -71,8 +76,11 @@ export const QueueProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           table: 'pending_transfers'
         },
         (payload) => {
+          console.log('Realtime event received:', payload.eventType, payload);
+          
           if (payload.eventType === 'INSERT') {
             const newItem = payload.new as any;
+            console.log('New file inserted:', newItem);
             toast.success(`New file from ${newItem.sender_name}: ${newItem.file_name}`);
             setQueue(prev => {
               if (prev.some(entry => entry.id === newItem.id)) return prev;
