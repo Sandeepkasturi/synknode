@@ -43,25 +43,43 @@ export const LiveQueue: React.FC = () => {
         if (file.blob) {
           downloadFile(file.blob, file.name, entry.senderName);
         } else if (file.storagePath) {
-          // Download from Supabase
+          // Download from Supabase Storage
           const { data, error } = await supabase.storage
             .from('pending-files')
             .download(file.storagePath);
 
-          if (error) throw error;
+          if (error) {
+            console.error('Storage download error:', error);
+            throw error;
+          }
 
           if (data) {
             downloadFile(data, file.name, entry.senderName);
-
-            // Update downloaded status in DB
-            await supabase
-              .from('pending_transfers')
-              .update({ downloaded: true })
-              .eq('id', entryId);
           }
         }
         await new Promise(resolve => setTimeout(resolve, 200));
       }
+
+      // Mark as downloaded and clean up
+      await supabase
+        .from('pending_transfers')
+        .update({ downloaded: true })
+        .eq('id', entryId);
+
+      // Delete from storage after successful download
+      for (const file of entry.files) {
+        if (file.storagePath) {
+          await supabase.storage
+            .from('pending-files')
+            .remove([file.storagePath]);
+        }
+      }
+
+      // Delete the record
+      await supabase
+        .from('pending_transfers')
+        .delete()
+        .eq('id', entryId);
 
       updateEntryStatus(entryId, 'completed');
       toast.success(`Downloaded ${entry.files.length} file(s) from ${entry.senderName}`);
