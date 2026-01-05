@@ -89,35 +89,43 @@ export const useSenderPeer = () => {
           });
 
           // Upload file to Supabase Storage
-          const { error: uploadError } = await supabase.storage
+          console.log(`Uploading file: ${file.name} to path: ${storagePath}`);
+          const { data: uploadData, error: uploadError } = await supabase.storage
             .from('pending-files')
-            .upload(storagePath, file);
+            .upload(storagePath, file, {
+              cacheControl: '3600',
+              upsert: false
+            });
 
           if (uploadError) {
-            console.error('Upload error:', uploadError);
-            // Verify if it's already there just in case
-            if ((uploadError as any)?.statusCode !== '409') { // 409 is conflict
-              throw new Error(`Failed to upload ${file.name}`);
-            }
+            console.error('Upload error details:', JSON.stringify(uploadError, null, 2));
+            throw new Error(`Failed to upload ${file.name}: ${uploadError.message}`);
           }
+          
+          console.log('Upload successful:', uploadData);
 
           // Create pending transfer record
-          const { error: insertError } = await supabase
+          console.log('Creating pending transfer record...');
+          const { data: insertData, error: insertError } = await supabase
             .from('pending_transfers')
             .insert({
               sender_name: name.trim(),
               file_name: file.name,
-              file_type: file.type,
+              file_type: file.type || 'application/octet-stream',
               file_size: file.size,
               storage_path: storagePath
-            });
+            })
+            .select()
+            .single();
 
           if (insertError) {
-            console.error('Insert error:', insertError);
+            console.error('Insert error details:', JSON.stringify(insertError, null, 2));
             // Clean up uploaded file if DB insert fails
             await supabase.storage.from('pending-files').remove([storagePath]);
-            throw new Error(`Failed to register ${file.name}`);
+            throw new Error(`Failed to register ${file.name}: ${insertError.message}`);
           }
+          
+          console.log('Transfer record created:', insertData);
 
           completedFiles++;
           setTransferProgress({

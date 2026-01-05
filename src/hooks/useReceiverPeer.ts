@@ -15,21 +15,23 @@ export const useReceiverPeer = () => {
   const fetchPendingFiles = useCallback(async () => {
     console.log('Fetching pending files...');
     
-    const { data: transfers, error } = await supabase
-      .from('pending_transfers')
-      .select('*')
-      .eq('downloaded', false)
-      .order('created_at', { ascending: true });
+    try {
+      const { data: transfers, error } = await supabase
+        .from('pending_transfers')
+        .select('*')
+        .eq('downloaded', false)
+        .order('created_at', { ascending: true });
 
-    if (error) {
-      console.error('Error fetching pending transfers:', error);
-      return;
-    }
+      if (error) {
+        console.error('Error fetching pending transfers:', JSON.stringify(error, null, 2));
+        return;
+      }
 
-    if (!transfers || transfers.length === 0) {
-      console.log('No pending files');
-      return;
-    }
+      console.log('Found transfers:', transfers?.length || 0);
+
+      if (!transfers || transfers.length === 0) {
+        return;
+      }
 
     // Group files by sender
     const senderGroups = transfers.reduce((acc, transfer) => {
@@ -46,15 +48,19 @@ export const useReceiverPeer = () => {
       
       for (const transfer of files) {
         try {
+          console.log(`Downloading file: ${transfer.file_name} from path: ${transfer.storage_path}`);
+          
           // Download file from storage
           const { data: fileData, error: downloadError } = await supabase.storage
             .from('pending-files')
             .download(transfer.storage_path);
 
           if (downloadError) {
-            console.error('Download error:', downloadError);
+            console.error('Download error details:', JSON.stringify(downloadError, null, 2));
             continue;
           }
+          
+          console.log('Download successful, blob size:', fileData?.size);
 
           queueFiles.push({
             name: transfer.file_name,
@@ -89,6 +95,9 @@ export const useReceiverPeer = () => {
         addToQueue(senderName, queueFiles);
         toast.success(`${senderName} sent ${queueFiles.length} file(s)`);
       }
+    }
+    } catch (err) {
+      console.error('Error in fetchPendingFiles:', err);
     }
   }, [addToQueue]);
 
