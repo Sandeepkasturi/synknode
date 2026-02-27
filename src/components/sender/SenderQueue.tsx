@@ -102,6 +102,9 @@ export const SenderQueue: React.FC = () => {
             ({pendingFiles.length} file{pendingFiles.length !== 1 ? 's' : ''})
           </span>
         </h3>
+        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+          FIFO · {senderEntries.length} sender{senderEntries.length !== 1 ? 's' : ''}
+        </span>
       </div>
 
       <AnimatePresence>
@@ -115,9 +118,12 @@ export const SenderQueue: React.FC = () => {
             className="p-3 rounded-lg border bg-secondary/20 border-border/50"
           >
             <div className="flex items-start gap-3">
-              {/* Queue Number Badge */}
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-primary via-purple-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-primary/20">
-                <span className="text-xs font-bold text-white">#{queueIndex + 1}</span>
+              {/* Queue Position Badge */}
+              <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary via-purple-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-primary/20">
+                  <span className="text-xs font-bold text-white">#{queueIndex + 1}</span>
+                </div>
+                <span className="text-[9px] text-muted-foreground">of {senderEntries.length}</span>
               </div>
 
               <div className="flex-1 min-w-0">

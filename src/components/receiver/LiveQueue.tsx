@@ -125,6 +125,9 @@ export const LiveQueue: React.FC = () => {
           Live Queue
           <span className="text-sm font-normal text-muted-foreground">({queue.length})</span>
         </h3>
+        <span className="text-xs font-mono px-2 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+          FIFO · {queue.length} pending
+        </span>
       </div>
 
       <AnimatePresence>
@@ -143,9 +146,12 @@ export const LiveQueue: React.FC = () => {
               }`}
           >
             <div className="flex items-start justify-between gap-4">
-              {/* Queue Number Badge */}
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-primary via-purple-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-primary/20">
-                <span className="text-sm font-bold text-white">#{index + 1}</span>
+              {/* Queue Position Badge */}
+              <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary via-purple-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-primary/20">
+                  <span className="text-sm font-bold text-white">#{index + 1}</span>
+                </div>
+                <span className="text-[10px] text-muted-foreground">of {queue.length}</span>
               </div>
 
               <div className="flex-1 min-w-0">
