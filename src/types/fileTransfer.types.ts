@@ -34,5 +34,6 @@ export interface FileTransferContextType {
 }
 
 // Constants
-export const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
+export const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+export const MAX_FILES_PER_DAY = 100;
 export const CHUNK_SIZE = 64 * 1024; // 64KB for better performance

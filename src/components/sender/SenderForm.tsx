@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { OrbitalAnimation } from "@/components/OrbitalAnimation";
 import { SenderQueue } from "./SenderQueue";
+import { validateFiles, getRemainingDailyFiles, incrementDailyFileCount } from "@/utils/fileTransfer.utils";
+import { MAX_FILE_SIZE } from "@/types/fileTransfer.types";
 
 export const SenderForm: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -16,13 +18,17 @@ export const SenderForm: React.FC = () => {
   const { sendFiles, transferProgress } = useSenderPeer();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    setSelectedFiles(prev => [...prev, ...acceptedFiles]);
-    toast.success(`${acceptedFiles.length} file(s) added`);
+    const validFiles = validateFiles(acceptedFiles);
+    if (validFiles.length > 0) {
+      setSelectedFiles(prev => [...prev, ...validFiles]);
+      toast.success(`${validFiles.length} file(s) added`);
+    }
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    multiple: true
+    multiple: true,
+    maxSize: MAX_FILE_SIZE
   });
 
   const removeFile = (index: number) => {
@@ -36,6 +42,10 @@ export const SenderForm: React.FC = () => {
     }
     if (selectedFiles.length === 0) {
       toast.error("Please select files to send");
+      return;
+    }
+
+    if (!incrementDailyFileCount(selectedFiles.length)) {
       return;
     }
 
@@ -130,7 +140,7 @@ export const SenderForm: React.FC = () => {
               Drag & drop files here, or click to select
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Select multiple files to send
+              Max 50MB per file · {getRemainingDailyFiles()} files remaining today
             </p>
           </div>
         ) : (
