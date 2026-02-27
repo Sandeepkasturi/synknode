@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Outfit:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display&display=swap');
 
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
@@ -7,51 +7,52 @@
 
 @layer base {
   :root {
-    /* Light theme - Clean, professional */
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 262 83% 58%;
+    /* Warm minimal light theme */
+    --background: 40 33% 98%;
+    --foreground: 20 20% 15%;
+    --card: 40 25% 97%;
+    --card-foreground: 20 20% 15%;
+    --popover: 40 25% 97%;
+    --popover-foreground: 20 20% 15%;
+    --primary: 24 80% 55%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 94%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 210 40% 92%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 84% 60%;
+    --secondary: 35 25% 93%;
+    --secondary-foreground: 20 20% 15%;
+    --muted: 35 20% 92%;
+    --muted-foreground: 20 10% 50%;
+    --accent: 35 30% 90%;
+    --accent-foreground: 20 20% 15%;
+    --destructive: 0 65% 55%;
     --destructive-foreground: 0 0% 100%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 262 83% 58%;
-    --radius: 1rem;
-    /* More rounded */
+    --border: 30 15% 88%;
+    --input: 30 15% 88%;
+    --ring: 24 80% 55%;
+    --radius: 0.75rem;
+    --success: 145 60% 42%;
   }
 
   .dark {
-    /* Dark theme - Deep space aesthetic */
-    --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 262 83% 65%;
+    /* Warm minimal dark theme */
+    --background: 20 15% 8%;
+    --foreground: 35 20% 92%;
+    --card: 20 14% 11%;
+    --card-foreground: 35 20% 92%;
+    --popover: 20 14% 11%;
+    --popover-foreground: 35 20% 92%;
+    --primary: 24 85% 58%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 217 33% 20%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 63% 50%;
+    --secondary: 20 12% 16%;
+    --secondary-foreground: 35 20% 92%;
+    --muted: 20 12% 16%;
+    --muted-foreground: 30 12% 55%;
+    --accent: 20 14% 18%;
+    --accent-foreground: 35 20% 92%;
+    --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 217 33% 20%;
-    --input: 217 33% 20%;
-    --ring: 262 83% 65%;
+    --border: 20 12% 18%;
+    --input: 20 12% 18%;
+    --ring: 24 85% 58%;
+    --success: 145 55% 45%;
   }
 }
 
@@ -61,30 +62,27 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased font-body;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'DM Sans', sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
-  /* Custom Scrollbar */
+  /* Minimal Scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-background;
+    @apply bg-transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-primary/30 rounded-full hover:bg-primary/50 transition-colors;
+    @apply bg-border rounded-full hover:bg-muted-foreground/30 transition-colors;
   }
 }
 
 @layer utilities {
   .glass {
-    @apply backdrop-blur-xl bg-background/80 border border-border/50;
-  }
-
-  .gradient-text {
-    @apply bg-gradient-to-r from-primary via-purple-500 to-cyan-400 bg-clip-text text-transparent;
+    @apply backdrop-blur-xl bg-card/80 border border-border/50;
   }
 }
