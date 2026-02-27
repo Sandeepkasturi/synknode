@@ -20,9 +20,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Orbitron", "sans-serif"],
-        body: ["Outfit", "sans-serif"],
-        sans: ["Outfit", "sans-serif"],
+        display: ["DM Serif Display", "serif"],
+        body: ["DM Sans", "sans-serif"],
+        sans: ["DM Sans", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -59,18 +59,8 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         success: {
-          DEFAULT: "#34D399",
+          DEFAULT: "hsl(var(--success))",
           foreground: "#ffffff",
-        },
-        brand: {
-          purple: "#8B5CF6",
-          indigo: "#6366F1",
-          pink: "#D946EF",
-          blue: "#0EA5E9",
-          teal: "#14B8A6",
-          green: "#22C55E",
-          amber: "#F59E0B",
-          orange: "#F97316",
         },
       },
       borderRadius: {
@@ -108,8 +98,8 @@ export default {
           "100%": { transform: "rotate(360deg)" },
         },
         "glow": {
-          "0%, 100%": { boxShadow: "0 0 20px rgba(139, 92, 246, 0.3)" },
-          "50%": { boxShadow: "0 0 40px rgba(139, 92, 246, 0.6)" },
+          "0%, 100%": { boxShadow: "0 0 20px hsl(24 80% 55% / 0.3)" },
+          "50%": { boxShadow: "0 0 40px hsl(24 80% 55% / 0.5)" },
         },
       },
       animation: {

@@ -24,60 +24,50 @@ export const ReceiverPanel: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <LoginDialog open={showLogin} onOpenChange={setShowLogin} />
       <ManageReceiversDialog open={showManageReceivers} onOpenChange={setShowManageReceivers} />
 
       {/* Connection Status */}
-      <div className="flex items-center justify-between p-4 rounded-xl bg-secondary/50 border border-border/50">
+      <div className="flex items-center justify-between p-4 rounded-xl bg-secondary/40 border border-border/50">
         <div className="flex items-center gap-3">
           {isReceiver ? (
             <motion.div
-              animate={{ scale: [1, 1.1, 1] }}
+              animate={{ scale: [1, 1.08, 1] }}
               transition={{ repeat: Infinity, duration: 2 }}
-              className="p-2.5 rounded-full bg-green-500/20 ring-2 ring-green-500/30"
+              className="p-2 rounded-full bg-primary/15"
             >
-              <Wifi className="h-5 w-5 text-green-500" />
+              <Wifi className="h-4 w-4 text-primary" />
             </motion.div>
           ) : (
-            <div className="p-2.5 rounded-full bg-muted">
-              {user ? <WifiOff className="h-5 w-5 text-muted-foreground" /> : <Lock className="h-5 w-5 text-muted-foreground" />}
+            <div className="p-2 rounded-full bg-muted">
+              {user ? <WifiOff className="h-4 w-4 text-muted-foreground" /> : <Lock className="h-4 w-4 text-muted-foreground" />}
             </div>
           )}
           <div>
-            <p className="font-medium text-foreground">
-              {isReceiver ? 'Receiver Active' : 'Receiver Inactive'}
+            <p className="font-medium text-sm text-foreground">
+              {isReceiver ? 'Receiving' : 'Inactive'}
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {isReceiver
-                ? `Listening on code: ${receiverCode}`
+                ? `Code: ${receiverCode}`
                 : user
-                  ? 'Click to start receiving files'
-                  : 'Login required to receive files'}
+                  ? 'Start to receive files'
+                  : 'Login required'}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           {isPrimaryAdmin && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowManageReceivers(true)}
-              className="text-xs text-primary"
-            >
-              <Settings className="h-4 w-4 mr-1" />
+            <Button variant="ghost" size="sm" onClick={() => setShowManageReceivers(true)} className="text-xs text-primary">
+              <Settings className="h-3.5 w-3.5 mr-1" />
               Manage
             </Button>
           )}
           
           {user && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => signOut()}
-              className="text-xs text-muted-foreground"
-            >
+            <Button variant="ghost" size="sm" onClick={() => signOut()} className="text-xs text-muted-foreground">
               Sign Out
             </Button>
           )}
@@ -85,43 +75,37 @@ export const ReceiverPanel: React.FC = () => {
           <Button
             onClick={isReceiver ? stopReceiver : handleStartReceiver}
             variant={isReceiver ? "destructive" : "default"}
-            className={`gap-2 ${!isReceiver && user ? 'bg-gradient-to-r from-primary via-purple-500 to-primary hover:opacity-90' : ''}`}
+            size="sm"
+            className={!isReceiver && user ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : ''}
           >
             {isReceiver ? (
-              <>
-                <Power className="h-4 w-4" />
-                Stop
-              </>
+              <><Power className="h-3.5 w-3.5 mr-1" /> Stop</>
             ) : (
-              <>
-                {user ? <Radio className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
-                {user ? "Start Receiver" : "Login to Access"}
-              </>
+              <>{user ? <Radio className="h-3.5 w-3.5 mr-1" /> : <LogIn className="h-3.5 w-3.5 mr-1" />}
+                {user ? "Start" : "Login"}</>
             )}
           </Button>
         </div>
       </div>
 
-      {/* Static Code Display with Orbital Animation */}
+      {/* Code Display */}
       {isReceiver && (
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row items-center justify-center gap-6 p-6 rounded-xl bg-gradient-to-r from-primary/5 via-purple-500/5 to-cyan-400/5 border border-primary/20"
+          className="flex items-center justify-center gap-5 p-5 rounded-xl bg-primary/5 border border-primary/15"
         >
           <OrbitalAnimation size="sm" isTransferring={false} />
-          <div className="text-center md:text-left">
-            <p className="text-sm text-muted-foreground mb-1">Your receiver code</p>
-            <p className="text-3xl md:text-4xl font-bold tracking-widest bg-gradient-to-r from-primary via-purple-500 to-cyan-400 bg-clip-text text-transparent">
-              {receiverCode}
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">Share this code with senders</p>
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground mb-1">Receiver code</p>
+            <p className="text-2xl font-bold tracking-widest text-primary font-display">{receiverCode}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">Share with senders</p>
           </div>
         </motion.div>
       )}
 
-      {/* Live Queue */}
-      <div className="border-t border-border/50 pt-6">
+      {/* Queue */}
+      <div className="border-t border-border/50 pt-5">
         <LiveQueue />
       </div>
     </div>
