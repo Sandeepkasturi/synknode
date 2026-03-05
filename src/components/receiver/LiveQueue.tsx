@@ -1,14 +1,19 @@
 import React, { useState } from "react";
 import { useQueue } from "@/context/QueueContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Download, User, Clock, FileIcon, Trash2, FolderOpen, CheckCircle, Users, ChevronRight } from "lucide-react";
+import { Download, User, Clock, FileIcon, Trash2, FolderOpen, CheckCircle, Users, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { QueueFile } from "@/types/queue.types";
+import { FilePreview } from "./FilePreview";
 
 export const LiveQueue: React.FC = () => {
   const { queue, removeFromQueue, updateEntryStatus } = useQueue();
   const [selectedSender, setSelectedSender] = useState<string | null>(null);
+  const [previewFile, setPreviewFile] = useState<QueueFile | null>(null);
+  const [previewSender, setPreviewSender] = useState("");
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B';
@@ -49,11 +54,9 @@ export const LiveQueue: React.FC = () => {
           if (error) throw error;
           if (data) downloadFile(data, file.name, entry.senderName);
         }
-        // Small delay between downloads
         await new Promise(resolve => setTimeout(resolve, 300));
       }
 
-      // Clean up all files for this sender
       for (const file of entry.files) {
         if (file.dbId) {
           await supabase.from('pending_transfers').update({ downloaded: true }).eq('id', file.dbId);
@@ -74,6 +77,12 @@ export const LiveQueue: React.FC = () => {
     }
   };
 
+  const openPreview = (file: QueueFile, senderName: string) => {
+    setPreviewFile(file);
+    setPreviewSender(senderName);
+    setPreviewOpen(true);
+  };
+
   if (queue.length === 0) {
     return (
       <div className="text-center py-10">
@@ -87,10 +96,16 @@ export const LiveQueue: React.FC = () => {
   }
 
   const totalFiles = queue.reduce((sum, e) => sum + e.files.length, 0);
-  const activeEntry = selectedSender ? queue.find(e => e.senderName === selectedSender) : null;
 
   return (
     <div className="space-y-3">
+      <FilePreview
+        file={previewFile}
+        senderName={previewSender}
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+      />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
@@ -177,10 +192,15 @@ export const LiveQueue: React.FC = () => {
 
                 <div className="space-y-1">
                   {entry.files.map((file, fileIndex) => (
-                    <div key={fileIndex} className="flex items-center gap-2 text-xs p-2 rounded-lg bg-background/60">
+                    <div
+                      key={fileIndex}
+                      className="flex items-center gap-2 text-xs p-2 rounded-lg bg-background/60 group cursor-pointer hover:bg-primary/5 transition-colors"
+                      onClick={() => openPreview(file, entry.senderName)}
+                    >
                       <span className="text-[10px] text-muted-foreground font-mono w-4">#{fileIndex + 1}</span>
                       <FileIcon className="h-3 w-3 text-primary flex-shrink-0" />
                       <span className="text-foreground truncate flex-1">{file.name}</span>
+                      <Eye className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                       <span className="text-muted-foreground text-[10px] font-mono">{formatFileSize(file.size)}</span>
                     </div>
                   ))}
