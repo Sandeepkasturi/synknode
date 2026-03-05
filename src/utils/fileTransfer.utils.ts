@@ -1,32 +1,34 @@
 
-import { MAX_FILE_SIZE, MAX_FILES_PER_DAY } from '../types/fileTransfer.types';
+import { MAX_FILE_SIZE, MAX_USERS_PER_HOUR } from '../types/fileTransfer.types';
 import { toast } from 'sonner';
 
-// Track daily file count in localStorage
-const getDailyFileCount = (): { count: number; date: string } => {
-  const stored = localStorage.getItem('daily_file_count');
+// Track hourly user count in localStorage
+const getHourlyUserData = (): { users: string[]; hour: string } => {
+  const stored = localStorage.getItem('hourly_user_count');
   if (stored) {
     const parsed = JSON.parse(stored);
-    const today = new Date().toISOString().split('T')[0];
-    if (parsed.date === today) return parsed;
+    const currentHour = new Date().toISOString().slice(0, 13); // YYYY-MM-DDTHH
+    if (parsed.hour === currentHour) return parsed;
   }
-  return { count: 0, date: new Date().toISOString().split('T')[0] };
+  return { users: [], hour: new Date().toISOString().slice(0, 13) };
 };
 
-export const incrementDailyFileCount = (amount: number): boolean => {
-  const current = getDailyFileCount();
-  if (current.count + amount > MAX_FILES_PER_DAY) {
-    toast.error(`Daily limit of ${MAX_FILES_PER_DAY} files reached. Try again tomorrow.`);
-    return false;
+export const registerUserForHour = (userName: string): boolean => {
+  const current = getHourlyUserData();
+  if (!current.users.includes(userName)) {
+    if (current.users.length >= MAX_USERS_PER_HOUR) {
+      toast.error(`Hourly limit of ${MAX_USERS_PER_HOUR} users reached. Try again later.`);
+      return false;
+    }
+    current.users.push(userName);
+    localStorage.setItem('hourly_user_count', JSON.stringify(current));
   }
-  const updated = { count: current.count + amount, date: current.date };
-  localStorage.setItem('daily_file_count', JSON.stringify(updated));
   return true;
 };
 
-export const getRemainingDailyFiles = (): number => {
-  const current = getDailyFileCount();
-  return Math.max(0, MAX_FILES_PER_DAY - current.count);
+export const getRemainingHourlySlots = (): number => {
+  const current = getHourlyUserData();
+  return Math.max(0, MAX_USERS_PER_HOUR - current.users.length);
 };
 
 // Process directory entries recursively to extract files
@@ -35,7 +37,6 @@ export const processDirectoryEntry = (entry: FileSystemDirectoryEntry): Promise<
     const reader = entry.createReader();
     const files: File[] = [];
     
-    // Function to read all entries in the directory
     const readEntries = () => {
       reader.readEntries(async (entries) => {
         if (entries.length === 0) {
@@ -43,13 +44,11 @@ export const processDirectoryEntry = (entry: FileSystemDirectoryEntry): Promise<
           return;
         }
         
-        // Process each entry
         for (const entry of entries) {
           if (entry.isFile) {
             const fileEntry = entry as FileSystemFileEntry;
             await new Promise<void>((fileResolve) => {
               fileEntry.file((file) => {
-                // Add path info to the file
                 const fileWithPath = Object.defineProperty(file, 'path', {
                   value: fileEntry.fullPath,
                   writable: true
@@ -64,7 +63,6 @@ export const processDirectoryEntry = (entry: FileSystemDirectoryEntry): Promise<
           }
         }
         
-        // Continue reading if more entries exist
         readEntries();
       });
     };
@@ -73,24 +71,12 @@ export const processDirectoryEntry = (entry: FileSystemDirectoryEntry): Promise<
   });
 };
 
-// Validate files against size limit
+// Validate files against size limit (5GB total per user)
 export const validateFiles = (files: File[]): File[] => {
-  // Check if any file exceeds max size
-  const oversizedFiles = files.filter(file => file.size > MAX_FILE_SIZE);
-  if (oversizedFiles.length > 0) {
-    toast.error(`${oversizedFiles.length} file(s) exceed the 50MB limit and can't be transferred`);
-    const validFiles = files.filter(file => file.size <= MAX_FILE_SIZE);
-    if (validFiles.length === 0) {
-      return [];
-    }
-    return validFiles;
-  }
-
-  // Check daily limit
-  const remaining = getRemainingDailyFiles();
-  if (files.length > remaining) {
-    toast.error(`Daily limit: only ${remaining} more file(s) allowed today`);
-    return files.slice(0, remaining);
+  const totalSize = files.reduce((sum, f) => sum + f.size, 0);
+  if (totalSize > MAX_FILE_SIZE) {
+    toast.error(`Total file size exceeds 5GB limit`);
+    return [];
   }
 
   return files;

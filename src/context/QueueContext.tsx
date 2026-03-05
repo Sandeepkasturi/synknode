@@ -12,6 +12,8 @@ interface QueueContextType {
   isReceiverMode: boolean;
   setReceiverMode: (mode: boolean) => void;
   refreshQueue: () => Promise<void>;
+  getSenderNames: () => string[];
+  getEntriesBySender: (senderName: string) => QueueEntry[];
 }
 
 const QueueContext = createContext<QueueContextType>({} as QueueContextType);
@@ -23,8 +25,6 @@ export const QueueProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [isReceiverMode, setReceiverMode] = useState(false);
 
   const fetchQueue = useCallback(async () => {
-    console.log('Fetching queue from database...');
-    // Fetch ALL pending files for receiver mode
     const { data, error } = await supabase
       .from('pending_transfers')
       .select('*')
@@ -36,28 +36,36 @@ export const QueueProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       return;
     }
 
-    console.log('Queue data fetched:', data?.length || 0, 'items', data);
-
-    const formattedQueue: QueueEntry[] = (data || []).map(item => ({
-      id: item.id,
-      senderName: item.sender_name,
-      files: [{
+    // Group by sender_name
+    const grouped: Record<string, QueueEntry> = {};
+    (data || []).forEach(item => {
+      if (!grouped[item.sender_name]) {
+        grouped[item.sender_name] = {
+          id: item.sender_name, // Use sender_name as group id
+          senderName: item.sender_name,
+          files: [],
+          timestamp: new Date(item.created_at).getTime(),
+          status: 'waiting'
+        };
+      }
+      grouped[item.sender_name].files.push({
         name: item.file_name,
         size: item.file_size,
         type: item.file_type || 'application/octet-stream',
-        storagePath: item.storage_path
-      }],
-      timestamp: new Date(item.created_at).getTime(),
-      status: 'waiting'
-    }));
+        storagePath: item.storage_path,
+        dbId: item.id
+      });
+      // Use earliest timestamp
+      const ts = new Date(item.created_at).getTime();
+      if (ts < grouped[item.sender_name].timestamp) {
+        grouped[item.sender_name].timestamp = ts;
+      }
+    });
 
-    setQueue(formattedQueue);
+    setQueue(Object.values(grouped));
   }, []);
 
-  // Fetch initial queue and subscribe to changes when in receiver mode
   React.useEffect(() => {
-    console.log('ReceiverMode changed:', isReceiverMode);
-    
     if (!isReceiverMode) {
       setQueue([]);
       return;
@@ -65,47 +73,14 @@ export const QueueProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     fetchQueue();
 
-    // Subscribe to real-time changes for all pending transfers
     const channel = supabase
       .channel('receiver-queue-changes')
       .on(
         'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'pending_transfers'
-        },
-        (payload) => {
-          console.log('Realtime event received:', payload.eventType, payload);
-          
-          if (payload.eventType === 'INSERT') {
-            const newItem = payload.new as any;
-            console.log('New file inserted:', newItem);
-            toast.success(`New file from ${newItem.sender_name}: ${newItem.file_name}`);
-            setQueue(prev => {
-              if (prev.some(entry => entry.id === newItem.id)) return prev;
-
-              return [...prev, {
-                id: newItem.id,
-                senderName: newItem.sender_name,
-                files: [{
-                  name: newItem.file_name,
-                  size: newItem.file_size,
-                  type: newItem.file_type || 'application/octet-stream',
-                  storagePath: newItem.storage_path
-                }],
-                timestamp: new Date(newItem.created_at).getTime(),
-                status: 'waiting'
-              }];
-            });
-          } else if (payload.eventType === 'DELETE') {
-            setQueue(prev => prev.filter(entry => entry.id !== (payload.old as any).id));
-          } else if (payload.eventType === 'UPDATE') {
-            const updated = payload.new as any;
-            if (updated.downloaded) {
-              setQueue(prev => prev.filter(entry => entry.id !== updated.id));
-            }
-          }
+        { event: '*', schema: 'public', table: 'pending_transfers' },
+        () => {
+          // Re-fetch to re-group properly
+          fetchQueue();
         }
       )
       .subscribe();
@@ -116,28 +91,24 @@ export const QueueProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   }, [isReceiverMode, fetchQueue]);
 
   const addToQueue = useCallback((_senderName: string, _files: QueueFile[]): string => {
-    // This is now handled by the useSenderPeer hook directly interacting with Supabase.
-    // The subscription will update the UI.
-    // keeping this function signature for compatibility but it might be essentially no-op 
-    // or just a local optimistic update if needed (but prefer source of truth from DB)
     return "";
   }, []);
 
   const removeFromQueue = useCallback(async (entryId: string) => {
-    // Remove from Supabase
-    const { error } = await supabase
-      .from('pending_transfers')
-      .delete()
-      .eq('id', entryId);
+    // entryId is sender_name for grouped entries
+    const entry = queue.find(e => e.id === entryId);
+    if (!entry) return;
 
-    if (error) {
-      toast.error("Failed to remove from queue");
-      console.error(error);
-    } else {
-      setQueue(prev => prev.filter(entry => entry.id !== entryId));
-      toast.success("Removed from queue");
+    // Delete all files for this sender
+    for (const file of entry.files) {
+      if (file.dbId) {
+        await supabase.from('pending_transfers').delete().eq('id', file.dbId);
+      }
     }
-  }, []);
+    
+    setQueue(prev => prev.filter(e => e.id !== entryId));
+    toast.success("Removed from queue");
+  }, [queue]);
 
   const updateEntryStatus = useCallback((entryId: string, status: QueueEntry['status']) => {
     setQueue(prev => prev.map(entry =>
@@ -149,6 +120,14 @@ export const QueueProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     return queue.find(entry => entry.id === entryId);
   }, [queue]);
 
+  const getSenderNames = useCallback((): string[] => {
+    return queue.map(e => e.senderName);
+  }, [queue]);
+
+  const getEntriesBySender = useCallback((senderName: string): QueueEntry[] => {
+    return queue.filter(e => e.senderName === senderName);
+  }, [queue]);
+
   return (
     <QueueContext.Provider value={{ 
       queue, 
@@ -158,7 +137,9 @@ export const QueueProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       getQueueEntry,
       isReceiverMode,
       setReceiverMode,
-      refreshQueue: fetchQueue
+      refreshQueue: fetchQueue,
+      getSenderNames,
+      getEntriesBySender
     }}>
       {children}
     </QueueContext.Provider>

@@ -1,13 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { useQueue } from "@/context/QueueContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Download, User, Clock, FileIcon, Trash2, FolderOpen, CheckCircle } from "lucide-react";
+import { Download, User, Clock, FileIcon, Trash2, FolderOpen, CheckCircle, Users, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 
 export const LiveQueue: React.FC = () => {
   const { queue, removeFromQueue, updateEntryStatus } = useQueue();
+  const [selectedSender, setSelectedSender] = useState<string | null>(null);
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B';
@@ -48,16 +49,20 @@ export const LiveQueue: React.FC = () => {
           if (error) throw error;
           if (data) downloadFile(data, file.name, entry.senderName);
         }
-        await new Promise(resolve => setTimeout(resolve, 200));
+        // Small delay between downloads
+        await new Promise(resolve => setTimeout(resolve, 300));
       }
 
-      await supabase.from('pending_transfers').update({ downloaded: true }).eq('id', entryId);
+      // Clean up all files for this sender
       for (const file of entry.files) {
-        if (file.storagePath) {
-          await supabase.storage.from('pending-files').remove([file.storagePath]);
+        if (file.dbId) {
+          await supabase.from('pending_transfers').update({ downloaded: true }).eq('id', file.dbId);
+          if (file.storagePath) {
+            await supabase.storage.from('pending-files').remove([file.storagePath]);
+          }
+          await supabase.from('pending_transfers').delete().eq('id', file.dbId);
         }
       }
-      await supabase.from('pending_transfers').delete().eq('id', entryId);
 
       updateEntryStatus(entryId, 'completed');
       toast.success(`Downloaded ${entry.files.length} file(s) from ${entry.senderName}`);
@@ -81,21 +86,55 @@ export const LiveQueue: React.FC = () => {
     );
   }
 
+  const totalFiles = queue.reduce((sum, e) => sum + e.files.length, 0);
+  const activeEntry = selectedSender ? queue.find(e => e.senderName === selectedSender) : null;
+
   return (
     <div className="space-y-3">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
           Queue
-          <span className="text-xs text-muted-foreground">({queue.length})</span>
+          <span className="text-xs text-muted-foreground">({totalFiles} files from {queue.length} users)</span>
         </h3>
-        <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/15">
-          FIFO · {queue.length} pending
-        </span>
       </div>
 
-      <AnimatePresence>
+      {/* Sender Navigation */}
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        <button
+          onClick={() => setSelectedSender(null)}
+          className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
+            selectedSender === null
+              ? 'bg-primary text-primary-foreground border-primary'
+              : 'bg-secondary/40 text-muted-foreground border-border/50 hover:border-primary/30'
+          }`}
+        >
+          <Users className="h-3 w-3 inline mr-1" />
+          All ({queue.length})
+        </button>
         {queue.map((entry, index) => (
+          <button
+            key={entry.senderName}
+            onClick={() => setSelectedSender(entry.senderName)}
+            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1.5 ${
+              selectedSender === entry.senderName
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-secondary/40 text-muted-foreground border-border/50 hover:border-primary/30'
+            }`}
+          >
+            <span className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center text-[9px] font-bold">
+              {index + 1}
+            </span>
+            {entry.senderName}
+            <span className="opacity-60">({entry.files.length})</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Queue Entries */}
+      <AnimatePresence mode="popLayout">
+        {(selectedSender ? queue.filter(e => e.senderName === selectedSender) : queue).map((entry, index) => (
           <motion.div
             key={entry.id}
             initial={{ opacity: 0, y: 12 }}
@@ -117,7 +156,7 @@ export const LiveQueue: React.FC = () => {
                 }`}>
                   {entry.status === 'completed' 
                     ? <CheckCircle className="h-4 w-4 text-white" />
-                    : <span className="text-xs font-bold text-primary-foreground">#{index + 1}</span>
+                    : <span className="text-xs font-bold text-primary-foreground">#{queue.indexOf(entry) + 1}</span>
                   }
                 </div>
                 <span className="text-[9px] text-muted-foreground">of {queue.length}</span>
@@ -130,6 +169,9 @@ export const LiveQueue: React.FC = () => {
                   <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                     <Clock className="h-2.5 w-2.5" />
                     {formatTime(entry.timestamp)}
+                  </span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">
+                    {entry.files.length} file{entry.files.length !== 1 ? 's' : ''}
                   </span>
                 </div>
 
@@ -161,7 +203,7 @@ export const LiveQueue: React.FC = () => {
                   ) : entry.status === 'completed' ? (
                     <><CheckCircle className="h-3 w-3 mr-1" /> Done</>
                   ) : (
-                    <><Download className="h-3 w-3 mr-1" /> Get</>
+                    <><Download className="h-3 w-3 mr-1" /> Get All</>
                   )}
                 </Button>
                 <Button
