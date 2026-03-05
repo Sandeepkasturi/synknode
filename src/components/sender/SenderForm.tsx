@@ -9,8 +9,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { OrbitalAnimation } from "@/components/OrbitalAnimation";
 import { SenderQueue } from "./SenderQueue";
-import { validateFiles, getRemainingDailyFiles, incrementDailyFileCount } from "@/utils/fileTransfer.utils";
-import { MAX_FILE_SIZE } from "@/types/fileTransfer.types";
+import { validateFiles, registerUserForHour, getRemainingHourlySlots } from "@/utils/fileTransfer.utils";
 
 export const SenderForm: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -27,8 +26,7 @@ export const SenderForm: React.FC = () => {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    multiple: true,
-    maxSize: MAX_FILE_SIZE
+    multiple: true
   });
 
   const removeFile = (index: number) => {
@@ -45,9 +43,11 @@ export const SenderForm: React.FC = () => {
       return;
     }
 
-    if (!incrementDailyFileCount(selectedFiles.length)) {
+    if (!registerUserForHour(name.trim())) {
       return;
     }
+
+    localStorage.setItem('sender_name', name.trim());
 
     try {
       await sendFiles(selectedFiles, name);
@@ -64,7 +64,8 @@ export const SenderForm: React.FC = () => {
     return (bytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB';
   };
 
-  // Show orbital animation during transfer
+  const totalSize = selectedFiles.reduce((sum, f) => sum + f.size, 0);
+
   if (transferProgress.active && transferProgress.status === 'transferring') {
     return (
       <motion.div
@@ -73,12 +74,10 @@ export const SenderForm: React.FC = () => {
         className="flex flex-col items-center justify-center py-10 space-y-6"
       >
         <OrbitalAnimation isTransferring={true} size="lg" />
-        
         <div className="text-center space-y-1">
           <p className="text-base font-medium text-foreground">Sending files…</p>
           <p className="text-sm text-muted-foreground">{transferProgress.currentFile}</p>
         </div>
-        
         <div className="w-full max-w-xs space-y-2">
           <Progress value={transferProgress.progress} className="h-1.5" />
           <p className="text-center text-xs text-primary font-medium">{transferProgress.progress}%</p>
@@ -132,7 +131,7 @@ export const SenderForm: React.FC = () => {
               Drop files here or click to browse
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Max 50MB per file · {getRemainingDailyFiles()} remaining today
+              Up to 5GB total · {getRemainingHourlySlots()} user slots this hour
             </p>
           </div>
         ) : (
@@ -165,7 +164,10 @@ export const SenderForm: React.FC = () => {
                 </motion.div>
               ))}
             </AnimatePresence>
-            <p className="text-xs text-muted-foreground text-center pt-1">Click or drag to add more</p>
+            <div className="flex items-center justify-between pt-1">
+              <p className="text-xs text-muted-foreground">Click or drag to add more</p>
+              <p className="text-xs font-medium text-primary">{formatFileSize(totalSize)} total</p>
+            </div>
           </div>
         )}
       </div>

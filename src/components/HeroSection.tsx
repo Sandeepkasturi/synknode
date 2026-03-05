@@ -22,7 +22,7 @@ export const HeroSection: React.FC = () => {
         <span className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide border border-primary/20">
           SRGEC
         </span>
-        <span className="text-xs text-muted-foreground">50MB per file · 100 files/day</span>
+        <span className="text-xs text-muted-foreground">5GB per user · 50 users/hour</span>
       </div>
     </motion.div>
   );
