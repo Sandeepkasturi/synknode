@@ -563,6 +563,7 @@ const Hyperspeed = ({ effectOptions = defaultOptions }: HyperspeedProps) => {
         const curve = new THREE.LineCurve3(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1));
         const geometry = new THREE.TubeGeometry(curve, 40, 1, 8, false);
 
+        // @ts-ignore - Three.js version mismatch
         const instanced = new THREE.InstancedBufferGeometry().copy(geometry);
         instanced.instanceCount = options.lightPairsPerRoadWay * 2;
 
