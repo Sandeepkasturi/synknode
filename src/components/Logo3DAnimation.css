@@ -1,0 +1,132 @@
+/* ── Logo 3D Animation ── */
+
+.logo3d-scene {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+}
+
+/* Glow */
+.logo3d-glow {
+  position: absolute;
+  inset: -20%;
+  border-radius: 50%;
+  background: radial-gradient(circle, hsl(24 80% 55% / 0.25) 0%, transparent 70%);
+  transition: transform 0.6s ease, opacity 0.6s ease;
+  opacity: 0.4;
+  animation: logo3d-glow-idle 4s ease-in-out infinite;
+}
+
+.logo3d-glow--active {
+  opacity: 1;
+  animation: logo3d-glow-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes logo3d-glow-idle {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.08); opacity: 0.5; }
+}
+
+@keyframes logo3d-glow-pulse {
+  0%, 100% { transform: scale(1.1); opacity: 0.6; }
+  50% { transform: scale(1.4); opacity: 1; }
+}
+
+/* Orbit rings */
+.logo3d-ring {
+  position: absolute;
+  inset: -15%;
+  border-radius: 50%;
+  border: 1.5px solid hsl(24 80% 55% / 0.15);
+  animation: logo3d-spin 8s linear infinite;
+}
+
+.logo3d-ring--2 {
+  inset: -25%;
+  border-color: hsl(24 80% 55% / 0.08);
+  animation-duration: 12s;
+  animation-direction: reverse;
+}
+
+.logo3d-ring--active {
+  border-color: hsl(24 80% 55% / 0.4);
+  animation-duration: 3s;
+}
+
+.logo3d-ring--active.logo3d-ring--2 {
+  animation-duration: 5s;
+  border-color: hsl(24 80% 55% / 0.25);
+}
+
+@keyframes logo3d-spin {
+  to { transform: rotateX(65deg) rotateZ(360deg); }
+}
+
+/* Particles */
+.logo3d-particles {
+  position: absolute;
+  inset: 0;
+  animation: logo3d-spin 4s linear infinite;
+}
+
+.logo3d-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: hsl(24 80% 55%);
+  top: 50%;
+  left: 50%;
+  --angle: calc(var(--i) / var(--total) * 360deg);
+  --radius: 120%;
+  transform: rotate(var(--angle)) translateX(var(--radius)) translateY(-50%);
+  animation: logo3d-particle-pulse 1.2s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.1s);
+  box-shadow: 0 0 6px hsl(24 80% 55% / 0.6);
+}
+
+@keyframes logo3d-particle-pulse {
+  0%, 100% { opacity: 0.3; transform: rotate(var(--angle)) translateX(var(--radius)) translateY(-50%) scale(0.6); }
+  50% { opacity: 1; transform: rotate(var(--angle)) translateX(var(--radius)) translateY(-50%) scale(1.2); }
+}
+
+/* Logo card with 3D tilt */
+.logo3d-card {
+  position: relative;
+  z-index: 10;
+  width: 70%;
+  height: 70%;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 4px 24px hsl(24 80% 55% / 0.15),
+    0 0 0 1px hsl(24 80% 55% / 0.08);
+  animation: logo3d-float 4s ease-in-out infinite;
+  transition: box-shadow 0.4s ease;
+}
+
+.logo3d-card--active {
+  box-shadow:
+    0 8px 40px hsl(24 80% 55% / 0.35),
+    0 0 0 1px hsl(24 80% 55% / 0.2);
+  animation: logo3d-float-active 2s ease-in-out infinite;
+}
+
+@keyframes logo3d-float {
+  0%, 100% { transform: rotateY(0deg) rotateX(0deg) translateY(0); }
+  25% { transform: rotateY(8deg) rotateX(-4deg) translateY(-3px); }
+  75% { transform: rotateY(-8deg) rotateX(4deg) translateY(3px); }
+}
+
+@keyframes logo3d-float-active {
+  0%, 100% { transform: rotateY(0deg) scale(1); }
+  50% { transform: rotateY(12deg) scale(1.05); }
+}
+
+.logo3d-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
