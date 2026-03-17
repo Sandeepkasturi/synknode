@@ -671,6 +671,7 @@ const Hyperspeed = ({ effectOptions = defaultOptions }: HyperspeedProps) => {
       init() {
         const options = this.options;
         const geometry = new THREE.PlaneGeometry(1, 1);
+        // @ts-ignore - Three.js version mismatch
         const instanced = new THREE.InstancedBufferGeometry().copy(geometry);
         const totalSticks = options.totalSideLightSticks;
         instanced.instanceCount = totalSticks;
