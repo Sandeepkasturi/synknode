@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import {
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut as firebaseSignOut,
   onAuthStateChanged,
   User as FirebaseUser,
@@ -45,12 +46,9 @@ interface AuthContextType {
   refreshProfile: () => Promise<void>;
 }
 
-// ─── Primary Admin UIDs (kept for backward compat) ───────────────────────────
 const PRIMARY_ADMIN_UIDS = (
   import.meta.env.VITE_PRIMARY_ADMIN_UIDS || ""
 ).split(",").filter(Boolean);
-
-// ─── Context ─────────────────────────────────────────────────────────────────
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -68,16 +66,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const snap = await getDoc(userRef);
 
       if (snap.exists()) {
-        // Existing user — load from Firestore
         const data = snap.data() as UserProfile;
         setIsNewUser(false);
 
-        // Load private key from IndexedDB
         const privKey = await loadPrivateKey(firebaseUser.uid);
         if (privKey) {
           setPrivateKey(privKey);
         } else {
-          // Key missing from IndexedDB (e.g. new device) — regenerate but keep same pubkey slot
           const pair = await generateIdentityKeys();
           await storePrivateKey(firebaseUser.uid, pair.privateKey);
           setPrivateKey(pair.privateKey);
@@ -85,21 +80,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         return data;
       } else {
-        // New user — create profile + generate keys
+        // New user
         const peerId = crypto.randomUUID();
         const keyPair = await generateIdentityKeys();
         const pubKeyB64 = await exportPublicKey(keyPair.publicKey);
 
-        // Store private key in IndexedDB — never in Firestore
         await storePrivateKey(firebaseUser.uid, keyPair.privateKey);
         setPrivateKey(keyPair.privateKey);
 
+        const rawUsername = (firebaseUser.displayName || "user" + Math.floor(Math.random() * 9999))
+          .toLowerCase()
+          .replace(/\s+/g, "_")
+          .replace(/[^a-z0-9_]/g, "");
+
         const newProfile: UserProfile = {
           uid: firebaseUser.uid,
-          username: (firebaseUser.displayName || "user" + Math.floor(Math.random() * 9999))
-            .toLowerCase()
-            .replace(/\s+/g, "_")
-            .replace(/[^a-z0-9_]/g, ""),
+          username: rawUsername,
           displayName: firebaseUser.displayName || "SynkDrop User",
           email: firebaseUser.email || "",
           photoURL: firebaseUser.photoURL,
@@ -127,14 +123,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshProfile = useCallback(async () => {
     if (!user) return;
-    const userRef = doc(db, "users", user.uid);
-    const snap = await getDoc(userRef);
-    if (snap.exists()) {
-      setProfile(snap.data() as UserProfile);
-    }
+    const snap = await getDoc(doc(db, "users", user.uid));
+    if (snap.exists()) setProfile(snap.data() as UserProfile);
   }, [user]);
 
-  // ── Firebase Auth listener ─────────────────────────────────────────────────
+  // ── Handle redirect result on page load ───────────────────────────────────
+  // This runs once after Google redirects back to the app
+  useEffect(() => {
+    getRedirectResult(auth).catch((err) => {
+      if (err?.code && err.code !== "auth/popup-closed-by-user") {
+        console.error("[AuthContext] Redirect result error:", err);
+        toast.error("Sign in failed. Please try again.");
+      }
+    });
+  }, []);
+
+  // ── Firebase Auth state listener ──────────────────────────────────────────
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
@@ -154,16 +158,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return unsubscribe;
   }, [loadOrCreateProfile]);
 
-  // ── Sign in with Google ────────────────────────────────────────────────────
+  // ── Sign in → redirect to Google ──────────────────────────────────────────
   const signInWithGoogle = useCallback(async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
-      // Profile is loaded via onAuthStateChanged above
+      // Use redirect instead of popup to avoid Cross-Origin-Opener-Policy issues
+      await signInWithRedirect(auth, googleProvider);
     } catch (error: any) {
-      if (error.code !== "auth/popup-closed-by-user") {
-        console.error("[AuthContext] Sign in error:", error);
-        toast.error("Sign in failed. Please try again.");
-      }
+      console.error("[AuthContext] Sign in error:", error);
+      toast.error("Sign in failed. Please try again.");
     }
   }, []);
 
@@ -174,9 +176,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProfile(null);
       setPrivateKey(null);
       setIsNewUser(false);
-      toast.success("Signed out successfully");
+      toast.success("Signed out");
     } catch (error) {
-      console.error("[AuthContext] Sign out error:", error);
       toast.error("Error signing out");
     }
   }, []);
@@ -206,8 +207,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
+  if (context === undefined) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };
