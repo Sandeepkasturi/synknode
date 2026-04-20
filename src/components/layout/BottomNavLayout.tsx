@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Share2, Users, MessageCircle, User, QrCode
-} from "lucide-react";
+import { Share2, Users, MessageCircle, User, QrCode } from "lucide-react";
 import { useChat } from "@/hooks/useChat";
 import { useFriends } from "@/hooks/useFriends";
 
@@ -13,11 +11,11 @@ interface BottomNavLayoutProps {
 }
 
 const NAV_ITEMS: { tab: NavTab; icon: React.FC<{ className?: string }>; label: string }[] = [
-  { tab: "share", icon: Share2, label: "Share" },
-  { tab: "friends", icon: Users, label: "Friends" },
-  { tab: "chat", icon: MessageCircle, label: "Chat" },
-  { tab: "qr", icon: QrCode, label: "QR" },
-  { tab: "profile", icon: User, label: "Profile" },
+  { tab: "share",   icon: Share2,        label: "Share"   },
+  { tab: "friends", icon: Users,         label: "Friends" },
+  { tab: "chat",    icon: MessageCircle, label: "Chat"    },
+  { tab: "qr",      icon: QrCode,        label: "Scan"    },
+  { tab: "profile", icon: User,          label: "Me"      },
 ];
 
 export const BottomNavLayout: React.FC<BottomNavLayoutProps> = ({ children }) => {
@@ -26,21 +24,21 @@ export const BottomNavLayout: React.FC<BottomNavLayoutProps> = ({ children }) =>
   const { pendingRequests } = useFriends();
 
   const badges: Partial<Record<NavTab, number>> = {
-    chat: totalUnread,
+    chat:    totalUnread,
     friends: pendingRequests.length,
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background">
-      {/* Main content */}
-      <main className="flex-1 overflow-y-auto overflow-x-hidden">
+    <div className="flex flex-col h-screen" style={{ background: "#06060F" }}>
+      {/* ── Content ──────────────────────────────────────────────────────── */}
+      <main className="flex-1 overflow-y-auto overflow-x-hidden relative">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
             className="h-full"
           >
             {children(activeTab)}
@@ -48,54 +46,89 @@ export const BottomNavLayout: React.FC<BottomNavLayoutProps> = ({ children }) =>
         </AnimatePresence>
       </main>
 
-      {/* Bottom Navigation */}
+      {/* ── Bottom Nav ───────────────────────────────────────────────────── */}
       <nav
-        className="flex-shrink-0 border-t border-border/40 bg-[#111118]/95 backdrop-blur-xl"
-        style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+        className="flex-shrink-0 relative"
+        style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}
       >
-        <div className="flex items-center justify-around px-2 pt-2">
+        {/* Glass strip */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: "rgba(7,7,18,0.85)",
+            backdropFilter: "blur(32px) saturate(180%)",
+            WebkitBackdropFilter: "blur(32px) saturate(180%)",
+            borderTop: "1px solid rgba(255,255,255,0.06)",
+          }}
+        />
+
+        {/* Nav items */}
+        <div className="relative flex items-center justify-around px-2 pt-3">
           {NAV_ITEMS.map(({ tab, icon: Icon, label }) => {
             const isActive = activeTab === tab;
-            const badge = badges[tab] ?? 0;
+            const badge   = badges[tab] ?? 0;
 
             return (
-              <button
+              <motion.button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className="relative flex flex-col items-center gap-1 px-4 py-1 rounded-xl group"
+                className="relative flex flex-col items-center gap-1 px-3 py-1.5 rounded-2xl"
+                whileTap={{ scale: 0.88 }}
               >
-                {/* Active bg pill */}
+                {/* Active background */}
+                {isActive && (
+                  <motion.div
+                    layoutId="nav-pill"
+                    className="absolute inset-0 rounded-2xl"
+                    style={{
+                      background: "rgba(0,229,200,0.08)",
+                      border: "1px solid rgba(0,229,200,0.15)",
+                    }}
+                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                  />
+                )}
+
+                {/* Badge */}
                 <AnimatePresence>
-                  {isActive && (
+                  {badge > 0 && (
                     <motion.div
-                      layoutId="active-pill"
-                      className="absolute inset-0 rounded-xl bg-primary/10"
-                      initial={false}
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    />
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      className="absolute -top-0.5 right-1.5 min-w-[15px] h-[15px] rounded-full text-[9px] font-bold flex items-center justify-center px-0.5 z-10"
+                      style={{
+                        background: "linear-gradient(135deg, #00E5C8, #00B89C)",
+                        color: "#06060F",
+                        boxShadow: "0 0 8px rgba(0,229,200,0.5)",
+                      }}
+                    >
+                      {badge > 9 ? "9+" : badge}
+                    </motion.div>
                   )}
                 </AnimatePresence>
 
-                {/* Badge */}
-                {badge > 0 && (
-                  <div className="absolute top-0 right-2 min-w-[14px] h-[14px] rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center px-0.5">
-                    {badge > 99 ? "99+" : badge}
-                  </div>
-                )}
+                {/* Icon */}
+                <div className="relative">
+                  <Icon
+                    className="h-[22px] w-[22px] transition-all duration-200"
+                    style={{
+                      color: isActive ? "#00E5C8" : "rgba(255,255,255,0.35)",
+                      filter: isActive ? "drop-shadow(0 0 6px rgba(0,229,200,0.5))" : "none",
+                    }}
+                  />
+                </div>
 
-                <Icon
-                  className={`h-5 w-5 relative transition-colors duration-200 ${
-                    isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
-                  }`}
-                />
+                {/* Label */}
                 <span
-                  className={`text-[10px] font-medium relative transition-colors duration-200 ${
-                    isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
-                  }`}
+                  className="text-[10px] font-medium transition-all duration-200 relative"
+                  style={{
+                    color: isActive ? "#00E5C8" : "rgba(255,255,255,0.3)",
+                    letterSpacing: "0.04em",
+                  }}
                 >
                   {label}
                 </span>
-              </button>
+              </motion.button>
             );
           })}
         </div>
