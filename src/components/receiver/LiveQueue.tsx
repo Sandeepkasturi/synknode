@@ -1,12 +1,17 @@
 import React, { useState } from "react";
 import { useQueue } from "@/context/QueueContext";
-import { supabase } from "@/integrations/supabase/client";
-import { Download, User, Clock, FileIcon, Trash2, FolderOpen, CheckCircle, Users, Eye } from "lucide-react";
+import { Download, User, Clock, FileIcon, Trash2, FolderOpen, CheckCircle, Users, Eye, Shield, ShieldAlert, ShieldX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { QueueFile } from "@/types/queue.types";
 import { FilePreview } from "./FilePreview";
+import { computeFileHash } from "@/hooks/useKeyManagement";
+
+interface QueueFileWithHash extends QueueFile {
+  fileHash?: string | null;
+  hashVerified?: boolean | null;
+}
 
 export const LiveQueue: React.FC = () => {
   const { queue, removeFromQueue, updateEntryStatus } = useQueue();
@@ -16,19 +21,19 @@ export const LiveQueue: React.FC = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
 
   const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-    return (bytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB';
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+    return (bytes / (1024 * 1024 * 1024)).toFixed(1) + " GB";
   };
 
   const formatTime = (timestamp: number) => {
-    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return new Date(timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
   const downloadFile = (blob: Blob, fileName: string, senderName: string) => {
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `${senderName}_${fileName}`;
     document.body.appendChild(a);
@@ -38,42 +43,38 @@ export const LiveQueue: React.FC = () => {
   };
 
   const downloadEntry = async (entryId: string) => {
-    const entry = queue.find(e => e.id === entryId);
+    const entry = queue.find((e) => e.id === entryId);
     if (!entry) return;
 
-    updateEntryStatus(entryId, 'downloading');
+    updateEntryStatus(entryId, "downloading");
 
     try {
-      for (const file of entry.files) {
-        if (file.blob) {
-          downloadFile(file.blob, file.name, entry.senderName);
-        } else if (file.storagePath) {
-          const { data, error } = await supabase.storage
-            .from('pending-files')
-            .download(file.storagePath);
-          if (error) throw error;
-          if (data) downloadFile(data, file.name, entry.senderName);
+      for (const file of entry.files as QueueFileWithHash[]) {
+        if (!file.blob) continue;
+
+        // Hash verification after download
+        const computedHash = await computeFileHash(file.blob);
+        const expectedHash = file.fileHash;
+
+        if (expectedHash && computedHash !== expectedHash) {
+          toast.error("File integrity check failed — this file may be corrupted.", {
+            description: `${file.name} was rejected.`,
+          });
+          updateEntryStatus(entryId, "waiting");
+          return;
         }
-        await new Promise(resolve => setTimeout(resolve, 300));
+
+        downloadFile(file.blob, file.name, entry.senderName);
+        await new Promise((resolve) => setTimeout(resolve, 300));
       }
 
-      for (const file of entry.files) {
-        if (file.dbId) {
-          await supabase.from('pending_transfers').update({ downloaded: true }).eq('id', file.dbId);
-          if (file.storagePath) {
-            await supabase.storage.from('pending-files').remove([file.storagePath]);
-          }
-          await supabase.from('pending_transfers').delete().eq('id', file.dbId);
-        }
-      }
-
-      updateEntryStatus(entryId, 'completed');
+      updateEntryStatus(entryId, "completed");
       toast.success(`Downloaded ${entry.files.length} file(s) from ${entry.senderName}`);
       setTimeout(() => removeFromQueue(entryId), 2000);
     } catch (error) {
-      console.error('Download error:', error);
-      toast.error('Failed to download files');
-      updateEntryStatus(entryId, 'waiting');
+      console.error("Download error:", error);
+      toast.error("Failed to download files");
+      updateEntryStatus(entryId, "waiting");
     }
   };
 
@@ -83,13 +84,37 @@ export const LiveQueue: React.FC = () => {
     setPreviewOpen(true);
   };
 
+  // ── Hash badge ─────────────────────────────────────────────────────────────
+  const HashBadge = ({ file }: { file: QueueFileWithHash }) => {
+    if (file.hashVerified === true) {
+      return (
+        <span title="Integrity verified" className="flex items-center">
+          <Shield className="h-3 w-3 text-[#00D68F]" />
+        </span>
+      );
+    }
+    if (file.hashVerified === false) {
+      return (
+        <span title="Integrity check FAILED" className="flex items-center">
+          <ShieldX className="h-3 w-3 text-destructive" />
+        </span>
+      );
+    }
+    // null = no hash provided
+    return (
+      <span title="No hash from sender" className="flex items-center">
+        <ShieldAlert className="h-3 w-3 text-yellow-500/70" />
+      </span>
+    );
+  };
+
   if (queue.length === 0) {
     return (
       <div className="text-center py-10">
         <FolderOpen className="h-10 w-10 mx-auto mb-3 text-muted-foreground/30" />
         <p className="text-sm font-medium text-foreground mb-1">No files yet</p>
         <p className="text-xs text-muted-foreground">
-          Files sent to <span className="font-mono font-semibold text-primary">SRGEC</span> appear here
+          Files sent to you via SynkDrop appear here
         </p>
       </div>
     );
@@ -111,7 +136,9 @@ export const LiveQueue: React.FC = () => {
         <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
           Queue
-          <span className="text-xs text-muted-foreground">({totalFiles} files from {queue.length} users)</span>
+          <span className="text-xs text-muted-foreground">
+            ({totalFiles} files from {queue.length} users)
+          </span>
         </h3>
       </div>
 
@@ -121,8 +148,8 @@ export const LiveQueue: React.FC = () => {
           onClick={() => setSelectedSender(null)}
           className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
             selectedSender === null
-              ? 'bg-primary text-primary-foreground border-primary'
-              : 'bg-secondary/40 text-muted-foreground border-border/50 hover:border-primary/30'
+              ? "bg-primary text-primary-foreground border-primary"
+              : "bg-secondary/40 text-muted-foreground border-border/50 hover:border-primary/30"
           }`}
         >
           <Users className="h-3 w-3 inline mr-1" />
@@ -134,8 +161,8 @@ export const LiveQueue: React.FC = () => {
             onClick={() => setSelectedSender(entry.senderName)}
             className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all border flex items-center gap-1.5 ${
               selectedSender === entry.senderName
-                ? 'bg-primary text-primary-foreground border-primary'
-                : 'bg-secondary/40 text-muted-foreground border-border/50 hover:border-primary/30'
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-secondary/40 text-muted-foreground border-border/50 hover:border-primary/30"
             }`}
           >
             <span className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center text-[9px] font-bold">
@@ -149,7 +176,7 @@ export const LiveQueue: React.FC = () => {
 
       {/* Queue Entries */}
       <AnimatePresence mode="popLayout">
-        {(selectedSender ? queue.filter(e => e.senderName === selectedSender) : queue).map((entry, index) => (
+        {(selectedSender ? queue.filter((e) => e.senderName === selectedSender) : queue).map((entry, index) => (
           <motion.div
             key={entry.id}
             initial={{ opacity: 0, y: 12 }}
@@ -157,19 +184,19 @@ export const LiveQueue: React.FC = () => {
             exit={{ opacity: 0, x: -60 }}
             transition={{ delay: index * 0.06 }}
             className={`p-3.5 rounded-xl border transition-all ${
-              entry.status === 'downloading'
-                ? 'bg-primary/5 border-primary/25'
-                : entry.status === 'completed'
-                  ? 'bg-green-500/5 border-green-500/25'
-                  : 'bg-secondary/20 border-border/50 hover:border-primary/20'
+              entry.status === "downloading"
+                ? "bg-primary/5 border-primary/25"
+                : entry.status === "completed"
+                  ? "bg-[#00D68F]/5 border-[#00D68F]/25"
+                  : "bg-secondary/20 border-border/50 hover:border-primary/20"
             }`}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  entry.status === 'completed' ? 'bg-green-500' : 'bg-primary'
+                  entry.status === "completed" ? "bg-[#00D68F]" : "bg-primary"
                 }`}>
-                  {entry.status === 'completed' 
+                  {entry.status === "completed"
                     ? <CheckCircle className="h-4 w-4 text-white" />
                     : <span className="text-xs font-bold text-primary-foreground">#{queue.indexOf(entry) + 1}</span>
                   }
@@ -186,12 +213,12 @@ export const LiveQueue: React.FC = () => {
                     {formatTime(entry.timestamp)}
                   </span>
                   <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">
-                    {entry.files.length} file{entry.files.length !== 1 ? 's' : ''}
+                    {entry.files.length} file{entry.files.length !== 1 ? "s" : ""}
                   </span>
                 </div>
 
                 <div className="space-y-1">
-                  {entry.files.map((file, fileIndex) => (
+                  {(entry.files as QueueFileWithHash[]).map((file, fileIndex) => (
                     <div
                       key={fileIndex}
                       className="flex items-center gap-2 text-xs p-2 rounded-lg bg-background/60 group cursor-pointer hover:bg-primary/5 transition-colors"
@@ -200,6 +227,7 @@ export const LiveQueue: React.FC = () => {
                       <span className="text-[10px] text-muted-foreground font-mono w-4">#{fileIndex + 1}</span>
                       <FileIcon className="h-3 w-3 text-primary flex-shrink-0" />
                       <span className="text-foreground truncate flex-1">{file.name}</span>
+                      <HashBadge file={file} />
                       <Eye className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                       <span className="text-muted-foreground text-[10px] font-mono">{formatFileSize(file.size)}</span>
                     </div>
@@ -211,16 +239,16 @@ export const LiveQueue: React.FC = () => {
                 <Button
                   size="sm"
                   onClick={() => downloadEntry(entry.id)}
-                  disabled={entry.status === 'downloading' || entry.status === 'completed'}
+                  disabled={entry.status === "downloading" || entry.status === "completed"}
                   className={`text-xs h-8 ${
-                    entry.status === 'completed'
-                      ? 'bg-green-500 hover:bg-green-600 text-white'
-                      : 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                    entry.status === "completed"
+                      ? "bg-[#00D68F] hover:bg-[#00D68F]/90 text-white"
+                      : "bg-primary hover:bg-primary/90 text-primary-foreground"
                   }`}
                 >
-                  {entry.status === 'downloading' ? (
+                  {entry.status === "downloading" ? (
                     <><motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} className="w-3 h-3 border-2 border-white border-t-transparent rounded-full mr-1" /> Saving</>
-                  ) : entry.status === 'completed' ? (
+                  ) : entry.status === "completed" ? (
                     <><CheckCircle className="h-3 w-3 mr-1" /> Done</>
                   ) : (
                     <><Download className="h-3 w-3 mr-1" /> Get All</>

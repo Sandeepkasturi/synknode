@@ -1,0 +1,151 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helper functions ───────────────────────────────────────────────────
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return request.auth.uid == uid;
+    }
+
+    function userExists(uid) {
+      return exists(/databases/$(database)/documents/users/$(uid));
+    }
+
+    function isNotBlocked(uid) {
+      return !exists(/databases/$(database)/documents/blocks/$(request.auth.uid + '_' + uid))
+        && !exists(/databases/$(database)/documents/blocks/$(uid + '_' + request.auth.uid));
+    }
+
+    function isAccountActive() {
+      let user = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      return !('pauseUntil' in user)
+        || user.pauseUntil == null
+        || user.pauseUntil < request.time;
+    }
+
+    // ─── Users ──────────────────────────────────────────────────────────────
+    match /users/{uid} {
+      allow read: if isSignedIn();
+
+      allow create: if isOwner(uid)
+        && !('privateKey' in request.resource.data)
+        && request.resource.data.uid == uid
+        && request.resource.data.email is string
+        && request.resource.data.peerId is string
+        && request.resource.data.identityPublicKey is string;
+
+      allow update: if isOwner(uid)
+        && !('privateKey' in request.resource.data)
+        && !('uid' in request.resource.data.diff(resource.data).affectedKeys())
+        && !('email' in request.resource.data.diff(resource.data).affectedKeys());
+
+      allow delete: if false;
+    }
+
+    // ─── Friendships ────────────────────────────────────────────────────────
+    match /friendships/{friendshipId} {
+      allow read: if isSignedIn()
+        && (resource.data.senderId == request.auth.uid
+            || resource.data.receiverId == request.auth.uid);
+
+      allow create: if isSignedIn()
+        && isAccountActive()
+        && request.resource.data.senderId == request.auth.uid
+        && request.resource.data.receiverId != request.auth.uid
+        && request.resource.data.status == 'pending'
+        && userExists(request.resource.data.receiverId);
+
+      allow update: if isSignedIn()
+        && resource.data.receiverId == request.auth.uid
+        && request.resource.data.status in ['accepted', 'declined']
+        && !request.resource.data.diff(resource.data).affectedKeys()
+              .hasAny(['senderId', 'receiverId']);
+
+      allow delete: if isSignedIn()
+        && (resource.data.senderId == request.auth.uid
+            || resource.data.receiverId == request.auth.uid);
+    }
+
+    // ─── Blocks ─────────────────────────────────────────────────────────────
+    match /blocks/{blockId} {
+      allow read: if isSignedIn()
+        && (resource.data.blockerId == request.auth.uid
+            || resource.data.blockedId == request.auth.uid);
+
+      allow create: if isSignedIn()
+        && request.resource.data.blockerId == request.auth.uid
+        && request.resource.data.blockedId != request.auth.uid;
+
+      allow delete: if isSignedIn()
+        && resource.data.blockerId == request.auth.uid;
+
+      allow update: if false;
+    }
+
+    // ─── Conversations ───────────────────────────────────────────────────────
+    match /conversations/{conversationId} {
+      allow read: if isSignedIn()
+        && request.auth.uid in resource.data.participants;
+
+      allow create, update: if isSignedIn()
+        && request.auth.uid in request.resource.data.participants
+        && request.resource.data.participants.size() == 2
+        && isAccountActive();
+
+      allow delete: if false;
+    }
+
+    // ─── Messages ────────────────────────────────────────────────────────────
+    match /messages/{messageId} {
+      allow read: if isSignedIn()
+        && (resource.data.senderId == request.auth.uid
+            || resource.data.recipientId == request.auth.uid);
+
+      allow create: if isSignedIn()
+        && isAccountActive()
+        && request.resource.data.senderId == request.auth.uid
+        && request.resource.data.encryptedContent is string
+        && request.resource.data.iv is string
+        && request.resource.data.encryptedContent.size() > 0
+        && isNotBlocked(request.resource.data.recipientId)
+        && userExists(request.resource.data.recipientId);
+
+      allow update: if isSignedIn()
+        && resource.data.recipientId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['readAt', 'deliveredAt']);
+
+      allow delete: if false;
+    }
+
+    // ─── Calls (WebRTC signaling) ────────────────────────────────────────────
+    match /calls/{callId} {
+      allow read: if isSignedIn()
+        && (resource.data.callerId == request.auth.uid
+            || resource.data.calleeId == request.auth.uid);
+
+      allow create: if isSignedIn()
+        && isAccountActive()
+        && request.resource.data.callerId == request.auth.uid
+        && isNotBlocked(request.resource.data.calleeId);
+
+      allow update: if isSignedIn()
+        && (resource.data.callerId == request.auth.uid
+            || resource.data.calleeId == request.auth.uid)
+        && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['status', 'answer', 'calleeCandidates', 'callerCandidates', 'endedAt']);
+
+      allow delete: if false;
+    }
+
+    // ─── Deny all other documents ─────────────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

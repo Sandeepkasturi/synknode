@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Figtree:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap');
 
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
@@ -7,52 +7,68 @@
 
 @layer base {
   :root {
-    /* Warm minimal light theme */
-    --background: 40 33% 98%;
-    --foreground: 20 20% 15%;
-    --card: 40 25% 97%;
-    --card-foreground: 20 20% 15%;
-    --popover: 40 25% 97%;
-    --popover-foreground: 20 20% 15%;
-    --primary: 24 80% 55%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 35 25% 93%;
-    --secondary-foreground: 20 20% 15%;
-    --muted: 35 20% 92%;
-    --muted-foreground: 20 10% 50%;
-    --accent: 35 30% 90%;
-    --accent-foreground: 20 20% 15%;
-    --destructive: 0 65% 55%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 30 15% 88%;
-    --input: 30 15% 88%;
-    --ring: 24 80% 55%;
+    /* SynkDrop Dark Design System */
+    --background: 240 9% 5%;         /* #090910 */
+    --surface: 240 17% 8%;           /* #111118 */
+    --surface-variant: 240 17% 12%;  /* #1A1A24 */
+
+    /* Map to shadcn/ui token names */
+    --card: 240 17% 8%;
+    --card-foreground: 240 20% 96%;
+    --popover: 240 17% 10%;
+    --popover-foreground: 240 20% 96%;
+
+    --primary: 176 100% 45%;         /* #00E5C8 electric teal */
+    --primary-foreground: 240 9% 5%;
+
+    --secondary: 240 17% 12%;
+    --secondary-foreground: 240 20% 96%;
+
+    --muted: 240 17% 12%;
+    --muted-foreground: 240 20% 60%; /* #8888A8 */
+
+    --accent: 176 100% 45%;
+    --accent-foreground: 240 9% 5%;
+
+    --accent-secondary: 22 100% 64%; /* #FF6B35 deep amber */
+
+    --destructive: 349 100% 65%;     /* #FF4C6A */
+    --destructive-foreground: 240 20% 96%;
+
+    --success: 159 100% 42%;         /* #00D68F */
+
+    --border: 240 17% 16%;
+    --input: 240 17% 16%;
+    --ring: 176 100% 45%;
+
+    --foreground: 240 20% 96%;       /* #F0F0FA */
     --radius: 0.75rem;
-    --success: 145 60% 42%;
   }
 
+  /* Force dark mode always for SynkDrop */
   .dark {
-    /* Warm minimal dark theme */
-    --background: 20 15% 8%;
-    --foreground: 35 20% 92%;
-    --card: 20 14% 11%;
-    --card-foreground: 35 20% 92%;
-    --popover: 20 14% 11%;
-    --popover-foreground: 35 20% 92%;
-    --primary: 24 85% 58%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 20 12% 16%;
-    --secondary-foreground: 35 20% 92%;
-    --muted: 20 12% 16%;
-    --muted-foreground: 30 12% 55%;
-    --accent: 20 14% 18%;
-    --accent-foreground: 35 20% 92%;
-    --destructive: 0 60% 50%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 20 12% 18%;
-    --input: 20 12% 18%;
-    --ring: 24 85% 58%;
-    --success: 145 55% 45%;
+    --background: 240 9% 5%;
+    --surface: 240 17% 8%;
+    --surface-variant: 240 17% 12%;
+    --card: 240 17% 8%;
+    --card-foreground: 240 20% 96%;
+    --popover: 240 17% 10%;
+    --popover-foreground: 240 20% 96%;
+    --primary: 176 100% 45%;
+    --primary-foreground: 240 9% 5%;
+    --secondary: 240 17% 12%;
+    --secondary-foreground: 240 20% 96%;
+    --muted: 240 17% 12%;
+    --muted-foreground: 240 20% 60%;
+    --accent: 176 100% 45%;
+    --accent-foreground: 240 9% 5%;
+    --destructive: 349 100% 65%;
+    --destructive-foreground: 240 20% 96%;
+    --success: 159 100% 42%;
+    --border: 240 17% 16%;
+    --input: 240 17% 16%;
+    --ring: 176 100% 45%;
+    --foreground: 240 20% 96%;
   }
 }
 
@@ -61,15 +77,30 @@
     @apply border-border;
   }
 
-  body {
-    @apply bg-background text-foreground antialiased;
-    font-family: 'DM Sans', sans-serif;
-    font-feature-settings: "rlig" 1, "calt" 1;
+  html {
+    color-scheme: dark;
   }
 
-  /* Minimal Scrollbar */
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Figtree', sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    background-color: #090910;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .font-display {
+    font-family: 'Outfit', sans-serif;
+  }
+
+  /* Scrollbar */
   ::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
+    height: 4px;
   }
 
   ::-webkit-scrollbar-track {
@@ -77,12 +108,90 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-border rounded-full hover:bg-muted-foreground/30 transition-colors;
+    background: rgba(0, 229, 200, 0.2);
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 229, 200, 0.4);
   }
 }
 
 @layer utilities {
+  /* Glassmorphism */
   .glass {
-    @apply backdrop-blur-xl bg-card/80 border border-border/50;
+    backdrop-filter: blur(16px) saturate(180%);
+    background: rgba(17, 17, 24, 0.8);
+    border: 1px solid rgba(0, 229, 200, 0.08);
   }
+
+  .glass-sm {
+    backdrop-filter: blur(8px);
+    background: rgba(17, 17, 24, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  /* Teal glow effects */
+  .glow-teal {
+    box-shadow: 0 0 20px rgba(0, 229, 200, 0.15), 0 0 60px rgba(0, 229, 200, 0.05);
+  }
+
+  .glow-teal-sm {
+    box-shadow: 0 0 10px rgba(0, 229, 200, 0.2);
+  }
+
+  .glow-amber {
+    box-shadow: 0 0 20px rgba(255, 107, 53, 0.15);
+  }
+
+  /* Text gradients */
+  .text-gradient-teal {
+    background: linear-gradient(135deg, #00E5C8, #00B4D8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-amber {
+    background: linear-gradient(135deg, #FF6B35, #FFB347);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Online presence dot */
+  .online-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #00D68F;
+    box-shadow: 0 0 6px rgba(0, 214, 143, 0.6);
+    animation: pulse-online 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .offline-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #8888A8;
+  }
+
+  /* Bottom nav safe area */
+  .pb-safe {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .mb-nav {
+    margin-bottom: 5rem;
+  }
+}
+
+@keyframes pulse-online {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Accent teal color overrides for active elements */
+[data-state="active"] {
+  color: hsl(176 100% 45%) !important;
 }
