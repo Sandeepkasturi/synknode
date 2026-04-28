@@ -5,7 +5,8 @@ import { toast } from 'sonner';
 const BLOCKED_EXTENSIONS = new Set([
   'exe', 'dll', 'msi', 'bat', 'cmd', 'com', 'scr', 'pif', 'cpl', 'jar', 'apk', 'ipa',
   'dmg', 'pkg', 'app', 'deb', 'rpm', 'run', 'bin', 'sh', 'bash', 'ps1', 'psm1', 'vbs',
-  'vbe', 'js', 'jse', 'wsf', 'wsh', 'hta', 'reg', 'lnk', 'scf', 'url', 'iso', 'img'
+  'vbe', 'js', 'jse', 'wsf', 'wsh', 'hta', 'reg', 'lnk', 'scf', 'url', 'iso', 'img',
+  'docm', 'xlsm', 'pptm', 'xlam', 'html', 'htm'
 ]);
 
 const BLOCKED_MIME_PREFIXES = ['application/x-msdownload', 'application/x-executable'];
@@ -32,6 +33,24 @@ export const getFileSecurityIssue = (file: File | { name: string; type?: string 
   if (normalizedName.includes('.pdf.exe') || normalizedName.includes('.jpg.exe') || normalizedName.includes('.png.exe')) {
     return 'Blocked disguised executable file';
   }
+
+  return null;
+};
+
+export const inspectFileSafety = async (file: File): Promise<string | null> => {
+  const staticIssue = getFileSecurityIssue(file);
+  if (staticIssue) return staticIssue;
+
+  const header = new Uint8Array(await file.slice(0, 512).arrayBuffer());
+  const headerText = new TextDecoder('utf-8', { fatal: false }).decode(header).trimStart().toLowerCase();
+
+  if (header[0] === 0x4d && header[1] === 0x5a) return 'Blocked disguised Windows executable';
+  if (header[0] === 0x7f && header[1] === 0x45 && header[2] === 0x4c && header[3] === 0x46) return 'Blocked Linux executable';
+  if (header[0] === 0xcf && header[1] === 0xfa && header[2] === 0xed && header[3] === 0xfe) return 'Blocked macOS executable';
+  if (header[0] === 0xca && header[1] === 0xfe && header[2] === 0xba && header[3] === 0xbe) return 'Blocked Java executable';
+  if (headerText.startsWith('#!')) return 'Blocked script file';
+  if (headerText.startsWith('windows registry editor')) return 'Blocked registry file';
+  if (headerText.includes('<script') || headerText.includes('javascript:')) return 'Blocked active script content';
 
   return null;
 };
@@ -106,15 +125,17 @@ export const processDirectoryEntry = (entry: FileSystemDirectoryEntry): Promise<
 };
 
 // Validate files against size limit (5GB total per user)
-export const validateFiles = (files: File[]): File[] => {
-  const safeFiles = files.filter((file) => {
-    const issue = getFileSecurityIssue(file);
+export const validateFiles = async (files: File[]): Promise<File[]> => {
+  const safeFiles: File[] = [];
+
+  for (const file of files) {
+    const issue = await inspectFileSafety(file);
     if (issue) {
       toast.error(`${issue}: ${file.name}`);
-      return false;
+      continue;
     }
-    return true;
-  });
+    safeFiles.push(file);
+  }
 
   if (safeFiles.length === 0) return [];
 
