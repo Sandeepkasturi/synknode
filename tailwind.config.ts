@@ -20,9 +20,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["var(--font-display)"],
-        body: ["var(--font-body)"],
-        sans: ["var(--font-body)"],
+        display: ["DM Serif Display", "serif"],
+        body: ["DM Sans", "sans-serif"],
+        sans: ["DM Sans", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
