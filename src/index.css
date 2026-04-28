@@ -114,6 +114,7 @@
   }
 
   .progress-shimmer {
+    background: linear-gradient(90deg, hsl(var(--foreground) / 0.42), hsl(var(--foreground) / 0.82), hsl(var(--foreground) / 0.42));
     background-size: 200% 100%;
     animation: progress-shimmer 2.4s ease-in-out infinite;
   }
