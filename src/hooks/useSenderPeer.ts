@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { getFileSecurityIssue } from "@/utils/fileTransfer.utils";
 
 interface TransferProgress {
   active: boolean;
@@ -56,6 +57,11 @@ export const useSenderPeer = () => {
         const batch = files.slice(i, i + batchSize);
 
         await Promise.all(batch.map(async (file) => {
+          const securityIssue = getFileSecurityIssue(file);
+          if (securityIssue) {
+            throw new Error(`${securityIssue}: ${file.name}`);
+          }
+
           // Check for existing duplicate
           const { data: existingFiles } = await supabase
             .from('pending_transfers')
