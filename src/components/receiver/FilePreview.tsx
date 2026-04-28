@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { FileIcon, X, Download, Loader2 } from "lucide-react";
+import { FileIcon, Download, Loader2, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { QueueFile } from "@/types/queue.types";
+import { getFileSecurityIssue } from "@/utils/fileTransfer.utils";
 
 interface FilePreviewProps {
   file: QueueFile | null;
@@ -12,17 +13,20 @@ interface FilePreviewProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const getFileCategory = (type: string, name: string): 'image' | 'pdf' | 'video' | 'audio' | 'text' | 'unknown' => {
+const getFileCategory = (type: string, name: string): 'image' | 'pdf' | 'video' | 'audio' | 'text' | 'office' | 'archive' | 'unknown' => {
   const lower = type.toLowerCase();
   const ext = name.split('.').pop()?.toLowerCase() || '';
 
   if (lower.startsWith('image/')) return 'image';
+  if (['svg', 'webp', 'avif', 'bmp', 'ico'].includes(ext)) return 'image';
   if (lower === 'application/pdf' || ext === 'pdf') return 'pdf';
   if (lower.startsWith('video/')) return 'video';
   if (lower.startsWith('audio/')) return 'audio';
+  if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'odt', 'ods', 'odp', 'rtf'].includes(ext)) return 'office';
+  if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext)) return 'archive';
   if (
     lower.startsWith('text/') ||
-    ['json', 'xml', 'csv', 'md', 'txt', 'js', 'ts', 'tsx', 'jsx', 'html', 'css', 'py', 'java', 'c', 'cpp', 'h', 'yaml', 'yml', 'toml', 'log', 'sh', 'bat', 'sql'].includes(ext)
+    ['json', 'xml', 'csv', 'md', 'txt', 'ts', 'tsx', 'jsx', 'html', 'css', 'py', 'java', 'c', 'cpp', 'h', 'yaml', 'yml', 'toml', 'log', 'sql'].includes(ext)
   ) return 'text';
 
   return 'unknown';
@@ -47,6 +51,12 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, senderName, open
       setError(null);
 
       try {
+        const securityIssue = getFileSecurityIssue({ name: file.name, type: file.type });
+        if (securityIssue) {
+          setLoading(false);
+          return;
+        }
+
         let blob: Blob | null = null;
 
         if (file.blob) {
@@ -91,6 +101,7 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, senderName, open
   if (!file) return null;
 
   const category = getFileCategory(file.type, file.name);
+  const securityIssue = getFileSecurityIssue({ name: file.name, type: file.type });
 
   const handleDownload = () => {
     if (!blobUrl && !textContent) return;
@@ -114,7 +125,7 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, senderName, open
               <FileIcon className="h-4 w-4 text-primary flex-shrink-0" />
               <span className="truncate">{file.name}</span>
             </DialogTitle>
-            <Button size="sm" variant="ghost" onClick={handleDownload} className="flex-shrink-0 text-xs">
+            <Button size="sm" variant="ghost" onClick={handleDownload} disabled={!!securityIssue} className="flex-shrink-0 text-xs">
               <Download className="h-3.5 w-3.5 mr-1" />
               Download
             </Button>
@@ -123,7 +134,13 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, senderName, open
 
         {/* Content */}
         <div className="flex-1 overflow-auto min-h-0">
-          {loading ? (
+          {securityIssue ? (
+            <div className="flex flex-col items-center justify-center py-20 px-6 text-center text-muted-foreground">
+              <ShieldAlert className="h-12 w-12 mb-3 text-destructive" />
+              <p className="text-sm font-medium text-foreground mb-1">File blocked for safety</p>
+              <p className="text-xs max-w-md">{securityIssue}. This file cannot be previewed or downloaded from the application.</p>
+            </div>
+          ) : loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
@@ -168,6 +185,18 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, senderName, open
             <pre className="p-4 text-xs font-mono text-foreground bg-secondary/20 overflow-auto whitespace-pre-wrap break-words max-h-[70vh]">
               {textContent}
             </pre>
+          ) : category === 'office' ? (
+            <div className="flex flex-col items-center justify-center py-20 px-6 text-center text-muted-foreground">
+              <FileIcon className="h-12 w-12 mb-3 text-primary/60" />
+              <p className="text-sm font-medium text-foreground mb-1">Office document preview is limited</p>
+              <p className="text-xs max-w-md">Browsers cannot safely render this document type directly. Download it only if you trust the sender.</p>
+            </div>
+          ) : category === 'archive' ? (
+            <div className="flex flex-col items-center justify-center py-20 px-6 text-center text-muted-foreground">
+              <FileIcon className="h-12 w-12 mb-3 text-primary/60" />
+              <p className="text-sm font-medium text-foreground mb-1">Archive preview is not available</p>
+              <p className="text-xs max-w-md">Compressed files cannot be inspected in the browser. Only download archives from trusted users.</p>
+            </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
               <FileIcon className="h-12 w-12 mb-3 opacity-30" />

@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useQueue } from "@/context/QueueContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Download, User, Clock, FileIcon, Trash2, FolderOpen, CheckCircle, Users, Eye } from "lucide-react";
+import { Download, User, Clock, FileIcon, Trash2, FolderOpen, CheckCircle, Users, Eye, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { QueueFile } from "@/types/queue.types";
 import { FilePreview } from "./FilePreview";
+import { getFileSecurityIssue } from "@/utils/fileTransfer.utils";
 
 export const LiveQueue: React.FC = () => {
   const { queue, removeFromQueue, updateEntryStatus } = useQueue();
@@ -40,6 +41,12 @@ export const LiveQueue: React.FC = () => {
   const downloadEntry = async (entryId: string) => {
     const entry = queue.find(e => e.id === entryId);
     if (!entry) return;
+
+    const unsafeFile = entry.files.find(file => getFileSecurityIssue({ name: file.name, type: file.type }));
+    if (unsafeFile) {
+      toast.error(`Blocked unsafe file: ${unsafeFile.name}`);
+      return;
+    }
 
     updateEntryStatus(entryId, 'downloading');
 
@@ -191,19 +198,20 @@ export const LiveQueue: React.FC = () => {
                 </div>
 
                 <div className="space-y-1">
-                  {entry.files.map((file, fileIndex) => (
-                    <div
+                  {entry.files.map((file, fileIndex) => {
+                    const securityIssue = getFileSecurityIssue({ name: file.name, type: file.type });
+                    return <div
                       key={fileIndex}
-                      className="flex items-center gap-2 text-xs p-2 rounded-lg bg-background/60 group cursor-pointer hover:bg-primary/5 transition-colors"
+                      className={`flex items-center gap-2 text-xs p-2 rounded-lg bg-background/60 group cursor-pointer transition-colors ${securityIssue ? 'hover:bg-destructive/5' : 'hover:bg-primary/5'}`}
                       onClick={() => openPreview(file, entry.senderName)}
                     >
                       <span className="text-[10px] text-muted-foreground font-mono w-4">#{fileIndex + 1}</span>
-                      <FileIcon className="h-3 w-3 text-primary flex-shrink-0" />
+                      {securityIssue ? <ShieldAlert className="h-3 w-3 text-destructive flex-shrink-0" /> : <FileIcon className="h-3 w-3 text-primary flex-shrink-0" />}
                       <span className="text-foreground truncate flex-1">{file.name}</span>
                       <Eye className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                       <span className="text-muted-foreground text-[10px] font-mono">{formatFileSize(file.size)}</span>
                     </div>
-                  ))}
+                  })}
                 </div>
               </div>
 

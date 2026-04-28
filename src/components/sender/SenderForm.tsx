@@ -16,8 +16,8 @@ export const SenderForm: React.FC = () => {
   const [name, setName] = useState<string>(() => localStorage.getItem('sender_name') || '');
   const { sendFiles, transferProgress } = useSenderPeer();
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const validFiles = validateFiles(acceptedFiles);
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    const validFiles = await validateFiles(acceptedFiles);
     if (validFiles.length > 0) {
       setSelectedFiles(prev => [...prev, ...validFiles]);
       toast.success(`${validFiles.length} file(s) added`);
