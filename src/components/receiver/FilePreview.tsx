@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { FileIcon, Download, Loader2, ShieldAlert } from "lucide-react";
@@ -51,6 +51,12 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, senderName, open
       setError(null);
 
       try {
+        const securityIssue = getFileSecurityIssue({ name: file.name, type: file.type });
+        if (securityIssue) {
+          setLoading(false);
+          return;
+        }
+
         let blob: Blob | null = null;
 
         if (file.blob) {
@@ -95,7 +101,7 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, senderName, open
   if (!file) return null;
 
   const category = getFileCategory(file.type, file.name);
-  const securityIssue = useMemo(() => getFileSecurityIssue({ name: file.name, type: file.type }), [file.name, file.type]);
+  const securityIssue = getFileSecurityIssue({ name: file.name, type: file.type });
 
   const handleDownload = () => {
     if (!blobUrl && !textContent) return;
