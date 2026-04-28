@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&display=swap');
 
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
@@ -7,51 +7,51 @@
 
 @layer base {
   :root {
-    /* Warm minimal light theme */
-    --background: 40 33% 98%;
-    --foreground: 20 20% 15%;
-    --card: 40 25% 97%;
-    --card-foreground: 20 20% 15%;
-    --popover: 40 25% 97%;
-    --popover-foreground: 20 20% 15%;
-    --primary: 24 80% 55%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 35 25% 93%;
-    --secondary-foreground: 20 20% 15%;
-    --muted: 35 20% 92%;
-    --muted-foreground: 20 10% 50%;
-    --accent: 35 30% 90%;
-    --accent-foreground: 20 20% 15%;
+    --font-display: 'Instrument Serif', serif;
+    --font-body: 'Inter', sans-serif;
+    --background: 201 100% 13%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 240 4% 66%;
+    --accent: 0 0% 10%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 65% 55%;
     --destructive-foreground: 0 0% 100%;
-    --border: 30 15% 88%;
-    --input: 30 15% 88%;
-    --ring: 24 80% 55%;
-    --radius: 0.75rem;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 0 0% 100%;
+    --radius: 1.5rem;
     --success: 145 60% 42%;
   }
 
   .dark {
-    /* Warm minimal dark theme */
-    --background: 20 15% 8%;
-    --foreground: 35 20% 92%;
-    --card: 20 14% 11%;
-    --card-foreground: 35 20% 92%;
-    --popover: 20 14% 11%;
-    --popover-foreground: 35 20% 92%;
-    --primary: 24 85% 58%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 20 12% 16%;
-    --secondary-foreground: 35 20% 92%;
-    --muted: 20 12% 16%;
-    --muted-foreground: 30 12% 55%;
-    --accent: 20 14% 18%;
-    --accent-foreground: 35 20% 92%;
+    --background: 201 100% 13%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 240 4% 66%;
+    --accent: 0 0% 10%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 20 12% 18%;
-    --input: 20 12% 18%;
-    --ring: 24 85% 58%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 0 0% 100%;
     --success: 145 55% 45%;
   }
 }
