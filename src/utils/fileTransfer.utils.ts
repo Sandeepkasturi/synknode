@@ -2,6 +2,40 @@
 import { MAX_FILE_SIZE, MAX_USERS_PER_HOUR } from '../types/fileTransfer.types';
 import { toast } from 'sonner';
 
+const BLOCKED_EXTENSIONS = new Set([
+  'exe', 'dll', 'msi', 'bat', 'cmd', 'com', 'scr', 'pif', 'cpl', 'jar', 'apk', 'ipa',
+  'dmg', 'pkg', 'app', 'deb', 'rpm', 'run', 'bin', 'sh', 'bash', 'ps1', 'psm1', 'vbs',
+  'vbe', 'js', 'jse', 'wsf', 'wsh', 'hta', 'reg', 'lnk', 'scf', 'url', 'iso', 'img'
+]);
+
+const BLOCKED_MIME_PREFIXES = ['application/x-msdownload', 'application/x-executable'];
+
+const BLOCKED_MIME_TYPES = new Set([
+  'application/java-archive',
+  'application/x-sh',
+  'application/x-bat',
+  'application/x-msdos-program',
+  'application/vnd.microsoft.portable-executable'
+]);
+
+const getExtension = (fileName: string) => fileName.split('.').pop()?.toLowerCase() || '';
+
+export const getFileSecurityIssue = (file: File | { name: string; type?: string }): string | null => {
+  const extension = getExtension(file.name);
+  const mimeType = (file.type || '').toLowerCase();
+  const normalizedName = file.name.toLowerCase();
+
+  if (BLOCKED_EXTENSIONS.has(extension)) return `Blocked risky file type .${extension}`;
+  if (BLOCKED_MIME_TYPES.has(mimeType) || BLOCKED_MIME_PREFIXES.some(prefix => mimeType.startsWith(prefix))) {
+    return 'Blocked executable or script file';
+  }
+  if (normalizedName.includes('.pdf.exe') || normalizedName.includes('.jpg.exe') || normalizedName.includes('.png.exe')) {
+    return 'Blocked disguised executable file';
+  }
+
+  return null;
+};
+
 // Track hourly user count in localStorage
 const getHourlyUserData = (): { users: string[]; hour: string } => {
   const stored = localStorage.getItem('hourly_user_count');
@@ -73,13 +107,24 @@ export const processDirectoryEntry = (entry: FileSystemDirectoryEntry): Promise<
 
 // Validate files against size limit (5GB total per user)
 export const validateFiles = (files: File[]): File[] => {
+  const safeFiles = files.filter((file) => {
+    const issue = getFileSecurityIssue(file);
+    if (issue) {
+      toast.error(`${issue}: ${file.name}`);
+      return false;
+    }
+    return true;
+  });
+
+  if (safeFiles.length === 0) return [];
+
   const totalSize = files.reduce((sum, f) => sum + f.size, 0);
   if (totalSize > MAX_FILE_SIZE) {
     toast.error(`Total file size exceeds 5GB limit`);
     return [];
   }
 
-  return files;
+  return safeFiles;
 };
 
 // Helper to create a download link for a file
