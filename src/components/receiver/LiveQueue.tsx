@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import { useQueue } from "@/context/QueueContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Download, User, Clock, FileIcon, Trash2, FolderOpen, CheckCircle, Users, Eye } from "lucide-react";
+import { Download, User, Clock, FileIcon, Trash2, FolderOpen, CheckCircle, Users, Eye, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { QueueFile } from "@/types/queue.types";
 import { FilePreview } from "./FilePreview";
 import { getFileSecurityIssue } from "@/utils/fileTransfer.utils";
-import { ShieldAlert } from "lucide-react";
 
 export const LiveQueue: React.FC = () => {
   const { queue, removeFromQueue, updateEntryStatus } = useQueue();
@@ -199,9 +198,9 @@ export const LiveQueue: React.FC = () => {
                 </div>
 
                 <div className="space-y-1">
-                  {entry.files.map((file, fileIndex) => (
+                  {entry.files.map((file, fileIndex) => {
                     const securityIssue = getFileSecurityIssue({ name: file.name, type: file.type });
-                    <div
+                    return <div
                       key={fileIndex}
                       className={`flex items-center gap-2 text-xs p-2 rounded-lg bg-background/60 group cursor-pointer transition-colors ${securityIssue ? 'hover:bg-destructive/5' : 'hover:bg-primary/5'}`}
                       onClick={() => openPreview(file, entry.senderName)}
@@ -212,7 +211,7 @@ export const LiveQueue: React.FC = () => {
                       <Eye className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                       <span className="text-muted-foreground text-[10px] font-mono">{formatFileSize(file.size)}</span>
                     </div>
-                  ))}
+                  })}
                 </div>
               </div>
 
