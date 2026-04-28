@@ -118,7 +118,7 @@ export const validateFiles = (files: File[]): File[] => {
 
   if (safeFiles.length === 0) return [];
 
-  const totalSize = files.reduce((sum, f) => sum + f.size, 0);
+  const totalSize = safeFiles.reduce((sum, f) => sum + f.size, 0);
   if (totalSize > MAX_FILE_SIZE) {
     toast.error(`Total file size exceeds 5GB limit`);
     return [];
