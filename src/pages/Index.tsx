@@ -2,17 +2,20 @@ import React from "react";
 import { QueueProvider } from "../context/QueueContext";
 import { MainTabs } from "../components/MainTabs";
 import { Button } from "@/components/ui/button";
-import { Eye, FileText, Share2, Upload } from "lucide-react";
+import { Eye, FileText, Moon, Share2, Sun, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTheme } from "@/context/ThemeContext";
 
 const Index: React.FC = () => {
   const navItems = ["Home", "Features", "About"];
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <QueueProvider>
       <div className="relative min-h-screen overflow-hidden bg-background text-foreground selection:bg-primary/20">
+        <div className="absolute inset-0 bg-background z-0" />
         <video
-          className="absolute inset-0 w-full h-full object-cover z-0"
+          className="absolute inset-0 w-full h-full object-cover z-[1] opacity-100 dark:opacity-95"
           autoPlay
           loop
           muted
@@ -22,7 +25,7 @@ const Index: React.FC = () => {
           <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4" type="video/mp4" />
         </video>
 
-        <nav className="relative z-10 flex items-center justify-between px-8 py-6 max-w-7xl mx-auto">
+        <nav className="relative z-10 flex items-center justify-between gap-4 px-5 sm:px-8 py-6 max-w-7xl mx-auto">
           <Link
             to="/"
             className="font-display text-3xl tracking-tight text-foreground"
@@ -43,9 +46,20 @@ const Index: React.FC = () => {
             ))}
           </div>
 
-          <Button className="liquid-glass rounded-full px-6 py-2.5 text-sm font-medium text-foreground bg-transparent hover:bg-transparent hover:scale-[1.03] transition-transform">
-            Begin Journey
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              className="liquid-glass rounded-full h-10 w-10 text-foreground hover:bg-transparent hover:scale-[1.03] transition-transform"
+            >
+              {theme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+            </Button>
+            <Button className="hidden sm:inline-flex liquid-glass rounded-full px-6 py-2.5 text-sm font-medium text-foreground bg-transparent hover:bg-transparent hover:scale-[1.03] transition-transform">
+              Begin Journey
+            </Button>
+          </div>
         </nav>
 
         <main className="relative z-10 flex min-h-[calc(100vh-96px)] flex-col items-center text-center px-6 pt-24 sm:pt-32 pb-28 sm:pb-40">
