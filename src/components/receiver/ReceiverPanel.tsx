@@ -2,20 +2,19 @@ import React, { useState } from "react";
 import { useReceiverPeer } from "@/hooks/useReceiverPeer";
 import { LiveQueue } from "./LiveQueue";
 import { Button } from "@/components/ui/button";
-import { Radio, Power, Wifi, WifiOff, LogIn, Copy, Check } from "lucide-react";
+import { Radio, Power, Wifi, WifiOff, Lock, LogIn, Settings } from "lucide-react";
 import { motion } from "framer-motion";
 import { OrbitalAnimation } from "@/components/OrbitalAnimation";
 import { useAuth } from "@/context/AuthContext";
 import { LoginDialog } from "@/components/auth/LoginDialog";
-import { toast } from "sonner";
+import { ManageReceiversDialog } from "@/components/auth/ManageReceiversDialog";
 
 export const ReceiverPanel: React.FC = () => {
   const { isConnected, isReceiver, startReceiver, stopReceiver, receiverCode } = useReceiverPeer();
-  const { user, profile, signOut } = useAuth();
+  const { user, isPrimaryAdmin, signOut } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [showManageReceivers, setShowManageReceivers] = useState(false);
 
-  // Any signed-in user can be a receiver — no admin gate
   const handleStartReceiver = () => {
     if (!user) {
       setShowLogin(true);
@@ -24,21 +23,10 @@ export const ReceiverPanel: React.FC = () => {
     startReceiver();
   };
 
-  const handleCopyPeerId = () => {
-    if (!receiverCode) return;
-    navigator.clipboard.writeText(receiverCode);
-    setCopied(true);
-    toast.success("Peer ID copied!");
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const abbreviatedId = receiverCode
-    ? receiverCode.slice(0, 8) + "…" + receiverCode.slice(-4)
-    : null;
-
   return (
     <div className="space-y-5">
       <LoginDialog open={showLogin} onOpenChange={setShowLogin} />
+      <ManageReceiversDialog open={showManageReceivers} onOpenChange={setShowManageReceivers} />
 
       {/* Connection Status */}
       <div className="flex items-center justify-between p-4 rounded-xl bg-secondary/40 border border-border/50">
@@ -53,33 +41,33 @@ export const ReceiverPanel: React.FC = () => {
             </motion.div>
           ) : (
             <div className="p-2 rounded-full bg-muted">
-              {user
-                ? <WifiOff className="h-4 w-4 text-muted-foreground" />
-                : <LogIn className="h-4 w-4 text-muted-foreground" />}
+              {user ? <WifiOff className="h-4 w-4 text-muted-foreground" /> : <Lock className="h-4 w-4 text-muted-foreground" />}
             </div>
           )}
           <div>
             <p className="font-medium text-sm text-foreground">
-              {isReceiver ? "Receiving" : "Inactive"}
+              {isReceiver ? 'Receiving' : 'Inactive'}
             </p>
             <p className="text-xs text-muted-foreground">
               {isReceiver
-                ? `@${profile?.username ?? "you"}`
+                ? `Code: ${receiverCode}`
                 : user
-                  ? "Start to receive files"
-                  : "Sign in required"}
+                  ? 'Start to receive files'
+                  : 'Login required'}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
+          {isPrimaryAdmin && (
+            <Button variant="ghost" size="sm" onClick={() => setShowManageReceivers(true)} className="text-xs text-primary">
+              <Settings className="h-3.5 w-3.5 mr-1" />
+              Manage
+            </Button>
+          )}
+          
           {user && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={signOut}
-              className="text-xs text-muted-foreground"
-            >
+            <Button variant="ghost" size="sm" onClick={() => signOut()} className="text-xs text-muted-foreground">
               Sign Out
             </Button>
           )}
@@ -88,19 +76,19 @@ export const ReceiverPanel: React.FC = () => {
             onClick={isReceiver ? stopReceiver : handleStartReceiver}
             variant={isReceiver ? "destructive" : "default"}
             size="sm"
-            className={!isReceiver && user ? "bg-primary hover:bg-primary/90 text-primary-foreground" : ""}
+            className={!isReceiver && user ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : ''}
           >
             {isReceiver ? (
               <><Power className="h-3.5 w-3.5 mr-1" /> Stop</>
             ) : (
               <>{user ? <Radio className="h-3.5 w-3.5 mr-1" /> : <LogIn className="h-3.5 w-3.5 mr-1" />}
-                {user ? "Start" : "Sign In"}</>
+                {user ? "Start" : "Login"}</>
             )}
           </Button>
         </div>
       </div>
 
-      {/* Peer ID Display (replaces static "SRGEC") */}
+      {/* Code Display */}
       {isReceiver && (
         <motion.div
           initial={{ opacity: 0, y: 8 }}
@@ -109,22 +97,9 @@ export const ReceiverPanel: React.FC = () => {
         >
           <OrbitalAnimation size="sm" isTransferring={false} />
           <div className="text-center">
-            <p className="text-xs text-muted-foreground mb-1">Your receiver</p>
-            <p className="text-lg font-bold font-display text-foreground">
-              @{profile?.username}
-            </p>
-            <div className="flex items-center gap-2 mt-1 justify-center">
-              <p className="text-[11px] font-mono text-muted-foreground">{abbreviatedId}</p>
-              <button
-                onClick={handleCopyPeerId}
-                className="p-1 hover:bg-primary/10 rounded transition-colors"
-                title="Copy full Peer ID"
-              >
-                {copied
-                  ? <Check className="h-3 w-3 text-[#00D68F]" />
-                  : <Copy className="h-3 w-3 text-muted-foreground" />}
-              </button>
-            </div>
+            <p className="text-xs text-muted-foreground mb-1">Receiver code</p>
+            <p className="text-2xl font-bold tracking-widest text-primary font-display">{receiverCode}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">Share with senders</p>
           </div>
         </motion.div>
       )}
