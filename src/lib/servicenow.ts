@@ -45,12 +45,13 @@ const getSnConfig = () => {
     const url = (import.meta.env.VITE_SN_INSTANCE_URL || '').replace(/\/$/, '');
     const username = import.meta.env.VITE_SN_USERNAME;
     const password = import.meta.env.VITE_SN_PASSWORD;
-    return { url, username, password };
+    const scope = import.meta.env.VITE_SN_SCOPE || 'x_2064375_synknode';
+    return { url, username, password, scope };
 };
 
 // Send event to ServiceNow with retry logic
 async function sendToServiceNowWithRetry(payload: any): Promise<boolean> {
-    const { url, username, password } = getSnConfig();
+    const { url, username, password, scope } = getSnConfig();
     
     if (!url || !username || !password) {
         console.warn('ServiceNow credentials are not fully configured. Event skipped.', {
@@ -61,7 +62,7 @@ async function sendToServiceNowWithRetry(payload: any): Promise<boolean> {
         return false;
     }
 
-    const endpoint = `${url}/api/x_synknode/synknode_analytics/events`;
+    const endpoint = `${url}/api/${scope}/synknode_analytics/events`;
     
     // Generate Basic Auth token safely in browser or node
     const token = typeof btoa !== 'undefined' 
