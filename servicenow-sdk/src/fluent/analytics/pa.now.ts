@@ -161,7 +161,7 @@ export const pa_dashboard_tab = Record({
     $id: Now.ID['pa_dashboard_tab'],
     table: 'pa_tabs',
     data: {
-        title: 'Platform Analytics',
+        name: 'Platform Analytics',
         description: 'SynkNode Overview Tab'
     }
 })
