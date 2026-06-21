@@ -1,0 +1,16 @@
+{
+  "name": "synknode-analytics",
+  "version": "1.0.0",
+  "description": "SynkNode Platform Analytics Integration Scoped App",
+  "main": "index.js",
+  "scripts": {
+    "build": "now-sdk build",
+    "pack": "now-sdk pack",
+    "clean": "now-sdk clean"
+  },
+  "devDependencies": {
+    "@servicenow/glide": "^27.0.5",
+    "@servicenow/sdk": "^4.7.2",
+    "typescript": "^5.0.0"
+  }
+}

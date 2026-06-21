@@ -1,0 +1,556 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<unload unload_date="2026-06-21 11:50:00">
+  <sys_update_set action="INSERT_OR_UPDATE">
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <description>Update Set containing the Scripted REST API (POST /events and GET /summary) and server-side TS modules.</description>
+    <name>SynkNode Scripted REST API</name>
+    <release_date/>
+    <state>complete</state>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>26571502d0a642339adf60a7edf6restapi</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+  </sys_update_set>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_app_26571502d0a642339adf60a7edf6fab9</name>
+    <payload>&lt;record_update table=&quot;sys_app&quot;&gt;
+  &lt;sys_app action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_app_26571502d0a642339adf60a7edf6fab9&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;can_edit_in_studio&gt;true&lt;/can_edit_in_studio&gt;
+    &lt;enforce_license&gt;log&lt;/enforce_license&gt;
+    &lt;guided_setup_guid/&gt;
+    &lt;hide_on_ui&gt;false&lt;/hide_on_ui&gt;
+    &lt;installed_as_dependency&gt;false&lt;/installed_as_dependency&gt;
+    &lt;js_level&gt;es_latest&lt;/js_level&gt;
+    &lt;licensable&gt;true&lt;/licensable&gt;
+    &lt;license_category&gt;none&lt;/license_category&gt;
+    &lt;license_model&gt;none&lt;/license_model&gt;
+    &lt;logo/&gt;
+    &lt;menu/&gt;
+    &lt;name&gt;SynkNode Platform Analytics&lt;/name&gt;
+    &lt;package_json&gt;x_synknode/synknode-analytics/1.0.0/package.json&lt;/package_json&gt;
+    &lt;package_resolver_version&gt;1.0.0&lt;/package_resolver_version&gt;
+    &lt;private&gt;false&lt;/private&gt;
+    &lt;restrict_table_access&gt;false&lt;/restrict_table_access&gt;
+    &lt;runtime_access_tracking&gt;permissive&lt;/runtime_access_tracking&gt;
+    &lt;scope&gt;x_synknode&lt;/scope&gt;
+    &lt;scoped_administration&gt;false&lt;/scoped_administration&gt;
+    &lt;short_description/&gt;
+    &lt;source&gt;x_synknode&lt;/source&gt;
+    &lt;subscription_entitlement/&gt;
+    &lt;sys_code&gt;x_synknode&lt;/sys_code&gt;
+    &lt;trackable&gt;true&lt;/trackable&gt;
+    &lt;uninstall_blocked&gt;false&lt;/uninstall_blocked&gt;
+    &lt;user_role/&gt;
+    &lt;version&gt;1.0.0&lt;/version&gt;
+  &lt;/sys_app&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>85d98e052072d959137f53eb88bffc8e</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>SynkNode Platform Analytics</target_name>
+    <type>Application Scope</type>
+    <update_domain>global</update_domain>
+    <update_guid>85d98e052072d959137f53eb88bffc8e</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Scripted REST API">26571502d0a642339adf60a7edf6restapi</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_module_3600eb9a68ab42e9bc51a40e3de9a190</name>
+    <payload>&lt;record_update table=&quot;sys_module&quot;&gt;
+  &lt;sys_module action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;3600eb9a68ab42e9bc51a40e3de9a190&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_module_3600eb9a68ab42e9bc51a40e3de9a190&lt;/sys_update_name&gt;
+    &lt;content&gt;&lt;![CDATA[{
+  &quot;name&quot;: &quot;synknode-analytics&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;description&quot;: &quot;SynkNode Platform Analytics Integration Scoped App&quot;,
+  &quot;main&quot;: &quot;index.js&quot;,
+  &quot;scripts&quot;: {
+    &quot;build&quot;: &quot;now-sdk build&quot;,
+    &quot;pack&quot;: &quot;now-sdk pack&quot;,
+    &quot;clean&quot;: &quot;now-sdk clean&quot;
+  },
+  &quot;devDependencies&quot;: {
+    &quot;@servicenow/sdk&quot;: &quot;^4.7.2&quot;,
+    &quot;typescript&quot;: &quot;^5.0.0&quot;
+  }
+}]]&gt;&lt;/content&gt;
+    &lt;external_source&gt;false&lt;/external_source&gt;
+    &lt;path&gt;x_synknode/synknode-analytics/1.0.0/package.json&lt;/path&gt;
+    &lt;sys_name&gt;x_synknode/synknode-analytics/1.0.0/package.json&lt;/sys_name&gt;
+  &lt;/sys_module&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>5a2c9482be416d210afce7322a7e323c</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>sys_module_3600eb9a68ab42e9bc51a40e3de9a190</target_name>
+    <type>ECMAScript Module</type>
+    <update_domain>global</update_domain>
+    <update_guid>5a2c9482be416d210afce7322a7e323c</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Scripted REST API">26571502d0a642339adf60a7edf6restapi</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_module_429cc5f891b9415498b2a5daeefc6391</name>
+    <payload>&lt;record_update table=&quot;sys_module&quot;&gt;
+  &lt;sys_module action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;429cc5f891b9415498b2a5daeefc6391&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_module_429cc5f891b9415498b2a5daeefc6391&lt;/sys_update_name&gt;
+    &lt;content&gt;&lt;![CDATA[import { gs } from &apos;@servicenow/glide&apos;;
+export function processSummary(request, response) {
+    try {
+        // 1. Total transfer count
+        var countGA = new GlideAggregate(&quot;x_synknode_events&quot;);
+        countGA.addQuery(&quot;event_type&quot;, &quot;file_transfer&quot;);
+        countGA.addAggregate(&quot;COUNT&quot;);
+        countGA.query();
+        var totalTransfers = 0;
+        if (countGA.next()) {
+            totalTransfers = parseInt(countGA.getAggregate(&quot;COUNT&quot;)) || 0;
+        }
+        // 2. Total bytes transferred
+        var bytesGA = new GlideAggregate(&quot;x_synknode_events&quot;);
+        bytesGA.addQuery(&quot;event_type&quot;, &quot;file_transfer&quot;);
+        bytesGA.addAggregate(&quot;SUM&quot;, &quot;size_bytes&quot;);
+        bytesGA.query();
+        var totalBytes = 0;
+        if (bytesGA.next()) {
+            totalBytes = parseInt(bytesGA.getAggregate(&quot;SUM&quot;, &quot;size_bytes&quot;)) || 0;
+        }
+        // 3. Average transfer duration in ms
+        var durationGA = new GlideAggregate(&quot;x_synknode_events&quot;);
+        durationGA.addQuery(&quot;event_type&quot;, &quot;file_transfer&quot;);
+        durationGA.addAggregate(&quot;AVG&quot;, &quot;transfer_duration_ms&quot;);
+        durationGA.query();
+        var avgDurationMs = 0;
+        if (durationGA.next()) {
+            avgDurationMs = parseFloat(durationGA.getAggregate(&quot;AVG&quot;, &quot;transfer_duration_ms&quot;)) || 0;
+        }
+        // 4. Count of unique senders (users)
+        var uniqueCount = 0;
+        var sendersMap = {};
+        var senderGR = new GlideRecord(&quot;x_synknode_events&quot;);
+        senderGR.addQuery(&quot;event_type&quot;, &quot;file_transfer&quot;);
+        senderGR.query();
+        while (senderGR.next()) {
+            var sId = senderGR.getValue(&quot;sender_id&quot;);
+            if (sId &amp;&amp; !sendersMap[sId]) {
+                sendersMap[sId] = true;
+                uniqueCount++;
+            }
+        }
+        var uniqueSenders = uniqueCount;
+        // 5. Breakdown of transfers by file_type
+        var fileTypeGA = new GlideAggregate(&quot;x_synknode_events&quot;);
+        fileTypeGA.addQuery(&quot;event_type&quot;, &quot;file_transfer&quot;);
+        fileTypeGA.addAggregate(&quot;COUNT&quot;);
+        fileTypeGA.groupBy(&quot;file_type&quot;);
+        fileTypeGA.query();
+        var breakdown = [];
+        while (fileTypeGA.next()) {
+            var fType = fileTypeGA.getValue(&quot;file_type&quot;) || &quot;unknown&quot;;
+            var fCount = parseInt(fileTypeGA.getAggregate(&quot;COUNT&quot;)) || 0;
+            breakdown.push({
+                file_type: fType,
+                count: fCount
+            });
+        }
+        response.setStatus(200);
+        response.setBody({
+            total_transfers: totalTransfers,
+            total_bytes_transferred: totalBytes,
+            average_transfer_duration_ms: avgDurationMs,
+            unique_senders: uniqueSenders,
+            file_type_breakdown: breakdown
+        });
+    }
+    catch (ex) {
+        gs.error(&quot;Error in SynkNode Summary GET API: &quot; + ex.message);
+        response.setStatus(500);
+        response.setBody({ error: ex.message });
+    }
+}
+]]&gt;&lt;/content&gt;
+    &lt;external_source&gt;false&lt;/external_source&gt;
+    &lt;path&gt;x_synknode/synknode-analytics/1.0.0/src/server/summary-handler.ts&lt;/path&gt;
+    &lt;sys_name&gt;x_synknode/synknode-analytics/1.0.0/src/server/summary-handler.ts&lt;/sys_name&gt;
+  &lt;/sys_module&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>d9cd9af9be5b19e91c0301fbe5932aa0</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>sys_module_429cc5f891b9415498b2a5daeefc6391</target_name>
+    <type>ECMAScript Module</type>
+    <update_domain>global</update_domain>
+    <update_guid>d9cd9af9be5b19e91c0301fbe5932aa0</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Scripted REST API">26571502d0a642339adf60a7edf6restapi</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_module_b339fb36367a49a68fa6688d9cabe628</name>
+    <payload>&lt;record_update table=&quot;sys_module&quot;&gt;
+  &lt;sys_module action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;b339fb36367a49a68fa6688d9cabe628&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_module_b339fb36367a49a68fa6688d9cabe628&lt;/sys_update_name&gt;
+    &lt;content&gt;&lt;![CDATA[import { gs } from &apos;@servicenow/glide&apos;;
+export function processEvents(request, response) {
+    try {
+        var reqBody = request.body.data;
+        if (!reqBody) {
+            response.setStatus(400);
+            response.setBody({ error: &quot;Missing request body&quot; });
+            return;
+        }
+        // Input validation
+        var eventType = reqBody.event_type;
+        var senderId = reqBody.sender_id || &quot;&quot;;
+        var fileName = reqBody.file?.name || reqBody.file_name || &quot;&quot;;
+        var timestampStr = reqBody.timestamp;
+        if (!eventType) {
+            response.setStatus(400);
+            response.setBody({ error: &quot;Missing required field: event_type&quot; });
+            return;
+        }
+        if (eventType === &quot;file_transfer&quot; &amp;&amp; !senderId) {
+            response.setStatus(400);
+            response.setBody({ error: &quot;Missing required field: sender_id for file_transfer&quot; });
+            return;
+        }
+        if (eventType === &quot;file_transfer&quot; &amp;&amp; !fileName) {
+            response.setStatus(400);
+            response.setBody({ error: &quot;Missing required field: file.name for file_transfer&quot; });
+            return;
+        }
+        if (!timestampStr) {
+            response.setStatus(400);
+            response.setBody({ error: &quot;Missing required field: timestamp&quot; });
+            return;
+        }
+        // Insert into x_synknode_events using GlideRecord
+        var gr = new GlideRecord(&quot;x_synknode_events&quot;);
+        gr.initialize();
+        gr.setValue(&quot;event_type&quot;, eventType);
+        if (eventType === &quot;file_transfer&quot;) {
+            gr.setValue(&quot;sender_id&quot;, senderId);
+            gr.setValue(&quot;receiver_id&quot;, reqBody.receiver_id || &quot;&quot;);
+            gr.setValue(&quot;file_name&quot;, fileName);
+            gr.setValue(&quot;file_type&quot;, reqBody.file?.type || reqBody.file_type || &quot;&quot;);
+            gr.setValue(&quot;file_extension&quot;, reqBody.file?.extension || reqBody.file_extension || &quot;&quot;);
+            gr.setValue(&quot;size_bytes&quot;, reqBody.transfer?.bytes_transferred || reqBody.size_bytes || 0);
+            gr.setValue(&quot;transfer_duration_ms&quot;, reqBody.transfer?.duration_ms || reqBody.transfer_duration_ms || 0);
+            gr.setValue(&quot;transfer_status&quot;, reqBody.transfer?.status || reqBody.transfer_status || &quot;completed&quot;);
+        }
+        else if (eventType === &quot;page_visit&quot;) {
+            gr.setValue(&quot;visit_url&quot;, reqBody.page?.url || reqBody.visit_url || &quot;&quot;);
+            gr.setValue(&quot;referrer_url&quot;, reqBody.page?.referrer || reqBody.referrer_url || &quot;&quot;);
+            gr.setValue(&quot;visit_id&quot;, reqBody.visit_id || reqBody.page?.visit_id || &quot;&quot;);
+        }
+        // General falls-back
+        gr.setValue(&quot;visit_url&quot;, reqBody.page?.url || reqBody.visit_url || gr.getValue(&quot;visit_url&quot;));
+        gr.setValue(&quot;referrer_url&quot;, reqBody.page?.referrer || reqBody.referrer_url || gr.getValue(&quot;referrer_url&quot;));
+        gr.setValue(&quot;visit_id&quot;, reqBody.page?.visit_id || reqBody.visit_id || gr.getValue(&quot;visit_id&quot;));
+        gr.setValue(&quot;session_id&quot;, reqBody.session_id || &quot;&quot;);
+        // Handle timestamp formatting for GlideDateTime
+        var gdt = new GlideDateTime();
+        gdt.setValueUTC(timestampStr.replace(&quot;T&quot;, &quot; &quot;).replace(&quot;Z&quot;, &quot;&quot;));
+        gr.setValue(&quot;timestamp&quot;, gdt);
+        gr.setValue(&quot;app_version&quot;, reqBody.meta?.version || reqBody.app_version || &quot;1.0.0&quot;);
+        var sysId = gr.insert();
+        if (sysId) {
+            response.setStatus(201);
+            response.setBody({ result: &quot;Created&quot;, sys_id: sysId });
+        }
+        else {
+            response.setStatus(500);
+            response.setBody({ error: &quot;Failed to insert record&quot; });
+        }
+    }
+    catch (ex) {
+        gs.error(&quot;Error in SynkNode Events POST API: &quot; + ex.message);
+        response.setStatus(500);
+        response.setBody({ error: ex.message });
+    }
+}
+]]&gt;&lt;/content&gt;
+    &lt;external_source&gt;false&lt;/external_source&gt;
+    &lt;path&gt;x_synknode/synknode-analytics/1.0.0/src/server/events-handler.ts&lt;/path&gt;
+    &lt;sys_name&gt;x_synknode/synknode-analytics/1.0.0/src/server/events-handler.ts&lt;/sys_name&gt;
+  &lt;/sys_module&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>c46ce74897af44a0ee2c475360fbe928</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>sys_module_b339fb36367a49a68fa6688d9cabe628</target_name>
+    <type>ECMAScript Module</type>
+    <update_domain>global</update_domain>
+    <update_guid>c46ce74897af44a0ee2c475360fbe928</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Scripted REST API">26571502d0a642339adf60a7edf6restapi</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_module_fceb4e337d7340139f8d4de7da43c7ac</name>
+    <payload>&lt;record_update&gt;
+  &lt;sys_module action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;fceb4e337d7340139f8d4de7da43c7ac&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;path&gt;x_synknode/synknode-analytics/1.0.0/bom.json&lt;/path&gt;
+    &lt;external_source&gt;false&lt;/external_source&gt;
+    &lt;content&gt;&lt;![CDATA[{
+  &quot;$schema&quot;: &quot;http://cyclonedx.org/schema/bom-1.6.schema.json&quot;,
+  &quot;bomFormat&quot;: &quot;CycloneDX&quot;,
+  &quot;specVersion&quot;: &quot;1.6&quot;,
+  &quot;version&quot;: 1,
+  &quot;serialNumber&quot;: &quot;urn:uuid:61e309b8-17cc-482b-97ff-e275b49b9b70&quot;,
+  &quot;metadata&quot;: {
+    &quot;timestamp&quot;: &quot;2026-06-21T06:18:04.380Z&quot;,
+    &quot;tools&quot;: {
+      &quot;components&quot;: [
+        {
+          &quot;type&quot;: &quot;library&quot;,
+          &quot;name&quot;: &quot;sdk-build-plugins&quot;,
+          &quot;group&quot;: &quot;@servicenow&quot;,
+          &quot;version&quot;: &quot;0.0.1&quot;,
+          &quot;author&quot;: &quot;ServiceNow&quot;
+        }
+      ]
+    },
+    &quot;component&quot;: {
+      &quot;type&quot;: &quot;application&quot;,
+      &quot;name&quot;: &quot;synknode-analytics&quot;,
+      &quot;version&quot;: &quot;1.0.0&quot;,
+      &quot;bom-ref&quot;: &quot;pkg:servicenow/synknode-analytics@1.0.0?sys_scope_id=26571502d0a642339adf60a7edf6fab9&quot;,
+      &quot;description&quot;: &quot;SynkNode Platform Analytics Integration Scoped App&quot;,
+      &quot;purl&quot;: &quot;pkg:servicenow/synknode-analytics@1.0.0?sys_scope_id=26571502d0a642339adf60a7edf6fab9&quot;
+    }
+  },
+  &quot;components&quot;: [],
+  &quot;dependencies&quot;: [
+    {
+      &quot;ref&quot;: &quot;pkg:servicenow/synknode-analytics@1.0.0?sys_scope_id=26571502d0a642339adf60a7edf6fab9&quot;
+    }
+  ]
+}]]&gt;&lt;/content&gt;
+  &lt;/sys_module&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>07fd419ec5ee457aeb912d693f973987</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>sys_module_fceb4e337d7340139f8d4de7da43c7ac</target_name>
+    <type>ECMAScript Module</type>
+    <update_domain>global</update_domain>
+    <update_guid>07fd419ec5ee457aeb912d693f973987</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Scripted REST API">26571502d0a642339adf60a7edf6restapi</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_ws_definition_ba0a27447bab4e8b9e47a68e45f41a6b</name>
+    <payload>&lt;record_update table=&quot;sys_ws_definition&quot;&gt;
+  &lt;sys_ws_definition action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;ba0a27447bab4e8b9e47a68e45f41a6b&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_ws_definition_ba0a27447bab4e8b9e47a68e45f41a6b&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;base_uri&gt;/api/x_synknode/synknode_analytics&lt;/base_uri&gt;
+    &lt;consumes&gt;application/json,application/xml,text/xml&lt;/consumes&gt;
+    &lt;consumes_customized&gt;false&lt;/consumes_customized&gt;
+    &lt;default_version&gt;No active default version&lt;/default_version&gt;
+    &lt;doc_link/&gt;
+    &lt;enforce_acl&gt;cf9d01d3e73003009d6247e603f6a990&lt;/enforce_acl&gt;
+    &lt;is_versioned&gt;false&lt;/is_versioned&gt;
+    &lt;name&gt;SynkNode Analytics&lt;/name&gt;
+    &lt;namespace&gt;x_synknode&lt;/namespace&gt;
+    &lt;produces&gt;application/json,application/xml,text/xml&lt;/produces&gt;
+    &lt;produces_customized&gt;false&lt;/produces_customized&gt;
+    &lt;service_id&gt;synknode_analytics&lt;/service_id&gt;
+    &lt;short_description/&gt;
+    &lt;sys_policy/&gt;
+  &lt;/sys_ws_definition&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>9af805c917f8362bccab6f90e81ccb75</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>SynkNode Analytics</target_name>
+    <type>Scripted REST Service</type>
+    <update_domain>global</update_domain>
+    <update_guid>9af805c917f8362bccab6f90e81ccb75</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Scripted REST API">26571502d0a642339adf60a7edf6restapi</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_ws_operation_9f53aec9cf03423bb0bfab9d6e0a1d63</name>
+    <payload>&lt;record_update table=&quot;sys_ws_operation&quot;&gt;
+  &lt;sys_ws_operation action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;9f53aec9cf03423bb0bfab9d6e0a1d63&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_ws_operation_9f53aec9cf03423bb0bfab9d6e0a1d63&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;consumes&gt;application/json,application/xml,text/xml&lt;/consumes&gt;
+    &lt;consumes_customized&gt;false&lt;/consumes_customized&gt;
+    &lt;default_operation_uri&gt;/api/x_synknode/synknode_analytics/events&lt;/default_operation_uri&gt;
+    &lt;enforce_acl&gt;cf9d01d3e73003009d6247e603f6a990&lt;/enforce_acl&gt;
+    &lt;http_method&gt;POST&lt;/http_method&gt;
+    &lt;name&gt;events&lt;/name&gt;
+    &lt;operation_script&gt;&lt;![CDATA[// @fluent-module processEvents;false;x_synknode/synknode-analytics/1.0.0/src/server/events-handler.ts
+// WARNING: This code is generated by the ServiceNow SDK in order to provide
+// support for modular JavaScript. Modifications of any kind are likely to
+// result in unintended behavior. In most cases, you should edit the source
+// file of the module imported below. If you are absolutely certain you want
+// to take control of this code, you can remove this comment to prevent the
+// SDK from regenerating it. However, you will then be responsible for the
+// management of this code in your Fluent file.
+const { processEvents } = require(&apos;x_synknode/synknode-analytics/1.0.0/src/server/events-handler.ts&apos;);
+processEvents(request, response);]]&gt;&lt;/operation_script&gt;
+    &lt;operation_uri&gt;/api/x_synknode/synknode_analytics/events&lt;/operation_uri&gt;
+    &lt;produces&gt;application/json,application/xml,text/xml&lt;/produces&gt;
+    &lt;produces_customized&gt;false&lt;/produces_customized&gt;
+    &lt;relative_path&gt;/events&lt;/relative_path&gt;
+    &lt;request_example/&gt;
+    &lt;requires_acl_authorization&gt;true&lt;/requires_acl_authorization&gt;
+    &lt;requires_authentication&gt;true&lt;/requires_authentication&gt;
+    &lt;requires_snc_internal_role&gt;true&lt;/requires_snc_internal_role&gt;
+    &lt;short_description/&gt;
+    &lt;sys_policy/&gt;
+    &lt;web_service_definition&gt;ba0a27447bab4e8b9e47a68e45f41a6b&lt;/web_service_definition&gt;
+    &lt;web_service_version/&gt;
+  &lt;/sys_ws_operation&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>d4725e3a949a3788a09034e53bb7a5e5</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>events</target_name>
+    <type>Scripted REST Resource</type>
+    <update_domain>global</update_domain>
+    <update_guid>d4725e3a949a3788a09034e53bb7a5e5</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Scripted REST API">26571502d0a642339adf60a7edf6restapi</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_ws_operation_fe622716df6747cebc6c4e5285d68382</name>
+    <payload>&lt;record_update table=&quot;sys_ws_operation&quot;&gt;
+  &lt;sys_ws_operation action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;fe622716df6747cebc6c4e5285d68382&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_ws_operation_fe622716df6747cebc6c4e5285d68382&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;consumes&gt;application/json,application/xml,text/xml&lt;/consumes&gt;
+    &lt;consumes_customized&gt;false&lt;/consumes_customized&gt;
+    &lt;default_operation_uri&gt;/api/x_synknode/synknode_analytics/summary&lt;/default_operation_uri&gt;
+    &lt;enforce_acl&gt;cf9d01d3e73003009d6247e603f6a990&lt;/enforce_acl&gt;
+    &lt;http_method&gt;GET&lt;/http_method&gt;
+    &lt;name&gt;summary&lt;/name&gt;
+    &lt;operation_script&gt;&lt;![CDATA[// @fluent-module processSummary;false;x_synknode/synknode-analytics/1.0.0/src/server/summary-handler.ts
+// WARNING: This code is generated by the ServiceNow SDK in order to provide
+// support for modular JavaScript. Modifications of any kind are likely to
+// result in unintended behavior. In most cases, you should edit the source
+// file of the module imported below. If you are absolutely certain you want
+// to take control of this code, you can remove this comment to prevent the
+// SDK from regenerating it. However, you will then be responsible for the
+// management of this code in your Fluent file.
+const { processSummary } = require(&apos;x_synknode/synknode-analytics/1.0.0/src/server/summary-handler.ts&apos;);
+processSummary(request, response);]]&gt;&lt;/operation_script&gt;
+    &lt;operation_uri&gt;/api/x_synknode/synknode_analytics/summary&lt;/operation_uri&gt;
+    &lt;produces&gt;application/json,application/xml,text/xml&lt;/produces&gt;
+    &lt;produces_customized&gt;false&lt;/produces_customized&gt;
+    &lt;relative_path&gt;/summary&lt;/relative_path&gt;
+    &lt;request_example/&gt;
+    &lt;requires_acl_authorization&gt;true&lt;/requires_acl_authorization&gt;
+    &lt;requires_authentication&gt;true&lt;/requires_authentication&gt;
+    &lt;requires_snc_internal_role&gt;true&lt;/requires_snc_internal_role&gt;
+    &lt;short_description/&gt;
+    &lt;sys_policy/&gt;
+    &lt;web_service_definition&gt;ba0a27447bab4e8b9e47a68e45f41a6b&lt;/web_service_definition&gt;
+    &lt;web_service_version/&gt;
+  &lt;/sys_ws_operation&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>9a43784c34e639a8eafe6227266f776a</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>summary</target_name>
+    <type>Scripted REST Resource</type>
+    <update_domain>global</update_domain>
+    <update_guid>9a43784c34e639a8eafe6227266f776a</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Scripted REST API">26571502d0a642339adf60a7edf6restapi</update_set>
+  </sys_update_xml>
+</unload>

@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "rootDir": "./",
+    "outDir": "../../dist/server",
+    "module": "es2022",
+    "target": "es2022",
+    "moduleResolution": "node",
+    "allowJs": true,
+    "declaration": false,
+    "sourceMap": false,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "noEmit": true
+  },
+  "include": [
+    "./**/*.ts"
+  ],
+  "exclude": [
+    "**/*.now.ts"
+  ]
+}

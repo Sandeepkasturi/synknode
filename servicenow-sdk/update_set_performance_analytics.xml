@@ -1,0 +1,825 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<unload unload_date="2026-06-21 11:50:00">
+  <sys_update_set action="INSERT_OR_UPDATE">
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <description>Update Set containing the Performance Analytics Indicators, Widgets, and Dashboard for SynkNode.</description>
+    <name>SynkNode Performance Analytics Setup</name>
+    <release_date/>
+    <state>complete</state>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>26571502d0a642339adf60a7edf6perfana</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+  </sys_update_set>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_app_26571502d0a642339adf60a7edf6fab9</name>
+    <payload>&lt;record_update table=&quot;sys_app&quot;&gt;
+  &lt;sys_app action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_app_26571502d0a642339adf60a7edf6fab9&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;can_edit_in_studio&gt;true&lt;/can_edit_in_studio&gt;
+    &lt;enforce_license&gt;log&lt;/enforce_license&gt;
+    &lt;guided_setup_guid/&gt;
+    &lt;hide_on_ui&gt;false&lt;/hide_on_ui&gt;
+    &lt;installed_as_dependency&gt;false&lt;/installed_as_dependency&gt;
+    &lt;js_level&gt;es_latest&lt;/js_level&gt;
+    &lt;licensable&gt;true&lt;/licensable&gt;
+    &lt;license_category&gt;none&lt;/license_category&gt;
+    &lt;license_model&gt;none&lt;/license_model&gt;
+    &lt;logo/&gt;
+    &lt;menu/&gt;
+    &lt;name&gt;SynkNode Platform Analytics&lt;/name&gt;
+    &lt;package_json&gt;x_synknode/synknode-analytics/1.0.0/package.json&lt;/package_json&gt;
+    &lt;package_resolver_version&gt;1.0.0&lt;/package_resolver_version&gt;
+    &lt;private&gt;false&lt;/private&gt;
+    &lt;restrict_table_access&gt;false&lt;/restrict_table_access&gt;
+    &lt;runtime_access_tracking&gt;permissive&lt;/runtime_access_tracking&gt;
+    &lt;scope&gt;x_synknode&lt;/scope&gt;
+    &lt;scoped_administration&gt;false&lt;/scoped_administration&gt;
+    &lt;short_description/&gt;
+    &lt;source&gt;x_synknode&lt;/source&gt;
+    &lt;subscription_entitlement/&gt;
+    &lt;sys_code&gt;x_synknode&lt;/sys_code&gt;
+    &lt;trackable&gt;true&lt;/trackable&gt;
+    &lt;uninstall_blocked&gt;false&lt;/uninstall_blocked&gt;
+    &lt;user_role/&gt;
+    &lt;version&gt;1.0.0&lt;/version&gt;
+  &lt;/sys_app&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>1671e1f8479654b0c0640e85b56b6745</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>SynkNode Platform Analytics</target_name>
+    <type>Application Scope</type>
+    <update_domain>global</update_domain>
+    <update_guid>1671e1f8479654b0c0640e85b56b6745</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_dashboards_e3befe6d156f4559ba853b8a5e6f1050</name>
+    <payload>&lt;record_update table=&quot;pa_dashboards&quot;&gt;
+  &lt;pa_dashboards action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;e3befe6d156f4559ba853b8a5e6f1050&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_dashboards_e3befe6d156f4559ba853b8a5e6f1050&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;description&gt;Analytics for SynkNode peer-to-peer file transfer activity.&lt;/description&gt;
+    &lt;name&gt;SynkNode Platform Analytics&lt;/name&gt;
+    &lt;owner&gt;admin&lt;/owner&gt;
+  &lt;/pa_dashboards&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>5df5dee4da41d006237952025eeb10cb</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>SynkNode Platform Analytics</target_name>
+    <type>PA Dashboard</type>
+    <update_domain>global</update_domain>
+    <update_guid>5df5dee4da41d006237952025eeb10cb</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_indicators_09aa2f762d9442c88f447b37a45f1213</name>
+    <payload>&lt;record_update table=&quot;pa_indicators&quot;&gt;
+  &lt;pa_indicators action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;09aa2f762d9442c88f447b37a45f1213&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_indicators_09aa2f762d9442c88f447b37a45f1213&lt;/sys_update_name&gt;
+    &lt;aggregate&gt;1&lt;/aggregate&gt;
+    &lt;conditions&gt;event_type=file_transfer&lt;/conditions&gt;
+    &lt;description&gt;COUNT of all records where event_type = file_transfer&lt;/description&gt;
+    &lt;indicator_source&gt;3def069ce656483aa72b8dfede93573d&lt;/indicator_source&gt;
+    &lt;name&gt;Total transfers&lt;/name&gt;
+    &lt;type&gt;1&lt;/type&gt;
+  &lt;/pa_indicators&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>b2366429044f12a41685e57309dc4006</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>Total transfers</target_name>
+    <type>PA Indicator</type>
+    <update_domain>global</update_domain>
+    <update_guid>b2366429044f12a41685e57309dc4006</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_indicators_2fd962ff75734ec389c5f120e4855435</name>
+    <payload>&lt;record_update table=&quot;pa_indicators&quot;&gt;
+  &lt;pa_indicators action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;2fd962ff75734ec389c5f120e4855435&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_indicators_2fd962ff75734ec389c5f120e4855435&lt;/sys_update_name&gt;
+    &lt;aggregate&gt;1&lt;/aggregate&gt;
+    &lt;conditions&gt;event_type=file_transfer&lt;/conditions&gt;
+    &lt;description&gt;COUNT grouped by file_type&lt;/description&gt;
+    &lt;indicator_source&gt;3def069ce656483aa72b8dfede93573d&lt;/indicator_source&gt;
+    &lt;name&gt;Transfers by file type&lt;/name&gt;
+    &lt;type&gt;1&lt;/type&gt;
+  &lt;/pa_indicators&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>23e6592204ecd2d27eeb284d4c4d8527</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>Transfers by file type</target_name>
+    <type>PA Indicator</type>
+    <update_domain>global</update_domain>
+    <update_guid>23e6592204ecd2d27eeb284d4c4d8527</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_indicators_7c14be4229614f22970eea0a15f1c2af</name>
+    <payload>&lt;record_update table=&quot;pa_indicators&quot;&gt;
+  &lt;pa_indicators action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;7c14be4229614f22970eea0a15f1c2af&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_indicators_7c14be4229614f22970eea0a15f1c2af&lt;/sys_update_name&gt;
+    &lt;aggregate&gt;1&lt;/aggregate&gt;
+    &lt;conditions&gt;event_type=file_transfer&lt;/conditions&gt;
+    &lt;description&gt;COUNT grouped by hour&lt;/description&gt;
+    &lt;indicator_source&gt;3def069ce656483aa72b8dfede93573d&lt;/indicator_source&gt;
+    &lt;name&gt;Transfers per hour&lt;/name&gt;
+    &lt;type&gt;1&lt;/type&gt;
+  &lt;/pa_indicators&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>8f64c8658c13310aefa5d1bef372a63b</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>Transfers per hour</target_name>
+    <type>PA Indicator</type>
+    <update_domain>global</update_domain>
+    <update_guid>8f64c8658c13310aefa5d1bef372a63b</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_indicators_8067bff6ddea4c37a16ee72b1bf59214</name>
+    <payload>&lt;record_update table=&quot;pa_indicators&quot;&gt;
+  &lt;pa_indicators action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;8067bff6ddea4c37a16ee72b1bf59214&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_indicators_8067bff6ddea4c37a16ee72b1bf59214&lt;/sys_update_name&gt;
+    &lt;aggregate&gt;1&lt;/aggregate&gt;
+    &lt;conditions&gt;event_type=file_transfer^transfer_status=completed&lt;/conditions&gt;
+    &lt;description&gt;COUNT where event_type = file_transfer AND transfer_status = completed&lt;/description&gt;
+    &lt;indicator_source&gt;3def069ce656483aa72b8dfede93573d&lt;/indicator_source&gt;
+    &lt;name&gt;Total completed transfers&lt;/name&gt;
+    &lt;type&gt;1&lt;/type&gt;
+  &lt;/pa_indicators&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>a5fb8757de2d10159e2469131f63a22c</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>Total completed transfers</target_name>
+    <type>PA Indicator</type>
+    <update_domain>global</update_domain>
+    <update_guid>a5fb8757de2d10159e2469131f63a22c</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_indicators_818dba3801804d3db0f0f4e488a7284b</name>
+    <payload>&lt;record_update table=&quot;pa_indicators&quot;&gt;
+  &lt;pa_indicators action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;818dba3801804d3db0f0f4e488a7284b&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_indicators_818dba3801804d3db0f0f4e488a7284b&lt;/sys_update_name&gt;
+    &lt;aggregate&gt;3&lt;/aggregate&gt;
+    &lt;description&gt;AVG of transfer_duration_ms&lt;/description&gt;
+    &lt;field&gt;transfer_duration_ms&lt;/field&gt;
+    &lt;indicator_source&gt;3def069ce656483aa72b8dfede93573d&lt;/indicator_source&gt;
+    &lt;name&gt;Average transfer duration (ms)&lt;/name&gt;
+    &lt;type&gt;1&lt;/type&gt;
+  &lt;/pa_indicators&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>dd235937e03e66c42dd694fc1f02c92c</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>Average transfer duration (ms)</target_name>
+    <type>PA Indicator</type>
+    <update_domain>global</update_domain>
+    <update_guid>dd235937e03e66c42dd694fc1f02c92c</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_indicators_bd8beb2ab422457397babd824359fb5a</name>
+    <payload>&lt;record_update table=&quot;pa_indicators&quot;&gt;
+  &lt;pa_indicators action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;bd8beb2ab422457397babd824359fb5a&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_indicators_bd8beb2ab422457397babd824359fb5a&lt;/sys_update_name&gt;
+    &lt;aggregate&gt;7&lt;/aggregate&gt;
+    &lt;description&gt;COUNT DISTINCT of sender_id&lt;/description&gt;
+    &lt;field&gt;sender_id&lt;/field&gt;
+    &lt;indicator_source&gt;3def069ce656483aa72b8dfede93573d&lt;/indicator_source&gt;
+    &lt;name&gt;Active users&lt;/name&gt;
+    &lt;type&gt;1&lt;/type&gt;
+  &lt;/pa_indicators&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>42e313a61747f77205584d449363cbda</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>Active users</target_name>
+    <type>PA Indicator</type>
+    <update_domain>global</update_domain>
+    <update_guid>42e313a61747f77205584d449363cbda</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_indicators_cbd1cc0cc09044d1a574f66ffefb65ae</name>
+    <payload>&lt;record_update table=&quot;pa_indicators&quot;&gt;
+  &lt;pa_indicators action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;cbd1cc0cc09044d1a574f66ffefb65ae&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_indicators_cbd1cc0cc09044d1a574f66ffefb65ae&lt;/sys_update_name&gt;
+    &lt;aggregate&gt;2&lt;/aggregate&gt;
+    &lt;description&gt;SUM of size_bytes&lt;/description&gt;
+    &lt;field&gt;size_bytes&lt;/field&gt;
+    &lt;indicator_source&gt;3def069ce656483aa72b8dfede93573d&lt;/indicator_source&gt;
+    &lt;name&gt;Total data transferred (bytes)&lt;/name&gt;
+    &lt;type&gt;1&lt;/type&gt;
+  &lt;/pa_indicators&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>5baadd1c6399b47ee43731353e46171a</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>Total data transferred (bytes)</target_name>
+    <type>PA Indicator</type>
+    <update_domain>global</update_domain>
+    <update_guid>5baadd1c6399b47ee43731353e46171a</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_indicators_ea550bcca1c34a70bd188e20cfc613d9</name>
+    <payload>&lt;record_update table=&quot;pa_indicators&quot;&gt;
+  &lt;pa_indicators action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;ea550bcca1c34a70bd188e20cfc613d9&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_indicators_ea550bcca1c34a70bd188e20cfc613d9&lt;/sys_update_name&gt;
+    &lt;description&gt;COUNT where transfer_status = completed / COUNT total (percentage)&lt;/description&gt;
+    &lt;formula&gt;([[Total completed transfers]] / [[Total transfers]]) * 100&lt;/formula&gt;
+    &lt;name&gt;Transfer success rate&lt;/name&gt;
+    &lt;type&gt;3&lt;/type&gt;
+    &lt;unit&gt;%&lt;/unit&gt;
+  &lt;/pa_indicators&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>ea647aa35ae29d8d091ea9fc17089112</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>Transfer success rate</target_name>
+    <type>PA Indicator</type>
+    <update_domain>global</update_domain>
+    <update_guid>ea647aa35ae29d8d091ea9fc17089112</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_indicators_eede2d1583074a35b7738a1cc65fc565</name>
+    <payload>&lt;record_update table=&quot;pa_indicators&quot;&gt;
+  &lt;pa_indicators action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;eede2d1583074a35b7738a1cc65fc565&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_indicators_eede2d1583074a35b7738a1cc65fc565&lt;/sys_update_name&gt;
+    &lt;aggregate&gt;1&lt;/aggregate&gt;
+    &lt;conditions&gt;event_type=page_visit&lt;/conditions&gt;
+    &lt;description&gt;COUNT where event_type = page_visit&lt;/description&gt;
+    &lt;indicator_source&gt;3def069ce656483aa72b8dfede93573d&lt;/indicator_source&gt;
+    &lt;name&gt;Total page visits&lt;/name&gt;
+    &lt;type&gt;1&lt;/type&gt;
+  &lt;/pa_indicators&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>405f6d7f78b35796081fe859bec1426c</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>Total page visits</target_name>
+    <type>PA Indicator</type>
+    <update_domain>global</update_domain>
+    <update_guid>405f6d7f78b35796081fe859bec1426c</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_indicators_f6cb150d24824a7cbd0ada1d9fca467d</name>
+    <payload>&lt;record_update table=&quot;pa_indicators&quot;&gt;
+  &lt;pa_indicators action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;f6cb150d24824a7cbd0ada1d9fca467d&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_indicators_f6cb150d24824a7cbd0ada1d9fca467d&lt;/sys_update_name&gt;
+    &lt;aggregate&gt;1&lt;/aggregate&gt;
+    &lt;conditions&gt;event_type=page_visit&lt;/conditions&gt;
+    &lt;description&gt;COUNT where event_type = page_visit grouped by DATE(timestamp)&lt;/description&gt;
+    &lt;indicator_source&gt;3def069ce656483aa72b8dfede93573d&lt;/indicator_source&gt;
+    &lt;name&gt;Daily visits&lt;/name&gt;
+    &lt;type&gt;1&lt;/type&gt;
+  &lt;/pa_indicators&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>b391e684f6d8319b5ad7eefef620b471</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>Daily visits</target_name>
+    <type>PA Indicator</type>
+    <update_domain>global</update_domain>
+    <update_guid>b391e684f6d8319b5ad7eefef620b471</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_indicator_sources_3def069ce656483aa72b8dfede93573d</name>
+    <payload>&lt;record_update table=&quot;pa_indicator_sources&quot;&gt;
+  &lt;pa_indicator_sources action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;3def069ce656483aa72b8dfede93573d&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_indicator_sources_3def069ce656483aa72b8dfede93573d&lt;/sys_update_name&gt;
+    &lt;description&gt;Daily events from SynkNode&lt;/description&gt;
+    &lt;fact_table&gt;x_synknode_events&lt;/fact_table&gt;
+    &lt;filter&gt;timestampONToday@javascript:gs.beginningOfToday()@javascript:gs.endOfToday()&lt;/filter&gt;
+    &lt;frequency&gt;1&lt;/frequency&gt;
+    &lt;name&gt;SynkNode.Events.Daily&lt;/name&gt;
+  &lt;/pa_indicator_sources&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>a5320473b3f7e17cb40feb35ed89d7fe</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>SynkNode.Events.Daily</target_name>
+    <type>PA Indicator Source</type>
+    <update_domain>global</update_domain>
+    <update_guid>a5320473b3f7e17cb40feb35ed89d7fe</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_m2m_dashboard_tabs_80a180da0b384f239c40550e6e0b90e1</name>
+    <payload>&lt;record_update table=&quot;pa_m2m_dashboard_tabs&quot;&gt;
+  &lt;pa_m2m_dashboard_tabs action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;80a180da0b384f239c40550e6e0b90e1&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_m2m_dashboard_tabs_80a180da0b384f239c40550e6e0b90e1&lt;/sys_update_name&gt;
+    &lt;dashboard&gt;e3befe6d156f4559ba853b8a5e6f1050&lt;/dashboard&gt;
+    &lt;order&gt;1&lt;/order&gt;
+    &lt;tab&gt;d165136e7eb54d90b3d4a9ccdd4fb5c7&lt;/tab&gt;
+  &lt;/pa_m2m_dashboard_tabs&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>c289ff3eb169460fc35263d8a5d14c1d</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>pa_m2m_dashboard_tabs_80a180da0b384f239c40550e6e0b90e1</target_name>
+    <type>PA Dashboard Tab M2M</type>
+    <update_domain>global</update_domain>
+    <update_guid>c289ff3eb169460fc35263d8a5d14c1d</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_tabs_d165136e7eb54d90b3d4a9ccdd4fb5c7</name>
+    <payload>&lt;record_update table=&quot;pa_tabs&quot;&gt;
+  &lt;pa_tabs action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;d165136e7eb54d90b3d4a9ccdd4fb5c7&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_tabs_d165136e7eb54d90b3d4a9ccdd4fb5c7&lt;/sys_update_name&gt;
+    &lt;description&gt;SynkNode Overview Tab&lt;/description&gt;
+    &lt;title&gt;Platform Analytics&lt;/title&gt;
+  &lt;/pa_tabs&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>e8b51198166591ec38f6f4ba30dc3778</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>Platform Analytics</target_name>
+    <type>PA Tab</type>
+    <update_domain>global</update_domain>
+    <update_guid>e8b51198166591ec38f6f4ba30dc3778</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_widgets_18226e4a481d47b3beaaeddca633f4d9</name>
+    <payload>&lt;record_update table=&quot;pa_widgets&quot;&gt;
+  &lt;pa_widgets action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;18226e4a481d47b3beaaeddca633f4d9&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_widgets_18226e4a481d47b3beaaeddca633f4d9&lt;/sys_update_name&gt;
+    &lt;indicator&gt;bd8beb2ab422457397babd824359fb5a&lt;/indicator&gt;
+    &lt;name&gt;Active users&lt;/name&gt;
+    &lt;type&gt;2&lt;/type&gt;
+    &lt;visualization&gt;scorecard&lt;/visualization&gt;
+  &lt;/pa_widgets&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>aeacfae6028d18f6d18639ab0c8433a7</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>Active users</target_name>
+    <type>PA Widget</type>
+    <update_domain>global</update_domain>
+    <update_guid>aeacfae6028d18f6d18639ab0c8433a7</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_widgets_68b31ac91be344a6b507943c9b45869c</name>
+    <payload>&lt;record_update table=&quot;pa_widgets&quot;&gt;
+  &lt;pa_widgets action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;68b31ac91be344a6b507943c9b45869c&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_widgets_68b31ac91be344a6b507943c9b45869c&lt;/sys_update_name&gt;
+    &lt;indicator&gt;ea550bcca1c34a70bd188e20cfc613d9&lt;/indicator&gt;
+    &lt;name&gt;Transfer success rate&lt;/name&gt;
+    &lt;type&gt;2&lt;/type&gt;
+    &lt;visualization&gt;dial&lt;/visualization&gt;
+  &lt;/pa_widgets&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>f9a5f88bd0f78e2332bb686a9fc112c1</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>Transfer success rate</target_name>
+    <type>PA Widget</type>
+    <update_domain>global</update_domain>
+    <update_guid>f9a5f88bd0f78e2332bb686a9fc112c1</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_widgets_7df9a67b21144ccbbedf6a3f0d6d765a</name>
+    <payload>&lt;record_update table=&quot;pa_widgets&quot;&gt;
+  &lt;pa_widgets action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;7df9a67b21144ccbbedf6a3f0d6d765a&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_widgets_7df9a67b21144ccbbedf6a3f0d6d765a&lt;/sys_update_name&gt;
+    &lt;indicator&gt;7c14be4229614f22970eea0a15f1c2af&lt;/indicator&gt;
+    &lt;name&gt;Transfers per hour&lt;/name&gt;
+    &lt;type&gt;1&lt;/type&gt;
+    &lt;visualization&gt;column&lt;/visualization&gt;
+  &lt;/pa_widgets&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>9dab92c95ae67a86e39365e679f27f83</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>Transfers per hour</target_name>
+    <type>PA Widget</type>
+    <update_domain>global</update_domain>
+    <update_guid>9dab92c95ae67a86e39365e679f27f83</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_widgets_8595269bf72f4731b0af55def86e1f26</name>
+    <payload>&lt;record_update table=&quot;pa_widgets&quot;&gt;
+  &lt;pa_widgets action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;8595269bf72f4731b0af55def86e1f26&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_widgets_8595269bf72f4731b0af55def86e1f26&lt;/sys_update_name&gt;
+    &lt;indicator&gt;cbd1cc0cc09044d1a574f66ffefb65ae&lt;/indicator&gt;
+    &lt;name&gt;Total data transferred (bytes)&lt;/name&gt;
+    &lt;type&gt;2&lt;/type&gt;
+    &lt;visualization&gt;scorecard&lt;/visualization&gt;
+  &lt;/pa_widgets&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>85a79e8b282a0915d2b656f5caf55d2c</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>Total data transferred (bytes)</target_name>
+    <type>PA Widget</type>
+    <update_domain>global</update_domain>
+    <update_guid>85a79e8b282a0915d2b656f5caf55d2c</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_widgets_a450eb0eb4e84082a83de85448092cdf</name>
+    <payload>&lt;record_update table=&quot;pa_widgets&quot;&gt;
+  &lt;pa_widgets action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;a450eb0eb4e84082a83de85448092cdf&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_widgets_a450eb0eb4e84082a83de85448092cdf&lt;/sys_update_name&gt;
+    &lt;indicator&gt;818dba3801804d3db0f0f4e488a7284b&lt;/indicator&gt;
+    &lt;name&gt;Average transfer duration (ms)&lt;/name&gt;
+    &lt;type&gt;2&lt;/type&gt;
+    &lt;visualization&gt;scorecard&lt;/visualization&gt;
+  &lt;/pa_widgets&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>54d52e2280f54f36741ef5581558433a</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>Average transfer duration (ms)</target_name>
+    <type>PA Widget</type>
+    <update_domain>global</update_domain>
+    <update_guid>54d52e2280f54f36741ef5581558433a</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_widgets_acadf5de401d4883bb3172a9f329431f</name>
+    <payload>&lt;record_update table=&quot;pa_widgets&quot;&gt;
+  &lt;pa_widgets action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;acadf5de401d4883bb3172a9f329431f&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_widgets_acadf5de401d4883bb3172a9f329431f&lt;/sys_update_name&gt;
+    &lt;indicator&gt;f6cb150d24824a7cbd0ada1d9fca467d&lt;/indicator&gt;
+    &lt;name&gt;Daily visits&lt;/name&gt;
+    &lt;type&gt;1&lt;/type&gt;
+    &lt;visualization&gt;bar&lt;/visualization&gt;
+  &lt;/pa_widgets&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>3d8bbdec7be281e4e5fd2cd2bfa3daa9</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>Daily visits</target_name>
+    <type>PA Widget</type>
+    <update_domain>global</update_domain>
+    <update_guid>3d8bbdec7be281e4e5fd2cd2bfa3daa9</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_widgets_c8b88ae5cedc4344ad37732c60bdfc56</name>
+    <payload>&lt;record_update table=&quot;pa_widgets&quot;&gt;
+  &lt;pa_widgets action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;c8b88ae5cedc4344ad37732c60bdfc56&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_widgets_c8b88ae5cedc4344ad37732c60bdfc56&lt;/sys_update_name&gt;
+    &lt;indicator&gt;2fd962ff75734ec389c5f120e4855435&lt;/indicator&gt;
+    &lt;name&gt;Transfers by file type&lt;/name&gt;
+    &lt;type&gt;3&lt;/type&gt;
+    &lt;visualization&gt;pie&lt;/visualization&gt;
+  &lt;/pa_widgets&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>4f1c5f2f4199a4843e51471283692f78</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>Transfers by file type</target_name>
+    <type>PA Widget</type>
+    <update_domain>global</update_domain>
+    <update_guid>4f1c5f2f4199a4843e51471283692f78</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_widgets_ddb9af1a87824006ae44655110bfaadd</name>
+    <payload>&lt;record_update table=&quot;pa_widgets&quot;&gt;
+  &lt;pa_widgets action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;ddb9af1a87824006ae44655110bfaadd&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_widgets_ddb9af1a87824006ae44655110bfaadd&lt;/sys_update_name&gt;
+    &lt;indicator&gt;09aa2f762d9442c88f447b37a45f1213&lt;/indicator&gt;
+    &lt;name&gt;Total transfers&lt;/name&gt;
+    &lt;type&gt;2&lt;/type&gt;
+    &lt;visualization&gt;scorecard&lt;/visualization&gt;
+  &lt;/pa_widgets&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>044b863830289b074d5a8789f6c3eee3</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>Total transfers</target_name>
+    <type>PA Widget</type>
+    <update_domain>global</update_domain>
+    <update_guid>044b863830289b074d5a8789f6c3eee3</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>pa_widgets_e37838dbe0cb4418b18b41f0490ee988</name>
+    <payload>&lt;record_update table=&quot;pa_widgets&quot;&gt;
+  &lt;pa_widgets action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;e37838dbe0cb4418b18b41f0490ee988&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;pa_widgets_e37838dbe0cb4418b18b41f0490ee988&lt;/sys_update_name&gt;
+    &lt;indicator&gt;eede2d1583074a35b7738a1cc65fc565&lt;/indicator&gt;
+    &lt;name&gt;Total page visits&lt;/name&gt;
+    &lt;type&gt;2&lt;/type&gt;
+    &lt;visualization&gt;scorecard&lt;/visualization&gt;
+  &lt;/pa_widgets&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>78edfe24cc89e1d24b22adbf1fbc7c8a</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>Total page visits</target_name>
+    <type>PA Widget</type>
+    <update_domain>global</update_domain>
+    <update_guid>78edfe24cc89e1d24b22adbf1fbc7c8a</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Performance Analytics Setup">26571502d0a642339adf60a7edf6perfana</update_set>
+  </sys_update_xml>
+</unload>

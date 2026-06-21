@@ -1,0 +1,1220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<unload unload_date="2026-06-21 11:50:00">
+  <sys_update_set action="INSERT_OR_UPDATE">
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <description>Update Set containing the custom table schema for SynkNode events.</description>
+    <name>SynkNode Custom Table x_synknode_events</name>
+    <release_date/>
+    <state>complete</state>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>26571502d0a642339adf60a7edf6table</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+  </sys_update_set>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_app_26571502d0a642339adf60a7edf6fab9</name>
+    <payload>&lt;record_update table=&quot;sys_app&quot;&gt;
+  &lt;sys_app action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_app_26571502d0a642339adf60a7edf6fab9&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;can_edit_in_studio&gt;true&lt;/can_edit_in_studio&gt;
+    &lt;enforce_license&gt;log&lt;/enforce_license&gt;
+    &lt;guided_setup_guid/&gt;
+    &lt;hide_on_ui&gt;false&lt;/hide_on_ui&gt;
+    &lt;installed_as_dependency&gt;false&lt;/installed_as_dependency&gt;
+    &lt;js_level&gt;es_latest&lt;/js_level&gt;
+    &lt;licensable&gt;true&lt;/licensable&gt;
+    &lt;license_category&gt;none&lt;/license_category&gt;
+    &lt;license_model&gt;none&lt;/license_model&gt;
+    &lt;logo/&gt;
+    &lt;menu/&gt;
+    &lt;name&gt;SynkNode Platform Analytics&lt;/name&gt;
+    &lt;package_json&gt;x_synknode/synknode-analytics/1.0.0/package.json&lt;/package_json&gt;
+    &lt;package_resolver_version&gt;1.0.0&lt;/package_resolver_version&gt;
+    &lt;private&gt;false&lt;/private&gt;
+    &lt;restrict_table_access&gt;false&lt;/restrict_table_access&gt;
+    &lt;runtime_access_tracking&gt;permissive&lt;/runtime_access_tracking&gt;
+    &lt;scope&gt;x_synknode&lt;/scope&gt;
+    &lt;scoped_administration&gt;false&lt;/scoped_administration&gt;
+    &lt;short_description/&gt;
+    &lt;source&gt;x_synknode&lt;/source&gt;
+    &lt;subscription_entitlement/&gt;
+    &lt;sys_code&gt;x_synknode&lt;/sys_code&gt;
+    &lt;trackable&gt;true&lt;/trackable&gt;
+    &lt;uninstall_blocked&gt;false&lt;/uninstall_blocked&gt;
+    &lt;user_role/&gt;
+    &lt;version&gt;1.0.0&lt;/version&gt;
+  &lt;/sys_app&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>15351c1df38ed42ee364ea030ce99717</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>SynkNode Platform Analytics</target_name>
+    <type>Application Scope</type>
+    <update_domain>global</update_domain>
+    <update_guid>15351c1df38ed42ee364ea030ce99717</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Custom Table x_synknode_events">26571502d0a642339adf60a7edf6table</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_db_object_2635572358ee4d389b11e6aa5c109c9f</name>
+    <payload>&lt;record_update table=&quot;sys_db_object&quot;&gt;
+  &lt;sys_db_object action=&quot;INSERT_OR_UPDATE&quot;&gt;
+    &lt;sys_id&gt;2635572358ee4d389b11e6aa5c109c9f&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_db_object_2635572358ee4d389b11e6aa5c109c9f&lt;/sys_update_name&gt;
+    &lt;access&gt;public&lt;/access&gt;
+    &lt;actions_access&gt;false&lt;/actions_access&gt;
+    &lt;alter_access&gt;false&lt;/alter_access&gt;
+    &lt;caller_access/&gt;
+    &lt;client_scripts_access&gt;false&lt;/client_scripts_access&gt;
+    &lt;create_access&gt;false&lt;/create_access&gt;
+    &lt;create_access_controls&gt;false&lt;/create_access_controls&gt;
+    &lt;delete_access&gt;false&lt;/delete_access&gt;
+    &lt;is_extendable&gt;false&lt;/is_extendable&gt;
+    &lt;label&gt;SynkNode Events&lt;/label&gt;
+    &lt;live_feed_enabled&gt;false&lt;/live_feed_enabled&gt;
+    &lt;name&gt;x_synknode_events&lt;/name&gt;
+    &lt;number_ref/&gt;
+    &lt;read_access&gt;true&lt;/read_access&gt;
+    &lt;scriptable_table&gt;false&lt;/scriptable_table&gt;
+    &lt;super_class/&gt;
+    &lt;update_access&gt;false&lt;/update_access&gt;
+    &lt;user_role/&gt;
+    &lt;ws_access&gt;false&lt;/ws_access&gt;
+  &lt;/sys_db_object&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>38455828cfc9d4151306c7f33b8de0e5</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>SynkNode Events</target_name>
+    <type>Table</type>
+    <update_domain>global</update_domain>
+    <update_guid>38455828cfc9d4151306c7f33b8de0e5</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Custom Table x_synknode_events">26571502d0a642339adf60a7edf6table</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_dictionary_x_synknode_events_app_version</name>
+    <payload>&lt;record_update table=&quot;sys_dictionary&quot;&gt;
+  &lt;sys_dictionary action=&quot;INSERT_OR_UPDATE&quot; element=&quot;app_version&quot; table=&quot;x_synknode_events&quot;&gt;
+    &lt;sys_id&gt;5bea81d156bb49a5b07b58835d3b041f&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_dictionary_x_synknode_events_app_version&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;array&gt;false&lt;/array&gt;
+    &lt;attributes/&gt;
+    &lt;audit&gt;false&lt;/audit&gt;
+    &lt;calculation/&gt;
+    &lt;choice/&gt;
+    &lt;choice_field/&gt;
+    &lt;choice_table/&gt;
+    &lt;column_label&gt;App Version&lt;/column_label&gt;
+    &lt;default_value/&gt;
+    &lt;dependent/&gt;
+    &lt;dependent_on_field/&gt;
+    &lt;display&gt;false&lt;/display&gt;
+    &lt;dynamic_creation/&gt;
+    &lt;dynamic_creation_script/&gt;
+    &lt;dynamic_ref_qual/&gt;
+    &lt;element&gt;app_version&lt;/element&gt;
+    &lt;element_reference&gt;false&lt;/element_reference&gt;
+    &lt;formula/&gt;
+    &lt;function_definition/&gt;
+    &lt;function_field&gt;false&lt;/function_field&gt;
+    &lt;internal_type&gt;string&lt;/internal_type&gt;
+    &lt;mandatory&gt;false&lt;/mandatory&gt;
+    &lt;max_length&gt;20&lt;/max_length&gt;
+    &lt;name&gt;x_synknode_events&lt;/name&gt;
+    &lt;primary&gt;false&lt;/primary&gt;
+    &lt;read_only&gt;false&lt;/read_only&gt;
+    &lt;read_only_option/&gt;
+    &lt;reference/&gt;
+    &lt;reference_cascade_rule/&gt;
+    &lt;reference_floats/&gt;
+    &lt;reference_key/&gt;
+    &lt;reference_qual/&gt;
+    &lt;spell_check&gt;false&lt;/spell_check&gt;
+    &lt;table_reference&gt;false&lt;/table_reference&gt;
+    &lt;text_index&gt;false&lt;/text_index&gt;
+    &lt;unique&gt;false&lt;/unique&gt;
+    &lt;use_dependent_field&gt;false&lt;/use_dependent_field&gt;
+    &lt;use_reference_qualifier&gt;simple&lt;/use_reference_qualifier&gt;
+    &lt;virtual/&gt;
+    &lt;virtual_type&gt;script&lt;/virtual_type&gt;
+    &lt;widget/&gt;
+    &lt;xml_view&gt;false&lt;/xml_view&gt;
+  &lt;/sys_dictionary&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>c26ef5d9082bbb9e7e9a4f657920007b</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>x_synknode_events</target_name>
+    <type>Dictionary</type>
+    <update_domain>global</update_domain>
+    <update_guid>c26ef5d9082bbb9e7e9a4f657920007b</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Custom Table x_synknode_events">26571502d0a642339adf60a7edf6table</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_dictionary_x_synknode_events_event_type</name>
+    <payload>&lt;record_update table=&quot;sys_dictionary&quot;&gt;
+  &lt;sys_dictionary action=&quot;INSERT_OR_UPDATE&quot; element=&quot;event_type&quot; table=&quot;x_synknode_events&quot;&gt;
+    &lt;sys_id&gt;ab9cb6c1ab8c4c04bf9b3ee22b44ea4e&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_dictionary_x_synknode_events_event_type&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;array&gt;false&lt;/array&gt;
+    &lt;attributes/&gt;
+    &lt;audit&gt;false&lt;/audit&gt;
+    &lt;calculation/&gt;
+    &lt;choice/&gt;
+    &lt;choice_field/&gt;
+    &lt;choice_table/&gt;
+    &lt;column_label&gt;Event Type&lt;/column_label&gt;
+    &lt;default_value/&gt;
+    &lt;dependent/&gt;
+    &lt;dependent_on_field/&gt;
+    &lt;display&gt;false&lt;/display&gt;
+    &lt;dynamic_creation/&gt;
+    &lt;dynamic_creation_script/&gt;
+    &lt;dynamic_ref_qual/&gt;
+    &lt;element&gt;event_type&lt;/element&gt;
+    &lt;element_reference&gt;false&lt;/element_reference&gt;
+    &lt;formula/&gt;
+    &lt;function_definition/&gt;
+    &lt;function_field&gt;false&lt;/function_field&gt;
+    &lt;internal_type&gt;string&lt;/internal_type&gt;
+    &lt;mandatory&gt;false&lt;/mandatory&gt;
+    &lt;max_length&gt;50&lt;/max_length&gt;
+    &lt;name&gt;x_synknode_events&lt;/name&gt;
+    &lt;primary&gt;false&lt;/primary&gt;
+    &lt;read_only&gt;false&lt;/read_only&gt;
+    &lt;read_only_option/&gt;
+    &lt;reference/&gt;
+    &lt;reference_cascade_rule/&gt;
+    &lt;reference_floats/&gt;
+    &lt;reference_key/&gt;
+    &lt;reference_qual/&gt;
+    &lt;spell_check&gt;false&lt;/spell_check&gt;
+    &lt;table_reference&gt;false&lt;/table_reference&gt;
+    &lt;text_index&gt;false&lt;/text_index&gt;
+    &lt;unique&gt;false&lt;/unique&gt;
+    &lt;use_dependent_field&gt;false&lt;/use_dependent_field&gt;
+    &lt;use_reference_qualifier&gt;simple&lt;/use_reference_qualifier&gt;
+    &lt;virtual/&gt;
+    &lt;virtual_type&gt;script&lt;/virtual_type&gt;
+    &lt;widget/&gt;
+    &lt;xml_view&gt;false&lt;/xml_view&gt;
+  &lt;/sys_dictionary&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>e96d31ea7340302e0baf5659e65ef13e</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>x_synknode_events</target_name>
+    <type>Dictionary</type>
+    <update_domain>global</update_domain>
+    <update_guid>e96d31ea7340302e0baf5659e65ef13e</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Custom Table x_synknode_events">26571502d0a642339adf60a7edf6table</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_dictionary_x_synknode_events_file_extension</name>
+    <payload>&lt;record_update table=&quot;sys_dictionary&quot;&gt;
+  &lt;sys_dictionary action=&quot;INSERT_OR_UPDATE&quot; element=&quot;file_extension&quot; table=&quot;x_synknode_events&quot;&gt;
+    &lt;sys_id&gt;38910c7bd4d54c658c61b6bbf56a14a5&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_dictionary_x_synknode_events_file_extension&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;array&gt;false&lt;/array&gt;
+    &lt;attributes/&gt;
+    &lt;audit&gt;false&lt;/audit&gt;
+    &lt;calculation/&gt;
+    &lt;choice/&gt;
+    &lt;choice_field/&gt;
+    &lt;choice_table/&gt;
+    &lt;column_label&gt;File Extension&lt;/column_label&gt;
+    &lt;default_value/&gt;
+    &lt;dependent/&gt;
+    &lt;dependent_on_field/&gt;
+    &lt;display&gt;false&lt;/display&gt;
+    &lt;dynamic_creation/&gt;
+    &lt;dynamic_creation_script/&gt;
+    &lt;dynamic_ref_qual/&gt;
+    &lt;element&gt;file_extension&lt;/element&gt;
+    &lt;element_reference&gt;false&lt;/element_reference&gt;
+    &lt;formula/&gt;
+    &lt;function_definition/&gt;
+    &lt;function_field&gt;false&lt;/function_field&gt;
+    &lt;internal_type&gt;string&lt;/internal_type&gt;
+    &lt;mandatory&gt;false&lt;/mandatory&gt;
+    &lt;max_length&gt;20&lt;/max_length&gt;
+    &lt;name&gt;x_synknode_events&lt;/name&gt;
+    &lt;primary&gt;false&lt;/primary&gt;
+    &lt;read_only&gt;false&lt;/read_only&gt;
+    &lt;read_only_option/&gt;
+    &lt;reference/&gt;
+    &lt;reference_cascade_rule/&gt;
+    &lt;reference_floats/&gt;
+    &lt;reference_key/&gt;
+    &lt;reference_qual/&gt;
+    &lt;spell_check&gt;false&lt;/spell_check&gt;
+    &lt;table_reference&gt;false&lt;/table_reference&gt;
+    &lt;text_index&gt;false&lt;/text_index&gt;
+    &lt;unique&gt;false&lt;/unique&gt;
+    &lt;use_dependent_field&gt;false&lt;/use_dependent_field&gt;
+    &lt;use_reference_qualifier&gt;simple&lt;/use_reference_qualifier&gt;
+    &lt;virtual/&gt;
+    &lt;virtual_type&gt;script&lt;/virtual_type&gt;
+    &lt;widget/&gt;
+    &lt;xml_view&gt;false&lt;/xml_view&gt;
+  &lt;/sys_dictionary&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>d9f81438621e25ee327c450bfb92bd76</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>x_synknode_events</target_name>
+    <type>Dictionary</type>
+    <update_domain>global</update_domain>
+    <update_guid>d9f81438621e25ee327c450bfb92bd76</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Custom Table x_synknode_events">26571502d0a642339adf60a7edf6table</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_dictionary_x_synknode_events_file_name</name>
+    <payload>&lt;record_update table=&quot;sys_dictionary&quot;&gt;
+  &lt;sys_dictionary action=&quot;INSERT_OR_UPDATE&quot; element=&quot;file_name&quot; table=&quot;x_synknode_events&quot;&gt;
+    &lt;sys_id&gt;40db6d48c2904a3d9b178dcd796faa16&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_dictionary_x_synknode_events_file_name&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;array&gt;false&lt;/array&gt;
+    &lt;attributes/&gt;
+    &lt;audit&gt;false&lt;/audit&gt;
+    &lt;calculation/&gt;
+    &lt;choice/&gt;
+    &lt;choice_field/&gt;
+    &lt;choice_table/&gt;
+    &lt;column_label&gt;File Name&lt;/column_label&gt;
+    &lt;default_value/&gt;
+    &lt;dependent/&gt;
+    &lt;dependent_on_field/&gt;
+    &lt;display&gt;false&lt;/display&gt;
+    &lt;dynamic_creation/&gt;
+    &lt;dynamic_creation_script/&gt;
+    &lt;dynamic_ref_qual/&gt;
+    &lt;element&gt;file_name&lt;/element&gt;
+    &lt;element_reference&gt;false&lt;/element_reference&gt;
+    &lt;formula/&gt;
+    &lt;function_definition/&gt;
+    &lt;function_field&gt;false&lt;/function_field&gt;
+    &lt;internal_type&gt;string&lt;/internal_type&gt;
+    &lt;mandatory&gt;false&lt;/mandatory&gt;
+    &lt;max_length&gt;255&lt;/max_length&gt;
+    &lt;name&gt;x_synknode_events&lt;/name&gt;
+    &lt;primary&gt;false&lt;/primary&gt;
+    &lt;read_only&gt;false&lt;/read_only&gt;
+    &lt;read_only_option/&gt;
+    &lt;reference/&gt;
+    &lt;reference_cascade_rule/&gt;
+    &lt;reference_floats/&gt;
+    &lt;reference_key/&gt;
+    &lt;reference_qual/&gt;
+    &lt;spell_check&gt;false&lt;/spell_check&gt;
+    &lt;table_reference&gt;false&lt;/table_reference&gt;
+    &lt;text_index&gt;false&lt;/text_index&gt;
+    &lt;unique&gt;false&lt;/unique&gt;
+    &lt;use_dependent_field&gt;false&lt;/use_dependent_field&gt;
+    &lt;use_reference_qualifier&gt;simple&lt;/use_reference_qualifier&gt;
+    &lt;virtual/&gt;
+    &lt;virtual_type&gt;script&lt;/virtual_type&gt;
+    &lt;widget/&gt;
+    &lt;xml_view&gt;false&lt;/xml_view&gt;
+  &lt;/sys_dictionary&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>1b4b2bf75fb83e6491e75b7b7ac43fe1</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>x_synknode_events</target_name>
+    <type>Dictionary</type>
+    <update_domain>global</update_domain>
+    <update_guid>1b4b2bf75fb83e6491e75b7b7ac43fe1</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Custom Table x_synknode_events">26571502d0a642339adf60a7edf6table</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_dictionary_x_synknode_events_file_type</name>
+    <payload>&lt;record_update table=&quot;sys_dictionary&quot;&gt;
+  &lt;sys_dictionary action=&quot;INSERT_OR_UPDATE&quot; element=&quot;file_type&quot; table=&quot;x_synknode_events&quot;&gt;
+    &lt;sys_id&gt;73a6a126c99d4e01a6a2f00835f3e660&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_dictionary_x_synknode_events_file_type&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;array&gt;false&lt;/array&gt;
+    &lt;attributes/&gt;
+    &lt;audit&gt;false&lt;/audit&gt;
+    &lt;calculation/&gt;
+    &lt;choice/&gt;
+    &lt;choice_field/&gt;
+    &lt;choice_table/&gt;
+    &lt;column_label&gt;File Type&lt;/column_label&gt;
+    &lt;default_value/&gt;
+    &lt;dependent/&gt;
+    &lt;dependent_on_field/&gt;
+    &lt;display&gt;false&lt;/display&gt;
+    &lt;dynamic_creation/&gt;
+    &lt;dynamic_creation_script/&gt;
+    &lt;dynamic_ref_qual/&gt;
+    &lt;element&gt;file_type&lt;/element&gt;
+    &lt;element_reference&gt;false&lt;/element_reference&gt;
+    &lt;formula/&gt;
+    &lt;function_definition/&gt;
+    &lt;function_field&gt;false&lt;/function_field&gt;
+    &lt;internal_type&gt;string&lt;/internal_type&gt;
+    &lt;mandatory&gt;false&lt;/mandatory&gt;
+    &lt;max_length&gt;50&lt;/max_length&gt;
+    &lt;name&gt;x_synknode_events&lt;/name&gt;
+    &lt;primary&gt;false&lt;/primary&gt;
+    &lt;read_only&gt;false&lt;/read_only&gt;
+    &lt;read_only_option/&gt;
+    &lt;reference/&gt;
+    &lt;reference_cascade_rule/&gt;
+    &lt;reference_floats/&gt;
+    &lt;reference_key/&gt;
+    &lt;reference_qual/&gt;
+    &lt;spell_check&gt;false&lt;/spell_check&gt;
+    &lt;table_reference&gt;false&lt;/table_reference&gt;
+    &lt;text_index&gt;false&lt;/text_index&gt;
+    &lt;unique&gt;false&lt;/unique&gt;
+    &lt;use_dependent_field&gt;false&lt;/use_dependent_field&gt;
+    &lt;use_reference_qualifier&gt;simple&lt;/use_reference_qualifier&gt;
+    &lt;virtual/&gt;
+    &lt;virtual_type&gt;script&lt;/virtual_type&gt;
+    &lt;widget/&gt;
+    &lt;xml_view&gt;false&lt;/xml_view&gt;
+  &lt;/sys_dictionary&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>aecd27c1ac5f40fb0c48bd43de732ecf</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>x_synknode_events</target_name>
+    <type>Dictionary</type>
+    <update_domain>global</update_domain>
+    <update_guid>aecd27c1ac5f40fb0c48bd43de732ecf</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Custom Table x_synknode_events">26571502d0a642339adf60a7edf6table</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_dictionary_x_synknode_events_null</name>
+    <payload>&lt;record_update table=&quot;sys_dictionary&quot;&gt;
+  &lt;sys_dictionary action=&quot;INSERT_OR_UPDATE&quot; element=&quot;&quot; table=&quot;x_synknode_events&quot;&gt;
+    &lt;sys_id&gt;da87f836bba84eceb1a89e4201b3007a&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_dictionary_x_synknode_events_null&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;attributes/&gt;
+    &lt;audit&gt;false&lt;/audit&gt;
+    &lt;element/&gt;
+    &lt;internal_type&gt;collection&lt;/internal_type&gt;
+    &lt;name&gt;x_synknode_events&lt;/name&gt;
+    &lt;read_only&gt;false&lt;/read_only&gt;
+    &lt;text_index&gt;false&lt;/text_index&gt;
+  &lt;/sys_dictionary&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>cdf92b3b693187b546d208e214994dff</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>x_synknode_events</target_name>
+    <type>Dictionary</type>
+    <update_domain>global</update_domain>
+    <update_guid>cdf92b3b693187b546d208e214994dff</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Custom Table x_synknode_events">26571502d0a642339adf60a7edf6table</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_dictionary_x_synknode_events_receiver_id</name>
+    <payload>&lt;record_update table=&quot;sys_dictionary&quot;&gt;
+  &lt;sys_dictionary action=&quot;INSERT_OR_UPDATE&quot; element=&quot;receiver_id&quot; table=&quot;x_synknode_events&quot;&gt;
+    &lt;sys_id&gt;acd8155d7a414ba3991298f255a8949d&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_dictionary_x_synknode_events_receiver_id&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;array&gt;false&lt;/array&gt;
+    &lt;attributes/&gt;
+    &lt;audit&gt;false&lt;/audit&gt;
+    &lt;calculation/&gt;
+    &lt;choice/&gt;
+    &lt;choice_field/&gt;
+    &lt;choice_table/&gt;
+    &lt;column_label&gt;Receiver ID&lt;/column_label&gt;
+    &lt;default_value/&gt;
+    &lt;dependent/&gt;
+    &lt;dependent_on_field/&gt;
+    &lt;display&gt;false&lt;/display&gt;
+    &lt;dynamic_creation/&gt;
+    &lt;dynamic_creation_script/&gt;
+    &lt;dynamic_ref_qual/&gt;
+    &lt;element&gt;receiver_id&lt;/element&gt;
+    &lt;element_reference&gt;false&lt;/element_reference&gt;
+    &lt;formula/&gt;
+    &lt;function_definition/&gt;
+    &lt;function_field&gt;false&lt;/function_field&gt;
+    &lt;internal_type&gt;string&lt;/internal_type&gt;
+    &lt;mandatory&gt;false&lt;/mandatory&gt;
+    &lt;max_length&gt;100&lt;/max_length&gt;
+    &lt;name&gt;x_synknode_events&lt;/name&gt;
+    &lt;primary&gt;false&lt;/primary&gt;
+    &lt;read_only&gt;false&lt;/read_only&gt;
+    &lt;read_only_option/&gt;
+    &lt;reference/&gt;
+    &lt;reference_cascade_rule/&gt;
+    &lt;reference_floats/&gt;
+    &lt;reference_key/&gt;
+    &lt;reference_qual/&gt;
+    &lt;spell_check&gt;false&lt;/spell_check&gt;
+    &lt;table_reference&gt;false&lt;/table_reference&gt;
+    &lt;text_index&gt;false&lt;/text_index&gt;
+    &lt;unique&gt;false&lt;/unique&gt;
+    &lt;use_dependent_field&gt;false&lt;/use_dependent_field&gt;
+    &lt;use_reference_qualifier&gt;simple&lt;/use_reference_qualifier&gt;
+    &lt;virtual/&gt;
+    &lt;virtual_type&gt;script&lt;/virtual_type&gt;
+    &lt;widget/&gt;
+    &lt;xml_view&gt;false&lt;/xml_view&gt;
+  &lt;/sys_dictionary&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>01de6f75c2dbe156962f404d1994eba3</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>x_synknode_events</target_name>
+    <type>Dictionary</type>
+    <update_domain>global</update_domain>
+    <update_guid>01de6f75c2dbe156962f404d1994eba3</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Custom Table x_synknode_events">26571502d0a642339adf60a7edf6table</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_dictionary_x_synknode_events_referrer_url</name>
+    <payload>&lt;record_update table=&quot;sys_dictionary&quot;&gt;
+  &lt;sys_dictionary action=&quot;INSERT_OR_UPDATE&quot; element=&quot;referrer_url&quot; table=&quot;x_synknode_events&quot;&gt;
+    &lt;sys_id&gt;c9e70e66f03a4ffc8c22acc8ff88c919&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_dictionary_x_synknode_events_referrer_url&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;array&gt;false&lt;/array&gt;
+    &lt;attributes/&gt;
+    &lt;audit&gt;false&lt;/audit&gt;
+    &lt;calculation/&gt;
+    &lt;choice/&gt;
+    &lt;choice_field/&gt;
+    &lt;choice_table/&gt;
+    &lt;column_label&gt;Referrer URL&lt;/column_label&gt;
+    &lt;default_value/&gt;
+    &lt;dependent/&gt;
+    &lt;dependent_on_field/&gt;
+    &lt;display&gt;false&lt;/display&gt;
+    &lt;dynamic_creation/&gt;
+    &lt;dynamic_creation_script/&gt;
+    &lt;dynamic_ref_qual/&gt;
+    &lt;element&gt;referrer_url&lt;/element&gt;
+    &lt;element_reference&gt;false&lt;/element_reference&gt;
+    &lt;formula/&gt;
+    &lt;function_definition/&gt;
+    &lt;function_field&gt;false&lt;/function_field&gt;
+    &lt;internal_type&gt;string&lt;/internal_type&gt;
+    &lt;mandatory&gt;false&lt;/mandatory&gt;
+    &lt;max_length&gt;500&lt;/max_length&gt;
+    &lt;name&gt;x_synknode_events&lt;/name&gt;
+    &lt;primary&gt;false&lt;/primary&gt;
+    &lt;read_only&gt;false&lt;/read_only&gt;
+    &lt;read_only_option/&gt;
+    &lt;reference/&gt;
+    &lt;reference_cascade_rule/&gt;
+    &lt;reference_floats/&gt;
+    &lt;reference_key/&gt;
+    &lt;reference_qual/&gt;
+    &lt;spell_check&gt;false&lt;/spell_check&gt;
+    &lt;table_reference&gt;false&lt;/table_reference&gt;
+    &lt;text_index&gt;false&lt;/text_index&gt;
+    &lt;unique&gt;false&lt;/unique&gt;
+    &lt;use_dependent_field&gt;false&lt;/use_dependent_field&gt;
+    &lt;use_reference_qualifier&gt;simple&lt;/use_reference_qualifier&gt;
+    &lt;virtual/&gt;
+    &lt;virtual_type&gt;script&lt;/virtual_type&gt;
+    &lt;widget/&gt;
+    &lt;xml_view&gt;false&lt;/xml_view&gt;
+  &lt;/sys_dictionary&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>c7b3b8b30e643774d1aab5f95cbc5e42</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>x_synknode_events</target_name>
+    <type>Dictionary</type>
+    <update_domain>global</update_domain>
+    <update_guid>c7b3b8b30e643774d1aab5f95cbc5e42</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Custom Table x_synknode_events">26571502d0a642339adf60a7edf6table</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_dictionary_x_synknode_events_sender_id</name>
+    <payload>&lt;record_update table=&quot;sys_dictionary&quot;&gt;
+  &lt;sys_dictionary action=&quot;INSERT_OR_UPDATE&quot; element=&quot;sender_id&quot; table=&quot;x_synknode_events&quot;&gt;
+    &lt;sys_id&gt;ed93c5058dd84a0b81a6faa786cbb901&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_dictionary_x_synknode_events_sender_id&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;array&gt;false&lt;/array&gt;
+    &lt;attributes/&gt;
+    &lt;audit&gt;false&lt;/audit&gt;
+    &lt;calculation/&gt;
+    &lt;choice/&gt;
+    &lt;choice_field/&gt;
+    &lt;choice_table/&gt;
+    &lt;column_label&gt;Sender ID&lt;/column_label&gt;
+    &lt;default_value/&gt;
+    &lt;dependent/&gt;
+    &lt;dependent_on_field/&gt;
+    &lt;display&gt;false&lt;/display&gt;
+    &lt;dynamic_creation/&gt;
+    &lt;dynamic_creation_script/&gt;
+    &lt;dynamic_ref_qual/&gt;
+    &lt;element&gt;sender_id&lt;/element&gt;
+    &lt;element_reference&gt;false&lt;/element_reference&gt;
+    &lt;formula/&gt;
+    &lt;function_definition/&gt;
+    &lt;function_field&gt;false&lt;/function_field&gt;
+    &lt;internal_type&gt;string&lt;/internal_type&gt;
+    &lt;mandatory&gt;false&lt;/mandatory&gt;
+    &lt;max_length&gt;100&lt;/max_length&gt;
+    &lt;name&gt;x_synknode_events&lt;/name&gt;
+    &lt;primary&gt;false&lt;/primary&gt;
+    &lt;read_only&gt;false&lt;/read_only&gt;
+    &lt;read_only_option/&gt;
+    &lt;reference/&gt;
+    &lt;reference_cascade_rule/&gt;
+    &lt;reference_floats/&gt;
+    &lt;reference_key/&gt;
+    &lt;reference_qual/&gt;
+    &lt;spell_check&gt;false&lt;/spell_check&gt;
+    &lt;table_reference&gt;false&lt;/table_reference&gt;
+    &lt;text_index&gt;false&lt;/text_index&gt;
+    &lt;unique&gt;false&lt;/unique&gt;
+    &lt;use_dependent_field&gt;false&lt;/use_dependent_field&gt;
+    &lt;use_reference_qualifier&gt;simple&lt;/use_reference_qualifier&gt;
+    &lt;virtual/&gt;
+    &lt;virtual_type&gt;script&lt;/virtual_type&gt;
+    &lt;widget/&gt;
+    &lt;xml_view&gt;false&lt;/xml_view&gt;
+  &lt;/sys_dictionary&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>be897e7a391fd1f8b0fb5f1cd3eb545a</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>x_synknode_events</target_name>
+    <type>Dictionary</type>
+    <update_domain>global</update_domain>
+    <update_guid>be897e7a391fd1f8b0fb5f1cd3eb545a</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Custom Table x_synknode_events">26571502d0a642339adf60a7edf6table</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_dictionary_x_synknode_events_session_id</name>
+    <payload>&lt;record_update table=&quot;sys_dictionary&quot;&gt;
+  &lt;sys_dictionary action=&quot;INSERT_OR_UPDATE&quot; element=&quot;session_id&quot; table=&quot;x_synknode_events&quot;&gt;
+    &lt;sys_id&gt;cd8ce4cf9c21458bac80c2a70b389325&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_dictionary_x_synknode_events_session_id&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;array&gt;false&lt;/array&gt;
+    &lt;attributes/&gt;
+    &lt;audit&gt;false&lt;/audit&gt;
+    &lt;calculation/&gt;
+    &lt;choice/&gt;
+    &lt;choice_field/&gt;
+    &lt;choice_table/&gt;
+    &lt;column_label&gt;Session ID&lt;/column_label&gt;
+    &lt;default_value/&gt;
+    &lt;dependent/&gt;
+    &lt;dependent_on_field/&gt;
+    &lt;display&gt;false&lt;/display&gt;
+    &lt;dynamic_creation/&gt;
+    &lt;dynamic_creation_script/&gt;
+    &lt;dynamic_ref_qual/&gt;
+    &lt;element&gt;session_id&lt;/element&gt;
+    &lt;element_reference&gt;false&lt;/element_reference&gt;
+    &lt;formula/&gt;
+    &lt;function_definition/&gt;
+    &lt;function_field&gt;false&lt;/function_field&gt;
+    &lt;internal_type&gt;string&lt;/internal_type&gt;
+    &lt;mandatory&gt;false&lt;/mandatory&gt;
+    &lt;max_length&gt;100&lt;/max_length&gt;
+    &lt;name&gt;x_synknode_events&lt;/name&gt;
+    &lt;primary&gt;false&lt;/primary&gt;
+    &lt;read_only&gt;false&lt;/read_only&gt;
+    &lt;read_only_option/&gt;
+    &lt;reference/&gt;
+    &lt;reference_cascade_rule/&gt;
+    &lt;reference_floats/&gt;
+    &lt;reference_key/&gt;
+    &lt;reference_qual/&gt;
+    &lt;spell_check&gt;false&lt;/spell_check&gt;
+    &lt;table_reference&gt;false&lt;/table_reference&gt;
+    &lt;text_index&gt;false&lt;/text_index&gt;
+    &lt;unique&gt;false&lt;/unique&gt;
+    &lt;use_dependent_field&gt;false&lt;/use_dependent_field&gt;
+    &lt;use_reference_qualifier&gt;simple&lt;/use_reference_qualifier&gt;
+    &lt;virtual/&gt;
+    &lt;virtual_type&gt;script&lt;/virtual_type&gt;
+    &lt;widget/&gt;
+    &lt;xml_view&gt;false&lt;/xml_view&gt;
+  &lt;/sys_dictionary&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>dd93b7b9796e29bd48753eb6aa931856</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>x_synknode_events</target_name>
+    <type>Dictionary</type>
+    <update_domain>global</update_domain>
+    <update_guid>dd93b7b9796e29bd48753eb6aa931856</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Custom Table x_synknode_events">26571502d0a642339adf60a7edf6table</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_dictionary_x_synknode_events_size_bytes</name>
+    <payload>&lt;record_update table=&quot;sys_dictionary&quot;&gt;
+  &lt;sys_dictionary action=&quot;INSERT_OR_UPDATE&quot; element=&quot;size_bytes&quot; table=&quot;x_synknode_events&quot;&gt;
+    &lt;sys_id&gt;a00a45a62a4c4475a85474b52cb8e7f1&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_dictionary_x_synknode_events_size_bytes&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;array&gt;false&lt;/array&gt;
+    &lt;attributes/&gt;
+    &lt;audit&gt;false&lt;/audit&gt;
+    &lt;calculation/&gt;
+    &lt;choice/&gt;
+    &lt;choice_field/&gt;
+    &lt;choice_table/&gt;
+    &lt;column_label&gt;Size Bytes&lt;/column_label&gt;
+    &lt;default_value/&gt;
+    &lt;dependent/&gt;
+    &lt;dependent_on_field/&gt;
+    &lt;display&gt;false&lt;/display&gt;
+    &lt;dynamic_creation/&gt;
+    &lt;dynamic_creation_script/&gt;
+    &lt;dynamic_ref_qual/&gt;
+    &lt;element&gt;size_bytes&lt;/element&gt;
+    &lt;element_reference&gt;false&lt;/element_reference&gt;
+    &lt;formula/&gt;
+    &lt;function_definition/&gt;
+    &lt;function_field&gt;false&lt;/function_field&gt;
+    &lt;internal_type&gt;integer&lt;/internal_type&gt;
+    &lt;mandatory&gt;false&lt;/mandatory&gt;
+    &lt;max_length&gt;40&lt;/max_length&gt;
+    &lt;name&gt;x_synknode_events&lt;/name&gt;
+    &lt;primary&gt;false&lt;/primary&gt;
+    &lt;read_only&gt;false&lt;/read_only&gt;
+    &lt;read_only_option/&gt;
+    &lt;reference/&gt;
+    &lt;reference_cascade_rule/&gt;
+    &lt;reference_floats/&gt;
+    &lt;reference_key/&gt;
+    &lt;reference_qual/&gt;
+    &lt;spell_check&gt;false&lt;/spell_check&gt;
+    &lt;table_reference&gt;false&lt;/table_reference&gt;
+    &lt;text_index&gt;false&lt;/text_index&gt;
+    &lt;unique&gt;false&lt;/unique&gt;
+    &lt;use_dependent_field&gt;false&lt;/use_dependent_field&gt;
+    &lt;use_reference_qualifier&gt;simple&lt;/use_reference_qualifier&gt;
+    &lt;virtual/&gt;
+    &lt;virtual_type&gt;script&lt;/virtual_type&gt;
+    &lt;widget/&gt;
+    &lt;xml_view&gt;false&lt;/xml_view&gt;
+  &lt;/sys_dictionary&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>c8c912eeb2e9083f4f570745bc1436ac</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>x_synknode_events</target_name>
+    <type>Dictionary</type>
+    <update_domain>global</update_domain>
+    <update_guid>c8c912eeb2e9083f4f570745bc1436ac</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Custom Table x_synknode_events">26571502d0a642339adf60a7edf6table</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_dictionary_x_synknode_events_timestamp</name>
+    <payload>&lt;record_update table=&quot;sys_dictionary&quot;&gt;
+  &lt;sys_dictionary action=&quot;INSERT_OR_UPDATE&quot; element=&quot;timestamp&quot; table=&quot;x_synknode_events&quot;&gt;
+    &lt;sys_id&gt;238edde5c4724e098a0810d341c0e090&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_dictionary_x_synknode_events_timestamp&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;array&gt;false&lt;/array&gt;
+    &lt;attributes/&gt;
+    &lt;audit&gt;false&lt;/audit&gt;
+    &lt;calculation/&gt;
+    &lt;choice/&gt;
+    &lt;choice_field/&gt;
+    &lt;choice_table/&gt;
+    &lt;column_label&gt;Timestamp&lt;/column_label&gt;
+    &lt;default_value/&gt;
+    &lt;dependent/&gt;
+    &lt;dependent_on_field/&gt;
+    &lt;display&gt;false&lt;/display&gt;
+    &lt;dynamic_creation/&gt;
+    &lt;dynamic_creation_script/&gt;
+    &lt;dynamic_ref_qual/&gt;
+    &lt;element&gt;timestamp&lt;/element&gt;
+    &lt;element_reference&gt;false&lt;/element_reference&gt;
+    &lt;formula/&gt;
+    &lt;function_definition/&gt;
+    &lt;function_field&gt;false&lt;/function_field&gt;
+    &lt;internal_type&gt;glide_date_time&lt;/internal_type&gt;
+    &lt;mandatory&gt;false&lt;/mandatory&gt;
+    &lt;max_length&gt;40&lt;/max_length&gt;
+    &lt;name&gt;x_synknode_events&lt;/name&gt;
+    &lt;primary&gt;false&lt;/primary&gt;
+    &lt;read_only&gt;false&lt;/read_only&gt;
+    &lt;read_only_option/&gt;
+    &lt;reference/&gt;
+    &lt;reference_cascade_rule/&gt;
+    &lt;reference_floats/&gt;
+    &lt;reference_key/&gt;
+    &lt;reference_qual/&gt;
+    &lt;spell_check&gt;false&lt;/spell_check&gt;
+    &lt;table_reference&gt;false&lt;/table_reference&gt;
+    &lt;text_index&gt;false&lt;/text_index&gt;
+    &lt;unique&gt;false&lt;/unique&gt;
+    &lt;use_dependent_field&gt;false&lt;/use_dependent_field&gt;
+    &lt;use_reference_qualifier&gt;simple&lt;/use_reference_qualifier&gt;
+    &lt;virtual/&gt;
+    &lt;virtual_type&gt;script&lt;/virtual_type&gt;
+    &lt;widget/&gt;
+    &lt;xml_view&gt;false&lt;/xml_view&gt;
+  &lt;/sys_dictionary&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>d1057559cb40002a135953b285f9cc08</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>x_synknode_events</target_name>
+    <type>Dictionary</type>
+    <update_domain>global</update_domain>
+    <update_guid>d1057559cb40002a135953b285f9cc08</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Custom Table x_synknode_events">26571502d0a642339adf60a7edf6table</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_dictionary_x_synknode_events_transfer_duration_ms</name>
+    <payload>&lt;record_update table=&quot;sys_dictionary&quot;&gt;
+  &lt;sys_dictionary action=&quot;INSERT_OR_UPDATE&quot; element=&quot;transfer_duration_ms&quot; table=&quot;x_synknode_events&quot;&gt;
+    &lt;sys_id&gt;72e6271020c4462cb8d9880e6f60496c&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_dictionary_x_synknode_events_transfer_duration_ms&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;array&gt;false&lt;/array&gt;
+    &lt;attributes/&gt;
+    &lt;audit&gt;false&lt;/audit&gt;
+    &lt;calculation/&gt;
+    &lt;choice/&gt;
+    &lt;choice_field/&gt;
+    &lt;choice_table/&gt;
+    &lt;column_label&gt;Transfer Duration MS&lt;/column_label&gt;
+    &lt;default_value/&gt;
+    &lt;dependent/&gt;
+    &lt;dependent_on_field/&gt;
+    &lt;display&gt;false&lt;/display&gt;
+    &lt;dynamic_creation/&gt;
+    &lt;dynamic_creation_script/&gt;
+    &lt;dynamic_ref_qual/&gt;
+    &lt;element&gt;transfer_duration_ms&lt;/element&gt;
+    &lt;element_reference&gt;false&lt;/element_reference&gt;
+    &lt;formula/&gt;
+    &lt;function_definition/&gt;
+    &lt;function_field&gt;false&lt;/function_field&gt;
+    &lt;internal_type&gt;integer&lt;/internal_type&gt;
+    &lt;mandatory&gt;false&lt;/mandatory&gt;
+    &lt;max_length&gt;40&lt;/max_length&gt;
+    &lt;name&gt;x_synknode_events&lt;/name&gt;
+    &lt;primary&gt;false&lt;/primary&gt;
+    &lt;read_only&gt;false&lt;/read_only&gt;
+    &lt;read_only_option/&gt;
+    &lt;reference/&gt;
+    &lt;reference_cascade_rule/&gt;
+    &lt;reference_floats/&gt;
+    &lt;reference_key/&gt;
+    &lt;reference_qual/&gt;
+    &lt;spell_check&gt;false&lt;/spell_check&gt;
+    &lt;table_reference&gt;false&lt;/table_reference&gt;
+    &lt;text_index&gt;false&lt;/text_index&gt;
+    &lt;unique&gt;false&lt;/unique&gt;
+    &lt;use_dependent_field&gt;false&lt;/use_dependent_field&gt;
+    &lt;use_reference_qualifier&gt;simple&lt;/use_reference_qualifier&gt;
+    &lt;virtual/&gt;
+    &lt;virtual_type&gt;script&lt;/virtual_type&gt;
+    &lt;widget/&gt;
+    &lt;xml_view&gt;false&lt;/xml_view&gt;
+  &lt;/sys_dictionary&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>cb7647ab1881e0c0b71091b88b216588</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>x_synknode_events</target_name>
+    <type>Dictionary</type>
+    <update_domain>global</update_domain>
+    <update_guid>cb7647ab1881e0c0b71091b88b216588</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Custom Table x_synknode_events">26571502d0a642339adf60a7edf6table</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_dictionary_x_synknode_events_transfer_status</name>
+    <payload>&lt;record_update table=&quot;sys_dictionary&quot;&gt;
+  &lt;sys_dictionary action=&quot;INSERT_OR_UPDATE&quot; element=&quot;transfer_status&quot; table=&quot;x_synknode_events&quot;&gt;
+    &lt;sys_id&gt;83eeb9a600ca4b14a2004e87286cc7e0&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_dictionary_x_synknode_events_transfer_status&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;array&gt;false&lt;/array&gt;
+    &lt;attributes/&gt;
+    &lt;audit&gt;false&lt;/audit&gt;
+    &lt;calculation/&gt;
+    &lt;choice/&gt;
+    &lt;choice_field/&gt;
+    &lt;choice_table/&gt;
+    &lt;column_label&gt;Transfer Status&lt;/column_label&gt;
+    &lt;default_value/&gt;
+    &lt;dependent/&gt;
+    &lt;dependent_on_field/&gt;
+    &lt;display&gt;false&lt;/display&gt;
+    &lt;dynamic_creation/&gt;
+    &lt;dynamic_creation_script/&gt;
+    &lt;dynamic_ref_qual/&gt;
+    &lt;element&gt;transfer_status&lt;/element&gt;
+    &lt;element_reference&gt;false&lt;/element_reference&gt;
+    &lt;formula/&gt;
+    &lt;function_definition/&gt;
+    &lt;function_field&gt;false&lt;/function_field&gt;
+    &lt;internal_type&gt;string&lt;/internal_type&gt;
+    &lt;mandatory&gt;false&lt;/mandatory&gt;
+    &lt;max_length&gt;20&lt;/max_length&gt;
+    &lt;name&gt;x_synknode_events&lt;/name&gt;
+    &lt;primary&gt;false&lt;/primary&gt;
+    &lt;read_only&gt;false&lt;/read_only&gt;
+    &lt;read_only_option/&gt;
+    &lt;reference/&gt;
+    &lt;reference_cascade_rule/&gt;
+    &lt;reference_floats/&gt;
+    &lt;reference_key/&gt;
+    &lt;reference_qual/&gt;
+    &lt;spell_check&gt;false&lt;/spell_check&gt;
+    &lt;table_reference&gt;false&lt;/table_reference&gt;
+    &lt;text_index&gt;false&lt;/text_index&gt;
+    &lt;unique&gt;false&lt;/unique&gt;
+    &lt;use_dependent_field&gt;false&lt;/use_dependent_field&gt;
+    &lt;use_reference_qualifier&gt;simple&lt;/use_reference_qualifier&gt;
+    &lt;virtual/&gt;
+    &lt;virtual_type&gt;script&lt;/virtual_type&gt;
+    &lt;widget/&gt;
+    &lt;xml_view&gt;false&lt;/xml_view&gt;
+  &lt;/sys_dictionary&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>0de87059ad0e67263779333437c1ea7f</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>x_synknode_events</target_name>
+    <type>Dictionary</type>
+    <update_domain>global</update_domain>
+    <update_guid>0de87059ad0e67263779333437c1ea7f</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Custom Table x_synknode_events">26571502d0a642339adf60a7edf6table</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_dictionary_x_synknode_events_visit_id</name>
+    <payload>&lt;record_update table=&quot;sys_dictionary&quot;&gt;
+  &lt;sys_dictionary action=&quot;INSERT_OR_UPDATE&quot; element=&quot;visit_id&quot; table=&quot;x_synknode_events&quot;&gt;
+    &lt;sys_id&gt;f004bc8bd1f443a5b9d247ad3b719729&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_dictionary_x_synknode_events_visit_id&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;array&gt;false&lt;/array&gt;
+    &lt;attributes/&gt;
+    &lt;audit&gt;false&lt;/audit&gt;
+    &lt;calculation/&gt;
+    &lt;choice/&gt;
+    &lt;choice_field/&gt;
+    &lt;choice_table/&gt;
+    &lt;column_label&gt;Visit ID&lt;/column_label&gt;
+    &lt;default_value/&gt;
+    &lt;dependent/&gt;
+    &lt;dependent_on_field/&gt;
+    &lt;display&gt;false&lt;/display&gt;
+    &lt;dynamic_creation/&gt;
+    &lt;dynamic_creation_script/&gt;
+    &lt;dynamic_ref_qual/&gt;
+    &lt;element&gt;visit_id&lt;/element&gt;
+    &lt;element_reference&gt;false&lt;/element_reference&gt;
+    &lt;formula/&gt;
+    &lt;function_definition/&gt;
+    &lt;function_field&gt;false&lt;/function_field&gt;
+    &lt;internal_type&gt;string&lt;/internal_type&gt;
+    &lt;mandatory&gt;false&lt;/mandatory&gt;
+    &lt;max_length&gt;100&lt;/max_length&gt;
+    &lt;name&gt;x_synknode_events&lt;/name&gt;
+    &lt;primary&gt;false&lt;/primary&gt;
+    &lt;read_only&gt;false&lt;/read_only&gt;
+    &lt;read_only_option/&gt;
+    &lt;reference/&gt;
+    &lt;reference_cascade_rule/&gt;
+    &lt;reference_floats/&gt;
+    &lt;reference_key/&gt;
+    &lt;reference_qual/&gt;
+    &lt;spell_check&gt;false&lt;/spell_check&gt;
+    &lt;table_reference&gt;false&lt;/table_reference&gt;
+    &lt;text_index&gt;false&lt;/text_index&gt;
+    &lt;unique&gt;false&lt;/unique&gt;
+    &lt;use_dependent_field&gt;false&lt;/use_dependent_field&gt;
+    &lt;use_reference_qualifier&gt;simple&lt;/use_reference_qualifier&gt;
+    &lt;virtual/&gt;
+    &lt;virtual_type&gt;script&lt;/virtual_type&gt;
+    &lt;widget/&gt;
+    &lt;xml_view&gt;false&lt;/xml_view&gt;
+  &lt;/sys_dictionary&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>0ae9b99e5117fe8973c3b0191bd5af9e</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>x_synknode_events</target_name>
+    <type>Dictionary</type>
+    <update_domain>global</update_domain>
+    <update_guid>0ae9b99e5117fe8973c3b0191bd5af9e</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Custom Table x_synknode_events">26571502d0a642339adf60a7edf6table</update_set>
+  </sys_update_xml>
+  <sys_update_xml action="INSERT_OR_UPDATE">
+    <action>INSERT_OR_UPDATE</action>
+    <application display_value="SynkNode Platform Analytics">26571502d0a642339adf60a7edf6fab9</application>
+    <category>customer</category>
+    <comments/>
+    <name>sys_dictionary_x_synknode_events_visit_url</name>
+    <payload>&lt;record_update table=&quot;sys_dictionary&quot;&gt;
+  &lt;sys_dictionary action=&quot;INSERT_OR_UPDATE&quot; element=&quot;visit_url&quot; table=&quot;x_synknode_events&quot;&gt;
+    &lt;sys_id&gt;f1bdec5cb3a04273b01f77f516055e4a&lt;/sys_id&gt;
+    &lt;sys_scope display_value=&quot;x_synknode&quot;&gt;26571502d0a642339adf60a7edf6fab9&lt;/sys_scope&gt;
+    &lt;sys_update_name&gt;sys_dictionary_x_synknode_events_visit_url&lt;/sys_update_name&gt;
+    &lt;active&gt;true&lt;/active&gt;
+    &lt;array&gt;false&lt;/array&gt;
+    &lt;attributes/&gt;
+    &lt;audit&gt;false&lt;/audit&gt;
+    &lt;calculation/&gt;
+    &lt;choice/&gt;
+    &lt;choice_field/&gt;
+    &lt;choice_table/&gt;
+    &lt;column_label&gt;Visit URL&lt;/column_label&gt;
+    &lt;default_value/&gt;
+    &lt;dependent/&gt;
+    &lt;dependent_on_field/&gt;
+    &lt;display&gt;false&lt;/display&gt;
+    &lt;dynamic_creation/&gt;
+    &lt;dynamic_creation_script/&gt;
+    &lt;dynamic_ref_qual/&gt;
+    &lt;element&gt;visit_url&lt;/element&gt;
+    &lt;element_reference&gt;false&lt;/element_reference&gt;
+    &lt;formula/&gt;
+    &lt;function_definition/&gt;
+    &lt;function_field&gt;false&lt;/function_field&gt;
+    &lt;internal_type&gt;string&lt;/internal_type&gt;
+    &lt;mandatory&gt;false&lt;/mandatory&gt;
+    &lt;max_length&gt;500&lt;/max_length&gt;
+    &lt;name&gt;x_synknode_events&lt;/name&gt;
+    &lt;primary&gt;false&lt;/primary&gt;
+    &lt;read_only&gt;false&lt;/read_only&gt;
+    &lt;read_only_option/&gt;
+    &lt;reference/&gt;
+    &lt;reference_cascade_rule/&gt;
+    &lt;reference_floats/&gt;
+    &lt;reference_key/&gt;
+    &lt;reference_qual/&gt;
+    &lt;spell_check&gt;false&lt;/spell_check&gt;
+    &lt;table_reference&gt;false&lt;/table_reference&gt;
+    &lt;text_index&gt;false&lt;/text_index&gt;
+    &lt;unique&gt;false&lt;/unique&gt;
+    &lt;use_dependent_field&gt;false&lt;/use_dependent_field&gt;
+    &lt;use_reference_qualifier&gt;simple&lt;/use_reference_qualifier&gt;
+    &lt;virtual/&gt;
+    &lt;virtual_type&gt;script&lt;/virtual_type&gt;
+    &lt;widget/&gt;
+    &lt;xml_view&gt;false&lt;/xml_view&gt;
+  &lt;/sys_dictionary&gt;
+&lt;/record_update&gt;</payload>
+    <replace_on_upgrade>false</replace_on_upgrade>
+    <sys_created_by>admin</sys_created_by>
+    <sys_created_on>2026-06-21 11:50:00</sys_created_on>
+    <sys_id>bbe91d350c1ce239c34ca8c1692eb329</sys_id>
+    <sys_mod_count>0</sys_mod_count>
+    <sys_recorded_at>18730b200b30000001</sys_recorded_at>
+    <sys_updated_by>admin</sys_updated_by>
+    <sys_updated_on>2026-06-21 11:50:00</sys_updated_on>
+    <target_name>x_synknode_events</target_name>
+    <type>Dictionary</type>
+    <update_domain>global</update_domain>
+    <update_guid>bbe91d350c1ce239c34ca8c1692eb329</update_guid>
+    <update_guid_history/>
+    <update_set display_value="SynkNode Custom Table x_synknode_events">26571502d0a642339adf60a7edf6table</update_set>
+  </sys_update_xml>
+</unload>

@@ -1,0 +1,9 @@
+{
+  "scope": "x_2064375_synknode",
+  "scopeId": "58e512aec321079013481cedd4013131",
+  "name": "SynkNode Platform Analytics",
+  "fluentDir": "./src/fluent",
+  "serverModulesDir": "./src/server",
+  "tsconfigPath": "./src/server/tsconfig.json"
+}
+
