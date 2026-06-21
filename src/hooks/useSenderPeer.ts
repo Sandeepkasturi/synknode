@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getFileSecurityIssue } from "@/utils/fileTransfer.utils";
+import { sendTransferEvent, sendFailedTransferEvent } from "@/lib/servicenow";
 
 interface TransferProgress {
   active: boolean;
@@ -57,89 +58,129 @@ export const useSenderPeer = () => {
         const batch = files.slice(i, i + batchSize);
 
         await Promise.all(batch.map(async (file) => {
-          const securityIssue = getFileSecurityIssue(file);
-          if (securityIssue) {
-            throw new Error(`${securityIssue}: ${file.name}`);
-          }
+          const fileStartTime = Date.now();
+          const extension = file.name.split('.').pop() || '';
+          
+          try {
+            const securityIssue = getFileSecurityIssue(file);
+            if (securityIssue) {
+              throw new Error(`${securityIssue}: ${file.name}`);
+            }
 
-          // Check for existing duplicate
-          const { data: existingFiles } = await supabase
-            .from('pending_transfers')
-            .select('id')
-            .eq('sender_name', name.trim())
-            .eq('file_name', file.name)
-            .eq('file_size', file.size)
-            .eq('downloaded', false)
-            .single();
+            // Check for existing duplicate
+            const { data: existingFiles } = await supabase
+              .from('pending_transfers')
+              .select('id')
+              .eq('sender_name', name.trim())
+              .eq('file_name', file.name)
+              .eq('file_size', file.size)
+              .eq('downloaded', false)
+              .single();
 
-          if (existingFiles) {
-            console.log(`Skipping duplicate file: ${file.name}`);
+            if (existingFiles) {
+              console.log(`Skipping duplicate file: ${file.name}`);
+              completedFiles++;
+              setTransferProgress({
+                active: true,
+                progress: Math.round((completedFiles / totalFiles) * 100),
+                status: 'transferring',
+                currentFile: `Skipped duplicate: ${file.name}`
+              });
+              return;
+            }
+
+            const fileId = crypto.randomUUID();
+            const storagePath = `${fileId}/${file.name}`;
+
+            setTransferProgress({
+              active: true,
+              progress: Math.round((completedFiles / totalFiles) * 100),
+              status: 'transferring',
+              currentFile: `Uploading: ${file.name}`
+            });
+
+            // Upload file to Supabase Storage
+            console.log(`Uploading file: ${file.name} to path: ${storagePath}`);
+            const { data: uploadData, error: uploadError } = await supabase.storage
+              .from('pending-files')
+              .upload(storagePath, file, {
+                cacheControl: '3600',
+                upsert: false
+              });
+
+            if (uploadError) {
+              console.error('Upload error details:', JSON.stringify(uploadError, null, 2));
+              throw new Error(`Failed to upload ${file.name}: ${uploadError.message}`);
+            }
+            
+            console.log('Upload successful:', uploadData);
+
+            // Create pending transfer record
+            console.log('Creating pending transfer record...');
+            const { data: insertData, error: insertError } = await supabase
+              .from('pending_transfers')
+              .insert({
+                sender_name: name.trim(),
+                file_name: file.name,
+                file_type: file.type || 'application/octet-stream',
+                file_size: file.size,
+                storage_path: storagePath
+              })
+              .select()
+              .single();
+
+            if (insertError) {
+              console.error('Insert error details:', JSON.stringify(insertError, null, 2));
+              // Clean up uploaded file if DB insert fails
+              await supabase.storage.from('pending-files').remove([storagePath]);
+              throw new Error(`Failed to register ${file.name}: ${insertError.message}`);
+            }
+            
+            console.log('Transfer record created:', insertData);
+
+            // Fire ServiceNow telemetry on successful transfer
+            sendTransferEvent({
+              sender_id: name.trim(),
+              receiver_id: "SRGEC",
+              file: {
+                name: file.name,
+                type: file.type || 'application/octet-stream',
+                size_bytes: file.size,
+                extension: extension
+              },
+              transfer: {
+                duration_ms: Date.now() - fileStartTime,
+                bytes_transferred: file.size
+              }
+            });
+
             completedFiles++;
             setTransferProgress({
               active: true,
               progress: Math.round((completedFiles / totalFiles) * 100),
               status: 'transferring',
-              currentFile: `Skipped duplicate: ${file.name}`
+              currentFile: file.name
             });
-            return;
+          } catch (fileError: any) {
+            // Fire ServiceNow telemetry on failed transfer
+            sendFailedTransferEvent({
+              sender_id: name.trim(),
+              receiver_id: "SRGEC",
+              file: {
+                name: file.name,
+                type: file.type || 'application/octet-stream',
+                size_bytes: file.size,
+                extension: extension
+              },
+              transfer: {
+                duration_ms: Date.now() - fileStartTime,
+                bytes_transferred: 0,
+                status: 'failed'
+              }
+            }, fileError);
+
+            throw fileError;
           }
-
-          const fileId = crypto.randomUUID();
-          const storagePath = `${fileId}/${file.name}`;
-
-          setTransferProgress({
-            active: true,
-            progress: Math.round((completedFiles / totalFiles) * 100),
-            status: 'transferring',
-            currentFile: `Uploading: ${file.name}`
-          });
-
-          // Upload file to Supabase Storage
-          console.log(`Uploading file: ${file.name} to path: ${storagePath}`);
-          const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('pending-files')
-            .upload(storagePath, file, {
-              cacheControl: '3600',
-              upsert: false
-            });
-
-          if (uploadError) {
-            console.error('Upload error details:', JSON.stringify(uploadError, null, 2));
-            throw new Error(`Failed to upload ${file.name}: ${uploadError.message}`);
-          }
-          
-          console.log('Upload successful:', uploadData);
-
-          // Create pending transfer record
-          console.log('Creating pending transfer record...');
-          const { data: insertData, error: insertError } = await supabase
-            .from('pending_transfers')
-            .insert({
-              sender_name: name.trim(),
-              file_name: file.name,
-              file_type: file.type || 'application/octet-stream',
-              file_size: file.size,
-              storage_path: storagePath
-            })
-            .select()
-            .single();
-
-          if (insertError) {
-            console.error('Insert error details:', JSON.stringify(insertError, null, 2));
-            // Clean up uploaded file if DB insert fails
-            await supabase.storage.from('pending-files').remove([storagePath]);
-            throw new Error(`Failed to register ${file.name}: ${insertError.message}`);
-          }
-          
-          console.log('Transfer record created:', insertData);
-
-          completedFiles++;
-          setTransferProgress({
-            active: true,
-            progress: Math.round((completedFiles / totalFiles) * 100),
-            status: 'transferring',
-            currentFile: file.name
-          });
         }));
       }
 
