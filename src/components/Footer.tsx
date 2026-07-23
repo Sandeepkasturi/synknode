@@ -1,6 +1,7 @@
 import React from 'react';
-import { Github, Globe, Mail } from 'lucide-react';
+import { Github, Globe, Mail, ExternalLink } from 'lucide-react';
 import logo from '@/assets/logo.png';
+import skavtechLogo from '@/assets/skavtech-logo.png.asset.json';
 
 export const Footer: React.FC = () => {
   const links = [
@@ -41,6 +42,22 @@ export const Footer: React.FC = () => {
               </a>
             ))}
           </div>
+
+          {/* SKAV TECH Company Badge */}
+          <a
+            href="https://skavtechs.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group mt-2 inline-flex items-center gap-2.5 pl-2 pr-3 py-1.5 rounded-full bg-secondary/50 border border-border/50 hover:border-primary/40 hover:bg-secondary/80 transition-all shadow-sm"
+          >
+            <span className="w-6 h-6 rounded-full bg-background flex items-center justify-center overflow-hidden ring-1 ring-border/50">
+              <img src={skavtechLogo.url} alt="SKAV TECH" className="w-5 h-5 object-contain" />
+            </span>
+            <span className="text-[11px] font-medium text-foreground tracking-wide">
+              A <span className="font-bold">SKAV TECH</span> Project
+            </span>
+            <ExternalLink className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors" />
+          </a>
 
           <p className="text-[10px] text-muted-foreground/50">
             © {new Date().getFullYear()} SynkNode
