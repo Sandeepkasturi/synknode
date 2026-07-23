@@ -65,9 +65,7 @@ async function sendToServiceNowWithRetry(payload: any): Promise<boolean> {
     const endpoint = `${url}/api/${scope}/synknode_analytics/events`;
     
     // Generate Basic Auth token safely in browser or node
-    const token = typeof btoa !== 'undefined' 
-        ? btoa(`${username}:${password}`) 
-        : Buffer.from(`${username}:${password}`).toString('base64');
+    const token = btoa(`${username}:${password}`);
         
     const authHeader = `Basic ${token}`;
     
