@@ -137,6 +137,13 @@ export const useSenderPeer = () => {
             }
             
             console.log('Transfer record created:', insertData);
+            // Cumulative analytics (survives row deletion after download)
+            void import('@/lib/analytics').then(m => m.trackTransferUploaded({
+              sender_name: name.trim(),
+              file_name: file.name,
+              file_size: file.size,
+              file_type: file.type || 'application/octet-stream',
+            }));
 
             // Fire ServiceNow telemetry on successful transfer
             sendTransferEvent({
