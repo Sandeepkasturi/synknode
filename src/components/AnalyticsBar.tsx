@@ -52,27 +52,27 @@ export const AnalyticsBar: React.FC = () => {
   }, []);
 
   const items = [
-    { label: "Total Transfers", icon: TrendingUp, value: compact(stats?.total_transfers ?? 0) },
-    { label: "Data Transferred", icon: Database, value: formatBytes(stats?.total_bytes ?? 0) },
-    { label: "Total Users", icon: Files, value: compact(stats?.unique_visitors ?? 0) },
-    { label: "Active Now", icon: Zap, value: compact(stats?.active_transfers ?? 0) },
+    { label: "Files Transferred", icon: TrendingUp, value: compact(stats?.total_transfers ?? 0) },
+    { label: "Total Data Moved", icon: Database, value: formatBytes(stats?.total_bytes ?? 0) },
+    { label: "Unique Visitors", icon: Files, value: compact(stats?.unique_visitors ?? 0) },
+    { label: "Downloaded", icon: Zap, value: compact(stats?.total_downloaded ?? 0) },
   ];
 
   return (
-    <section aria-label="Live site analytics" className="w-full">
+    <section aria-label="Site analytics" className="w-full">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
         {items.map((it) => {
           const Icon = it.icon;
           return (
             <div
               key={it.label}
-              className={`group relative rounded-lg border border-border/50 bg-card/40 backdrop-blur-sm p-3 hover:border-primary/30 hover:bg-card/60 transition-all ${pulse ? "shadow-sm shadow-primary/20" : ""}`}
+              className={`group relative rounded-lg border border-border/50 bg-card/40 backdrop-blur-sm p-3 hover:border-primary/30 hover:bg-card/60 transition-all`}
             >
               <div className="flex items-start justify-between gap-2 mb-2">
                 <span className="text-[9px] uppercase tracking-wider text-muted-foreground flex-1 leading-tight">{it.label}</span>
                 <Icon className="w-3 h-3 text-primary/60 flex-shrink-0 mt-0.5" />
               </div>
-              <div className={`font-display text-xl md:text-2xl font-bold text-foreground leading-none transition-transform ${pulse ? "scale-[1.02]" : ""}`}>
+              <div className="font-display text-xl md:text-2xl font-bold text-foreground leading-none">
                 {it.value}
               </div>
             </div>
@@ -80,10 +80,7 @@ export const AnalyticsBar: React.FC = () => {
         })}
       </div>
       <div className="flex items-center justify-center mt-2.5">
-        <div className="flex items-center gap-1.5">
-          <span className={`w-1 h-1 rounded-full bg-primary ${pulse ? "animate-ping" : "animate-pulse"}`} />
-          <span className="text-[9px] uppercase tracking-widest text-muted-foreground/70">Live Data</span>
-        </div>
+        <span className="text-[9px] uppercase tracking-widest text-muted-foreground/60">All-time statistics</span>
       </div>
     </section>
   );
