@@ -43,8 +43,11 @@ export const SenderQueue: React.FC = () => {
     return (bytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB';
   };
 
-  const formatTime = (timestamp: string) => {
-    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const formatDateTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const dateStr = date.toLocaleDateString([], { month: 'short', day: 'numeric', year: '2-digit' });
+    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return `${dateStr} · ${timeStr}`;
   };
 
   const groupedBySender = pendingFiles.reduce((acc, file) => {
@@ -101,7 +104,7 @@ export const SenderQueue: React.FC = () => {
                   <span className="font-medium text-sm text-foreground">{senderName}</span>
                   <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                     <Clock className="h-2.5 w-2.5" />
-                    {formatTime(files[0].created_at)}
+                    {formatDateTime(files[0].created_at)}
                   </span>
                 </div>
 

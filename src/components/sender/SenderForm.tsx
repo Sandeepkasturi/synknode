@@ -9,11 +9,14 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { OrbitalAnimation } from "@/components/OrbitalAnimation";
 import { SenderQueue } from "./SenderQueue";
+import { ShareNotification } from "@/components/ShareNotification";
 import { validateFiles, registerUserForHour, getRemainingHourlySlots } from "@/utils/fileTransfer.utils";
 
 export const SenderForm: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [name, setName] = useState<string>(() => localStorage.getItem('sender_name') || '');
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationData, setNotificationData] = useState({ fileCount: 0, senderName: '' });
   const { sendFiles, transferProgress } = useSenderPeer();
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
@@ -50,7 +53,13 @@ export const SenderForm: React.FC = () => {
     localStorage.setItem('sender_name', name.trim());
 
     try {
+      const fileCount = selectedFiles.length;
       await sendFiles(selectedFiles, name);
+      
+      // Show notification
+      setNotificationData({ fileCount, senderName: name.trim() });
+      setShowNotification(true);
+      
       setSelectedFiles([]);
     } catch (error) {
       console.error('Send failed:', error);
@@ -88,6 +97,13 @@ export const SenderForm: React.FC = () => {
 
   return (
     <div className="space-y-5">
+      <ShareNotification
+        isOpen={showNotification}
+        onClose={() => setShowNotification(false)}
+        senderName={notificationData.senderName}
+        fileCount={notificationData.fileCount}
+      />
+
       {/* Name Input */}
       <div className="space-y-1.5">
         <label className="text-sm font-medium text-foreground flex items-center gap-2">
