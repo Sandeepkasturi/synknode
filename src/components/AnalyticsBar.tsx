@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowUpRight, Database, Files, Users, Activity } from "lucide-react";
+import { Database, Files, TrendingUp, Zap } from "lucide-react";
 
 interface Stats {
   total_transfers: number;
@@ -52,41 +52,38 @@ export const AnalyticsBar: React.FC = () => {
   }, []);
 
   const items = [
-    { label: "Total Transfers", icon: ArrowUpRight, value: compact(stats?.total_transfers ?? 0), sub: `${compact(stats?.active_transfers ?? 0)} live` },
-    { label: "Data Transferred", icon: Database, value: formatBytes(stats?.total_bytes ?? 0), sub: `${compact(stats?.total_downloaded ?? 0)} delivered` },
-    { label: "Total Usage", icon: Files, value: compact((stats?.total_transfers ?? 0) + (stats?.total_visits ?? 0)), sub: "events + visits" },
-    { label: "Visitors", icon: Users, value: compact(stats?.unique_visitors ?? 0), sub: `${compact(stats?.visitors_24h ?? 0)} today` },
+    { label: "Total Transfers", icon: TrendingUp, value: compact(stats?.total_transfers ?? 0) },
+    { label: "Data Transferred", icon: Database, value: formatBytes(stats?.total_bytes ?? 0) },
+    { label: "Total Users", icon: Files, value: compact(stats?.unique_visitors ?? 0) },
+    { label: "Active Now", icon: Zap, value: compact(stats?.active_transfers ?? 0) },
   ];
 
   return (
     <section aria-label="Live site analytics" className="w-full">
-      <div className="flex items-center justify-between mb-3 px-1">
-        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-          <span className={`w-1.5 h-1.5 rounded-full bg-primary ${pulse ? "animate-ping" : "animate-pulse"}`} />
-          Live Analytics
-        </div>
-        <Activity className="w-3.5 h-3.5 text-muted-foreground" />
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
         {items.map((it) => {
           const Icon = it.icon;
           return (
             <div
               key={it.label}
-              className="group relative rounded-xl border border-border/60 bg-card/70 backdrop-blur-sm p-4 hover:border-primary/40 hover:shadow-md transition-all"
+              className={`group relative rounded-lg border border-border/50 bg-card/40 backdrop-blur-sm p-3 hover:border-primary/30 hover:bg-card/60 transition-all ${pulse ? "shadow-sm shadow-primary/20" : ""}`}
             >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{it.label}</span>
-                <Icon className="w-3.5 h-3.5 text-primary/70" />
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <span className="text-[9px] uppercase tracking-wider text-muted-foreground flex-1 leading-tight">{it.label}</span>
+                <Icon className="w-3 h-3 text-primary/60 flex-shrink-0 mt-0.5" />
               </div>
-              <div className={`font-display text-2xl md:text-3xl font-bold text-foreground leading-none transition-transform ${pulse ? "scale-[1.03]" : ""}`}>
+              <div className={`font-display text-xl md:text-2xl font-bold text-foreground leading-none transition-transform ${pulse ? "scale-[1.02]" : ""}`}>
                 {it.value}
               </div>
-              <p className="text-[10px] text-muted-foreground mt-1.5">{it.sub}</p>
             </div>
           );
         })}
+      </div>
+      <div className="flex items-center justify-center mt-2.5">
+        <div className="flex items-center gap-1.5">
+          <span className={`w-1 h-1 rounded-full bg-primary ${pulse ? "animate-ping" : "animate-pulse"}`} />
+          <span className="text-[9px] uppercase tracking-widest text-muted-foreground/70">Live Data</span>
+        </div>
       </div>
     </section>
   );

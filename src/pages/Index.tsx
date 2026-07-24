@@ -13,10 +13,12 @@ const Index: React.FC = () => {
         <Header />
 
         <main className="container max-w-3xl mx-auto px-4 pt-28 pb-16">
-          <div className="flex flex-col items-center gap-10">
+          <div className="flex flex-col items-center gap-6">
             <HeroSection />
 
-            <AnalyticsBar />
+            <div className="w-full px-1">
+              <AnalyticsBar />
+            </div>
 
             <div className="w-full rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-6 shadow-sm">
               <MainTabs />
