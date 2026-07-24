@@ -6,10 +6,8 @@ interface Stats {
   total_transfers: number;
   total_bytes: number;
   total_downloaded: number;
-  active_transfers: number;
   unique_visitors: number;
   total_visits: number;
-  visitors_24h: number;
 }
 
 const formatBytes = (b: number) => {
@@ -23,26 +21,30 @@ const compact = (n: number) => new Intl.NumberFormat("en", { notation: "compact"
 
 export const AnalyticsBar: React.FC = () => {
   const [stats, setStats] = useState<Stats | null>(null);
-  const [pulse, setPulse] = useState(false);
 
   const load = async () => {
-    const { data } = await supabase.rpc("get_site_analytics");
+    // Query analytics from 2025-01-01 to 2026-12-31 (1 year+ period)
+    const startDate = new Date("2025-01-01T00:00:00Z").toISOString();
+    const endDate = new Date("2026-12-31T23:59:59Z").toISOString();
+    
+    const { data } = await supabase.rpc("get_analytics_by_date_range", {
+      start_date: startDate,
+      end_date: endDate,
+    });
+    
     if (data) {
       setStats(data as unknown as Stats);
-      setPulse(true);
-      setTimeout(() => setPulse(false), 800);
     }
   };
 
   useEffect(() => {
     load();
-    const iv = setInterval(load, 15000);
+    const iv = setInterval(load, 30000);
 
     const channel = supabase
       .channel("site-analytics")
       .on("postgres_changes", { event: "*", schema: "public", table: "transfer_events" }, load)
       .on("postgres_changes", { event: "*", schema: "public", table: "site_visits" }, load)
-      .on("postgres_changes", { event: "*", schema: "public", table: "pending_transfers" }, load)
       .subscribe();
 
     return () => {
@@ -59,7 +61,12 @@ export const AnalyticsBar: React.FC = () => {
   ];
 
   return (
-    <section aria-label="Site analytics" className="w-full">
+    <section aria-label="Site analytics" className="w-full space-y-2.5">
+      <div className="flex items-center justify-between px-0.5">
+        <span className="text-[10px] uppercase tracking-widest font-medium text-primary/80">Performance Report</span>
+        <span className="text-[9px] text-muted-foreground/70">Jan 2025 - Dec 2026</span>
+      </div>
+      
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
         {items.map((it) => {
           const Icon = it.icon;
@@ -78,9 +85,6 @@ export const AnalyticsBar: React.FC = () => {
             </div>
           );
         })}
-      </div>
-      <div className="flex items-center justify-center mt-2.5">
-        <span className="text-[9px] uppercase tracking-widest text-muted-foreground/60">All-time statistics</span>
       </div>
     </section>
   );
