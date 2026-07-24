@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Database, Files, TrendingUp, Zap } from "lucide-react";
+import { Database, Files, TrendingUp, Zap, HardDrive, Download } from "lucide-react";
 
 interface Stats {
   total_transfers: number;
@@ -8,6 +8,10 @@ interface Stats {
   total_downloaded: number;
   unique_visitors: number;
   total_visits: number;
+  all_time_files: number;
+  all_time_bytes: number;
+  all_time_downloaded: number;
+  all_time_visitors: number;
 }
 
 const formatBytes = (b: number) => {
@@ -23,11 +27,11 @@ export const AnalyticsBar: React.FC = () => {
   const [stats, setStats] = useState<Stats | null>(null);
 
   const load = async () => {
-    // Query analytics from Nov 2024 to now
+    // Query enhanced analytics from Nov 2024 to now (also includes all-time totals)
     const startDate = new Date("2024-11-01T00:00:00Z").toISOString();
     const endDate = new Date().toISOString();
     
-    const { data } = await supabase.rpc("get_analytics_by_date_range", {
+    const { data } = await supabase.rpc("get_analytics_enhanced", {
       start_date: startDate,
       end_date: endDate,
     });
@@ -54,17 +58,17 @@ export const AnalyticsBar: React.FC = () => {
   }, []);
 
   const items = [
-    { label: "Files Transferred", icon: TrendingUp, value: compact(stats?.total_transfers ?? 0) },
-    { label: "Total Data Moved", icon: Database, value: formatBytes(stats?.total_bytes ?? 0) },
-    { label: "Unique Visitors", icon: Files, value: compact(stats?.unique_visitors ?? 0) },
-    { label: "Downloaded", icon: Zap, value: compact(stats?.total_downloaded ?? 0) },
+    { label: "Files Stored", icon: HardDrive, value: compact(stats?.all_time_files ?? 0), sub: `${compact(stats?.total_transfers ?? 0)} this period` },
+    { label: "Data Moved", icon: Database, value: formatBytes(stats?.all_time_bytes ?? 0), sub: `${formatBytes(stats?.total_bytes ?? 0)} this period` },
+    { label: "Downloaded", icon: Download, value: compact(stats?.all_time_downloaded ?? 0), sub: `${compact(stats?.total_downloaded ?? 0)} this period` },
+    { label: "Visitors", icon: Files, value: compact(stats?.all_time_visitors ?? 0), sub: `${compact(stats?.unique_visitors ?? 0)} this period` },
   ];
 
   return (
     <section aria-label="Site analytics" className="w-full space-y-1.5">
       <div className="flex items-center justify-between px-0.5">
         <span className="text-[9px] uppercase tracking-widest font-medium text-primary/70">Analytics</span>
-        <span className="text-[8px] text-muted-foreground/60">Nov 2024 - Today</span>
+        <span className="text-[8px] text-muted-foreground/60">All-time + Nov 2024 - Today</span>
       </div>
       
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -82,6 +86,11 @@ export const AnalyticsBar: React.FC = () => {
               <div className="font-display text-lg md:text-xl font-bold text-foreground leading-none">
                 {it.value}
               </div>
+              {it.sub && (
+                <div className="text-[7px] text-muted-foreground/60 mt-0.5 leading-tight">
+                  {it.sub}
+                </div>
+              )}
             </div>
           );
         })}
