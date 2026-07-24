@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { Analytics } from "@vercel/analytics/react";
 import { AuthProvider } from "@/context/AuthContext";
 import { sendVisitEvent } from "@/lib/servicenow";
+import { trackVisit, runExpirationSweep } from "@/lib/analytics";
 import Index from "./pages/Index";
 import Features from "./pages/Features";
 import About from "./pages/About";
@@ -19,6 +20,10 @@ const queryClient = new QueryClient();
 const App = () => {
   useEffect(() => {
     sendVisitEvent();
+    trackVisit();
+    runExpirationSweep();
+    const iv = setInterval(runExpirationSweep, 15 * 60 * 1000);
+    return () => clearInterval(iv);
   }, []);
 
   return (

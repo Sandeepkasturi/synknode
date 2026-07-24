@@ -77,6 +77,57 @@ export type Database = {
         }
         Relationships: []
       }
+      site_visits: {
+        Row: {
+          created_at: string
+          id: string
+          user_agent: string | null
+          visitor_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_agent?: string | null
+          visitor_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_agent?: string | null
+          visitor_id?: string
+        }
+        Relationships: []
+      }
+      transfer_events: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_size: number
+          file_type: string | null
+          id: string
+          sender_name: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_size: number
+          file_type?: string | null
+          id?: string
+          sender_name: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_size?: number
+          file_type?: string | null
+          id?: string
+          sender_name?: string
+          status?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -100,6 +151,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      expire_stale_transfers: { Args: never; Returns: number }
+      get_site_analytics: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
