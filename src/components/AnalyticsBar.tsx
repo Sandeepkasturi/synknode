@@ -23,9 +23,9 @@ export const AnalyticsBar: React.FC = () => {
   const [stats, setStats] = useState<Stats | null>(null);
 
   const load = async () => {
-    // Query analytics from 2025-01-01 to 2026-12-31 (1 year+ period)
-    const startDate = new Date("2025-01-01T00:00:00Z").toISOString();
-    const endDate = new Date("2026-12-31T23:59:59Z").toISOString();
+    // Query analytics from Nov 2024 to now
+    const startDate = new Date("2024-11-01T00:00:00Z").toISOString();
+    const endDate = new Date().toISOString();
     
     const { data } = await supabase.rpc("get_analytics_by_date_range", {
       start_date: startDate,
@@ -61,25 +61,25 @@ export const AnalyticsBar: React.FC = () => {
   ];
 
   return (
-    <section aria-label="Site analytics" className="w-full space-y-2.5">
+    <section aria-label="Site analytics" className="w-full space-y-1.5">
       <div className="flex items-center justify-between px-0.5">
-        <span className="text-[10px] uppercase tracking-widest font-medium text-primary/80">Performance Report</span>
-        <span className="text-[9px] text-muted-foreground/70">Jan 2025 - Dec 2026</span>
+        <span className="text-[9px] uppercase tracking-widest font-medium text-primary/70">Analytics</span>
+        <span className="text-[8px] text-muted-foreground/60">Nov 2024 - Today</span>
       </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         {items.map((it) => {
           const Icon = it.icon;
           return (
             <div
               key={it.label}
-              className={`group relative rounded-lg border border-border/50 bg-card/40 backdrop-blur-sm p-3 hover:border-primary/30 hover:bg-card/60 transition-all`}
+              className="group relative rounded-md border border-border/40 bg-card/30 backdrop-blur-sm p-2 hover:border-primary/25 hover:bg-card/50 transition-all"
             >
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <span className="text-[9px] uppercase tracking-wider text-muted-foreground flex-1 leading-tight">{it.label}</span>
-                <Icon className="w-3 h-3 text-primary/60 flex-shrink-0 mt-0.5" />
+              <div className="flex items-start justify-between gap-1.5 mb-1">
+                <span className="text-[8px] uppercase tracking-wider text-muted-foreground/80 flex-1 leading-tight">{it.label}</span>
+                <Icon className="w-2.5 h-2.5 text-primary/50 flex-shrink-0 mt-0.5" />
               </div>
-              <div className="font-display text-xl md:text-2xl font-bold text-foreground leading-none">
+              <div className="font-display text-lg md:text-xl font-bold text-foreground leading-none">
                 {it.value}
               </div>
             </div>
