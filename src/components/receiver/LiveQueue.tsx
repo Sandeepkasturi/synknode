@@ -67,6 +67,12 @@ export const LiveQueue: React.FC = () => {
           await supabase.from('pending_transfers').update({ downloaded: true }).eq('id', file.dbId);
           if (file.storagePath) await supabase.storage.from('pending-files').remove([file.storagePath]);
           await supabase.from('pending_transfers').delete().eq('id', file.dbId);
+          void import('@/lib/analytics').then(m => m.trackTransferDownloaded({
+            sender_name: entry.senderName,
+            file_name: file.name,
+            file_size: file.size ?? 0,
+            file_type: file.type ?? null,
+          }));
         }
       }
       updateEntryStatus(entryId, 'completed');
