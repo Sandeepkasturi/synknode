@@ -2,11 +2,11 @@ import React from 'react';
 import { Github, Globe, Mail, ExternalLink, Linkedin, Twitter, Shield, FileText, Sparkles, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '@/assets/logo.png';
-import skavtechLogo from '@/assets/skavtech-logo.png.asset.json';
+import skavtechLogo from '@/assets/skavtech-logo.png';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="border-t border-border/40 mt-16 bg-gradient-to-b from-transparent to-secondary/20" id="about">
+    <footer className="border-t border-border/40 mt-16 bg-gradient-to-b from-transparent to-secondary/30" id="about">
       <div className="container max-w-6xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
           {/* LEFT: SynkNode / Developer / Product Links */}
@@ -71,56 +71,56 @@ export const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* RIGHT: Company panel */}
+          {/* RIGHT: Company panel — themed */}
           <div className="relative">
-            <div className="rounded-2xl bg-[#0a0a0a] p-6 md:p-7 border border-border/50 shadow-lg overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-transparent pointer-events-none" />
+            <div className="rounded-2xl bg-card p-6 md:p-7 border border-border shadow-md overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
 
               <div className="relative flex items-center gap-4">
-                <div className="w-20 h-20 md:w-24 md:h-24 flex-shrink-0 rounded-xl bg-black/40 p-2 flex items-center justify-center">
+                <div className="w-20 h-20 md:w-24 md:h-24 flex-shrink-0 rounded-xl bg-white p-2 flex items-center justify-center ring-1 ring-border shadow-sm">
                   <img
-                    src={skavtechLogo.url}
+                    src={skavtechLogo}
                     alt="SKAV TECH — AI Innovation Lab"
-                    className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(59,130,246,0.35)]"
+                    className="w-full h-full object-contain"
                   />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] uppercase tracking-[0.25em] text-blue-400/80 mb-1">A Project By</p>
-                  <h3 className="font-display font-bold text-xl md:text-2xl text-white leading-tight">SKAV TECH</h3>
-                  <p className="text-xs text-white/60 mt-0.5">AI Innovation Lab</p>
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-primary/80 mb-1">A Project By</p>
+                  <h3 className="font-display font-bold text-xl md:text-2xl text-foreground leading-tight">SKAV TECH</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">AI Innovation Lab</p>
                 </div>
               </div>
 
-              <p className="relative text-xs text-white/70 leading-relaxed mt-5">
+              <p className="relative text-xs text-muted-foreground leading-relaxed mt-5">
                 We build intelligent, privacy-first tools for creators and teams —
                 combining thoughtful design with modern AI infrastructure.
               </p>
 
-              <div className="relative mt-5 pt-5 border-t border-white/10">
-                <p className="text-[10px] uppercase tracking-widest text-white/40 mb-3">Company Links</p>
+              <div className="relative mt-5 pt-5 border-t border-border">
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3">Company Links</p>
                 <div className="grid grid-cols-2 gap-2">
                   <a href="https://skavtechs.vercel.app" target="_blank" rel="noopener noreferrer"
-                    className="group inline-flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-white transition">
+                    className="group inline-flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-secondary/60 hover:bg-secondary border border-border text-xs text-foreground transition">
                     <span className="inline-flex items-center gap-1.5"><Globe className="w-3 h-3" /> Website</span>
                     <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
                   </a>
                   <a href="https://github.com/sandeepkasturi" target="_blank" rel="noopener noreferrer"
-                    className="group inline-flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-white transition">
+                    className="group inline-flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-secondary/60 hover:bg-secondary border border-border text-xs text-foreground transition">
                     <span className="inline-flex items-center gap-1.5"><Github className="w-3 h-3" /> GitHub</span>
                     <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
                   </a>
                   <a href="https://www.linkedin.com/in/sandeepkasturi/" target="_blank" rel="noopener noreferrer"
-                    className="group inline-flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-white transition">
+                    className="group inline-flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-secondary/60 hover:bg-secondary border border-border text-xs text-foreground transition">
                     <span className="inline-flex items-center gap-1.5"><Linkedin className="w-3 h-3" /> LinkedIn</span>
                     <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
                   </a>
                   <a href="https://twitter.com/skavtech" target="_blank" rel="noopener noreferrer"
-                    className="group inline-flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-white transition">
+                    className="group inline-flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-secondary/60 hover:bg-secondary border border-border text-xs text-foreground transition">
                     <span className="inline-flex items-center gap-1.5"><Twitter className="w-3 h-3" /> Twitter</span>
                     <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
                   </a>
                   <a href="mailto:skavtech.in@gmail.com"
-                    className="group col-span-2 inline-flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-blue-500/15 hover:bg-blue-500/25 border border-blue-400/20 text-xs text-white transition">
+                    className="group col-span-2 inline-flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 border border-primary/20 text-xs text-foreground transition">
                     <span className="inline-flex items-center gap-1.5"><Mail className="w-3 h-3" /> skavtech.in@gmail.com</span>
                     <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
                   </a>
