@@ -109,14 +109,9 @@ export const Footer: React.FC = () => {
                     <span className="inline-flex items-center gap-1.5"><Github className="w-3 h-3" /> GitHub</span>
                     <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
                   </a>
-                  <a href="https://www.linkedin.com/in/sandeepkasturi/" target="_blank" rel="noopener noreferrer"
+                  <a href="https://linkedin.com/in/sandeepkasturi9" target="_blank" rel="noopener noreferrer"
                     className="group inline-flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-secondary/60 hover:bg-secondary border border-border text-xs text-foreground transition">
                     <span className="inline-flex items-center gap-1.5"><Linkedin className="w-3 h-3" /> LinkedIn</span>
-                    <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
-                  </a>
-                  <a href="https://twitter.com/skavtech" target="_blank" rel="noopener noreferrer"
-                    className="group inline-flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-secondary/60 hover:bg-secondary border border-border text-xs text-foreground transition">
-                    <span className="inline-flex items-center gap-1.5"><Twitter className="w-3 h-3" /> Twitter</span>
                     <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
                   </a>
                   <a href="mailto:skavtech.in@gmail.com"
