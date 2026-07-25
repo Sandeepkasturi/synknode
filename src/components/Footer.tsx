@@ -1,5 +1,5 @@
 import React from 'react';
-import { Github, Globe, Mail, ExternalLink, Linkedin, Twitter, Shield, FileText, Sparkles, Info } from 'lucide-react';
+import { Github, Globe, Mail, ExternalLink, Linkedin, Shield, FileText, Sparkles, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '@/assets/logo.png';
 import skavtechLogo from '@/assets/skavtech-logo.png';
