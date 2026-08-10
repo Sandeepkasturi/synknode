@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
-import { Loader2, User, Lock } from "lucide-react";
+import { Loader2, User, Lock, ShieldCheck, Eye, EyeOff, ArrowRight } from "lucide-react";
 
 interface LoginDialogProps {
     open: boolean;
@@ -16,6 +16,7 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({ open, onOpenChange }) 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleLogin = async () => {
         if (!username.trim()) {
