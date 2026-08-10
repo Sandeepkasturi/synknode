@@ -34,6 +34,9 @@ export const LiveQueue: React.FC = () => {
   const formatTime = (timestamp: number) =>
     new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+  const formatDate = (timestamp: number) =>
+    new Date(timestamp).toLocaleDateString([], { day: '2-digit', month: 'short' });
+
   const downloadFile = (blob: Blob, fileName: string, senderName: string) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
