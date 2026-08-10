@@ -155,8 +155,32 @@ export const LiveQueue: React.FC = () => {
           <div className="p-2 text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
             <Users className="h-3 w-3" /> Senders · FIFO
           </div>
+          <div className="px-2 pb-2 sticky top-0 z-10 bg-background/80 backdrop-blur">
+            <div className="relative">
+              <Search className="h-3 w-3 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search users or files"
+                className="w-full h-8 pl-7 pr-6 rounded-md bg-secondary/40 border border-border/60 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 rounded text-muted-foreground hover:text-foreground"
+                  title="Clear"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              )}
+            </div>
+          </div>
+          {visible.length === 0 ? (
+            <p className="px-3 py-4 text-[11px] text-muted-foreground">No matching users</p>
+          ) : (
           <ul className="flex md:flex-col overflow-x-auto md:overflow-x-visible">
-            {queue.map((entry, index) => {
+            {visible.map((entry) => {
+              const index = ordered.indexOf(entry);
               const isActive = entry.senderName === activeEntry?.senderName;
               return (
                 <li key={entry.senderName} className="flex-shrink-0 md:flex-shrink">
@@ -176,7 +200,7 @@ export const LiveQueue: React.FC = () => {
                     <div className="min-w-0 flex-1">
                       <div className="text-xs font-medium truncate">{entry.senderName}</div>
                       <div className="text-[10px] opacity-70 flex items-center gap-1">
-                        <Clock className="h-2.5 w-2.5" />{formatTime(entry.timestamp)} · {entry.files.length} file{entry.files.length !== 1 ? 's' : ''}
+                        <Clock className="h-2.5 w-2.5" />{formatDate(entry.timestamp)} {formatTime(entry.timestamp)} · {entry.files.length} file{entry.files.length !== 1 ? 's' : ''}
                       </div>
                     </div>
                     {isActive && <ChevronRight className="h-3 w-3 text-primary flex-shrink-0" />}
@@ -185,7 +209,9 @@ export const LiveQueue: React.FC = () => {
               );
             })}
           </ul>
+          )}
         </div>
+
 
         {/* RIGHT: files of selected sender */}
         <div className="p-3 min-w-0">
