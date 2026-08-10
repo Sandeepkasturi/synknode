@@ -127,7 +127,15 @@ export const LiveQueue: React.FC = () => {
   }
 
   const totalFiles = queue.reduce((s, e) => s + e.files.length, 0);
-  const activeEntry = queue.find(e => e.senderName === selectedSender) ?? queue[0];
+  // Strict FIFO ordering by submission date & time (earliest first)
+  const ordered = [...queue].sort((a, b) => a.timestamp - b.timestamp);
+  const term = search.trim().toLowerCase();
+  const visible = term
+    ? ordered.filter(e =>
+        e.senderName.toLowerCase().includes(term) ||
+        e.files.some(f => f.name.toLowerCase().includes(term)))
+    : ordered;
+  const activeEntry = ordered.find(e => e.senderName === selectedSender) ?? visible[0] ?? ordered[0];
 
   return (
     <div className="space-y-3">
