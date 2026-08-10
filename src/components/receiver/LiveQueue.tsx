@@ -15,6 +15,7 @@ export const LiveQueue: React.FC = () => {
   const [previewFile, setPreviewFile] = useState<QueueFile | null>(null);
   const [previewSender, setPreviewSender] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [search, setSearch] = useState("");
 
   // Auto-select first sender when queue populates
   useEffect(() => {
