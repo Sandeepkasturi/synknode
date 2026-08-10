@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useQueue } from "@/context/QueueContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Download, User, Clock, FileIcon, Trash2, FolderOpen, CheckCircle, Users, Eye, ShieldAlert, ChevronRight } from "lucide-react";
+import { Download, User, Clock, FileIcon, Trash2, FolderOpen, CheckCircle, Users, Eye, ShieldAlert, ChevronRight, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
