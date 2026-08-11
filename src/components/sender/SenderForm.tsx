@@ -212,6 +212,30 @@ export const SenderForm: React.FC = () => {
         )}
       </div>
 
+      {selectedFiles.length > 0 && (
+        <div className="flex items-center justify-between gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={open}
+            disabled={transferProgress.active}
+          >
+            <Plus className="h-4 w-4 mr-1.5" />
+            Add more files
+          </Button>
+          <button
+            type="button"
+            onClick={() => setSelectedFiles([])}
+            disabled={transferProgress.active}
+            className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+          >
+            Clear all
+          </button>
+        </div>
+      )}
+
+
       {/* Connecting state */}
       {transferProgress.active && transferProgress.status === 'connecting' && (
         <motion.div
