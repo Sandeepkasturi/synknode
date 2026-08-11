@@ -1,10 +1,11 @@
 import React, { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, File, X, Send, User } from "lucide-react";
+import { Upload, File, X, Send, User, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useSenderPeer } from "@/hooks/useSenderPeer";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { OrbitalAnimation } from "@/components/OrbitalAnimation";
@@ -14,23 +15,56 @@ import { validateFiles, registerUserForHour, getRemainingHourlySlots } from "@/u
 export const SenderForm: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [name, setName] = useState<string>(() => localStorage.getItem('sender_name') || '');
+  const [checkingName, setCheckingName] = useState(false);
   const { sendFiles, transferProgress } = useSenderPeer();
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const validFiles = await validateFiles(acceptedFiles);
-    if (validFiles.length > 0) {
-      setSelectedFiles(prev => [...prev, ...validFiles]);
-      toast.success(`${validFiles.length} file(s) added`);
-    }
+    if (validFiles.length === 0) return;
+
+    setSelectedFiles(prev => {
+      const seen = new Set(prev.map(f => `${f.name}|${f.size}|${f.lastModified}`));
+      const fresh = validFiles.filter(f => !seen.has(`${f.name}|${f.size}|${f.lastModified}`));
+      const skipped = validFiles.length - fresh.length;
+
+      if (fresh.length > 0) toast.success(`${fresh.length} file(s) added`);
+      if (skipped > 0) toast.info(`${skipped} file(s) already in your list`);
+
+      return [...prev, ...fresh];
+    });
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
-    multiple: true
+    multiple: true,
+    noClick: false
   });
 
   const removeFile = (index: number) => {
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Returns true when the name is free (or already owned by this device)
+  const isUsernameAvailable = async (candidate: string) => {
+    const ownName = localStorage.getItem('sender_name');
+    if (ownName && ownName.toLowerCase() === candidate.toLowerCase()) return true;
+
+    const { data, error } = await supabase
+      .from('pending_transfers')
+      .select('sender_name')
+      .ilike('sender_name', candidate)
+      .eq('downloaded', false)
+      .limit(1);
+
+    if (error) return true; // don't block on lookup failure
+    if (data && data.length > 0) {
+      const suggestion = `${candidate}_${Math.floor(Math.random() * 90 + 10)}`;
+      toast.error(`Username "${candidate}" already exists`, {
+        description: `Someone is already in the queue with this name. Try something different — for example "${suggestion}".`
+      });
+      return false;
+    }
+    return true;
   };
 
   const handleSend = async () => {
@@ -42,6 +76,11 @@ export const SenderForm: React.FC = () => {
       toast.error("Please select files to send");
       return;
     }
+
+    setCheckingName(true);
+    const available = await isUsernameAvailable(name.trim());
+    setCheckingName(false);
+    if (!available) return;
 
     if (!registerUserForHour(name.trim())) {
       return;
@@ -56,6 +95,7 @@ export const SenderForm: React.FC = () => {
       console.error('Send failed:', error);
     }
   };
+
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B';
