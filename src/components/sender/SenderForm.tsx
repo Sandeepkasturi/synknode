@@ -255,13 +255,14 @@ export const SenderForm: React.FC = () => {
       {/* Send Button */}
       <Button
         onClick={handleSend}
-        disabled={selectedFiles.length === 0 || !name.trim() || transferProgress.active}
+        disabled={selectedFiles.length === 0 || !name.trim() || transferProgress.active || checkingName}
         className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
         size="lg"
       >
         <Send className="h-4 w-4 mr-2" />
-        {transferProgress.active ? 'Sending…' : `Send ${selectedFiles.length} File(s)`}
+        {checkingName ? 'Checking name…' : transferProgress.active ? 'Sending…' : `Send ${selectedFiles.length} File(s)`}
       </Button>
+
 
       {/* Queue */}
       <div className="pt-5 border-t border-border/50">
