@@ -1,29 +1,35 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useQueue } from "@/context/QueueContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Download, User, Clock, FileIcon, Trash2, FolderOpen, CheckCircle, Users, Eye, ShieldAlert, ChevronRight, Search, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {
+  Download, Clock, FileIcon, Trash2, FolderOpen, CheckCircle,
+  Eye, ShieldAlert, ChevronRight, Search, X, SlidersHorizontal,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { QueueFile } from "@/types/queue.types";
+import { QueueFile, QueueEntry } from "@/types/queue.types";
 import { FilePreview } from "./FilePreview";
 import { getFileSecurityIssue } from "@/utils/fileTransfer.utils";
 
+type SortKey = "fifo" | "newest" | "most";
+
 export const LiveQueue: React.FC = () => {
   const { queue, removeFromQueue, updateEntryStatus } = useQueue();
-  const [selectedSender, setSelectedSender] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<string | null>(null);
   const [previewFile, setPreviewFile] = useState<QueueFile | null>(null);
   const [previewSender, setPreviewSender] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [sort, setSort] = useState<SortKey>("fifo");
+  const [pendingOnly, setPendingOnly] = useState(false);
 
-  // Auto-select first sender when queue populates
+  const ordered = useMemo(() => [...queue].sort((a, b) => a.timestamp - b.timestamp), [queue]);
+
+  // Auto-expand the first sender in line
   useEffect(() => {
-    if (queue.length > 0 && (!selectedSender || !queue.find(q => q.senderName === selectedSender))) {
-      setSelectedSender(queue[0].senderName);
-    }
-    if (queue.length === 0) setSelectedSender(null);
-  }, [queue, selectedSender]);
+    if (ordered.length === 0) { setExpanded(null); return; }
+    if (!expanded || !ordered.find(e => e.id === expanded)) setExpanded(ordered[0].id);
+  }, [ordered, expanded]);
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B';
@@ -31,12 +37,8 @@ export const LiveQueue: React.FC = () => {
     if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
     return (bytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB';
   };
-
-  const formatTime = (timestamp: number) =>
-    new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-  const formatDate = (timestamp: number) =>
-    new Date(timestamp).toLocaleDateString([], { day: '2-digit', month: 'short' });
+  const formatStamp = (ts: number) =>
+    new Date(ts).toLocaleString([], { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 
   const downloadFile = (blob: Blob, fileName: string, senderName: string) => {
     const url = URL.createObjectURL(blob);
@@ -114,6 +116,21 @@ export const LiveQueue: React.FC = () => {
     setPreviewOpen(true);
   };
 
+  const term = search.trim().toLowerCase();
+  const filtered = useMemo(() => {
+    let list = ordered;
+    if (term) {
+      list = list.filter(e =>
+        e.senderName.toLowerCase().includes(term) ||
+        e.files.some(f => f.name.toLowerCase().includes(term)));
+    }
+    if (pendingOnly) list = list.filter(e => e.status !== 'completed');
+    const sorted = [...list];
+    if (sort === 'newest') sorted.sort((a, b) => b.timestamp - a.timestamp);
+    else if (sort === 'most') sorted.sort((a, b) => b.files.length - a.files.length);
+    return sorted;
+  }, [ordered, term, pendingOnly, sort]);
+
   if (queue.length === 0) {
     return (
       <div className="text-center py-10">
@@ -127,186 +144,185 @@ export const LiveQueue: React.FC = () => {
   }
 
   const totalFiles = queue.reduce((s, e) => s + e.files.length, 0);
-  // Strict FIFO ordering by submission date & time (earliest first)
-  const ordered = [...queue].sort((a, b) => a.timestamp - b.timestamp);
-  const term = search.trim().toLowerCase();
-  const visible = term
-    ? ordered.filter(e =>
-        e.senderName.toLowerCase().includes(term) ||
-        e.files.some(f => f.name.toLowerCase().includes(term)))
-    : ordered;
-  const activeEntry = ordered.find(e => e.senderName === selectedSender) ?? visible[0] ?? ordered[0];
+  const pendingCount = queue.filter(e => e.status !== 'completed').length;
+
+  const chip = (active: boolean) =>
+    `px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors border ${
+      active
+        ? 'bg-primary text-primary-foreground border-primary'
+        : 'bg-secondary/40 text-muted-foreground border-border/60 hover:text-foreground'
+    }`;
+
+  const totalSize = (entry: QueueEntry) => entry.files.reduce((s, f) => s + (f.size || 0), 0);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <FilePreview file={previewFile} senderName={previewSender} open={previewOpen} onOpenChange={setPreviewOpen} />
 
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-          Queue
-          <span className="text-xs text-muted-foreground">({totalFiles} files · {queue.length} users)</span>
-        </h3>
+      {/* Header */}
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h3 className="font-serif text-2xl leading-none text-primary">Queue</h3>
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground mt-1">
+            {totalFiles} files · {queue.length} users
+          </p>
+        </div>
+        <span className="p-2 rounded-full bg-secondary/40 border border-border/60 text-primary">
+          <SlidersHorizontal className="h-4 w-4" />
+        </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-3 rounded-xl border border-border/50 bg-secondary/10 overflow-hidden">
-        {/* LEFT: user list */}
-        <div className="border-b md:border-b-0 md:border-r border-border/50 bg-background/40 max-h-[420px] overflow-y-auto">
-          <div className="p-2 text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <Users className="h-3 w-3" /> Senders · FIFO
-          </div>
-          <div className="px-2 pb-2 sticky top-0 z-10 bg-background/80 backdrop-blur">
-            <div className="relative">
-              <Search className="h-3 w-3 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search users or files"
-                className="w-full h-8 pl-7 pr-6 rounded-md bg-secondary/40 border border-border/60 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
-              />
-              {search && (
-                <button
-                  onClick={() => setSearch("")}
-                  className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 rounded text-muted-foreground hover:text-foreground"
-                  title="Clear"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              )}
-            </div>
-          </div>
-          {visible.length === 0 ? (
-            <p className="px-3 py-4 text-[11px] text-muted-foreground">No matching users</p>
-          ) : (
-          <ul className="flex md:flex-col overflow-x-auto md:overflow-x-visible">
-            {visible.map((entry) => {
-              const index = ordered.indexOf(entry);
-              const isActive = entry.senderName === activeEntry?.senderName;
-              return (
-                <li key={entry.senderName} className="flex-shrink-0 md:flex-shrink">
-                  <button
-                    onClick={() => setSelectedSender(entry.senderName)}
-                    className={`w-full flex items-center gap-2 px-3 py-2.5 text-left border-l-2 transition-all ${
-                      isActive
-                        ? 'bg-primary/10 border-primary text-foreground'
-                        : 'border-transparent text-muted-foreground hover:bg-primary/5 hover:text-foreground'
-                    }`}
-                  >
-                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
-                      entry.status === 'completed' ? 'bg-green-500 text-white' : isActive ? 'bg-primary text-primary-foreground' : 'bg-primary/15 text-primary'
-                    }`}>
-                      {entry.status === 'completed' ? <CheckCircle className="h-3 w-3" /> : `#${index + 1}`}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-xs font-medium truncate">{entry.senderName}</div>
-                      <div className="text-[10px] opacity-70 flex items-center gap-1">
-                        <Clock className="h-2.5 w-2.5" />{formatDate(entry.timestamp)} {formatTime(entry.timestamp)} · {entry.files.length} file{entry.files.length !== 1 ? 's' : ''}
-                      </div>
-                    </div>
-                    {isActive && <ChevronRight className="h-3 w-3 text-primary flex-shrink-0" />}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+      {/* Search + filters */}
+      <div className="space-y-3">
+        <div className="relative">
+          <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search users or files..."
+            className="w-full bg-secondary/40 border border-border/60 rounded-xl py-2.5 pl-10 pr-9 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded text-muted-foreground hover:text-foreground"
+              title="Clear"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
           )}
         </div>
-
-
-        {/* RIGHT: files of selected sender */}
-        <div className="p-3 min-w-0">
-          <AnimatePresence mode="wait">
-            {activeEntry && (
-              <motion.div
-                key={activeEntry.id}
-                initial={{ opacity: 0, x: 8 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -8 }}
-                transition={{ duration: 0.18 }}
-              >
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <User className="h-3.5 w-3.5 text-primary" />
-                      <span className="font-semibold text-sm text-foreground truncate">{activeEntry.senderName}</span>
-                    </div>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">
-                      {activeEntry.files.length} file{activeEntry.files.length !== 1 ? 's' : ''} · click any file to preview
-                    </p>
-                  </div>
-                  <div className="flex gap-1.5 flex-shrink-0">
-                    <Button
-                      size="sm"
-                      onClick={() => downloadEntry(activeEntry.id)}
-                      disabled={activeEntry.status === 'downloading' || activeEntry.status === 'completed'}
-                      className={`text-xs h-8 ${
-                        activeEntry.status === 'completed'
-                          ? 'bg-green-500 hover:bg-green-600 text-white'
-                          : 'bg-primary hover:bg-primary/90 text-primary-foreground'
-                      }`}
-                    >
-                      {activeEntry.status === 'downloading' ? (
-                        <><motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} className="w-3 h-3 border-2 border-white border-t-transparent rounded-full mr-1" /> Saving</>
-                      ) : activeEntry.status === 'completed' ? (
-                        <><CheckCircle className="h-3 w-3 mr-1" /> Done</>
-                      ) : (
-                        <><Download className="h-3 w-3 mr-1" /> Get All</>
-                      )}
-                    </Button>
-                    <Button
-                      size="sm" variant="ghost"
-                      onClick={() => { removeFromQueue(activeEntry.id); toast.info("Removed"); }}
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 px-2"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-1 max-h-[360px] overflow-y-auto pr-1">
-                  {activeEntry.files.map((file, i) => {
-                    const issue = getFileSecurityIssue({ name: file.name, type: file.type });
-                    return (
-                      <div
-                        key={i}
-                        className={`flex items-center gap-2 text-xs p-2 rounded-lg bg-background/70 border border-transparent hover:border-primary/20 group transition-colors ${issue ? 'hover:bg-destructive/5' : 'hover:bg-primary/5'}`}
-                      >
-                        <span className="text-[10px] text-muted-foreground font-mono w-5">#{i + 1}</span>
-                        {issue
-                          ? <ShieldAlert className="h-3.5 w-3.5 text-destructive flex-shrink-0" />
-                          : <FileIcon className="h-3.5 w-3.5 text-primary flex-shrink-0" />}
-                        <button
-                          onClick={() => openPreview(file, activeEntry.senderName)}
-                          className="text-foreground truncate flex-1 text-left hover:text-primary transition-colors"
-                          title="Preview"
-                        >
-                          {file.name}
-                        </button>
-                        <span className="text-muted-foreground text-[10px] font-mono">{formatFileSize(file.size)}</span>
-                        <button
-                          onClick={() => openPreview(file, activeEntry.senderName)}
-                          className="p-1 rounded hover:bg-primary/10 text-muted-foreground hover:text-primary opacity-0 group-hover:opacity-100 transition"
-                          title="Preview"
-                        >
-                          <Eye className="h-3 w-3" />
-                        </button>
-                        <button
-                          onClick={() => downloadSingleFile(file, activeEntry.senderName)}
-                          disabled={!!issue}
-                          className="p-1 rounded hover:bg-primary/10 text-muted-foreground hover:text-primary opacity-0 group-hover:opacity-100 transition disabled:opacity-30"
-                          title="Download"
-                        >
-                          <Download className="h-3 w-3" />
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+        <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          <button className={chip(sort === 'fifo' && !pendingOnly)} onClick={() => { setSort('fifo'); setPendingOnly(false); }}>
+            All senders · FIFO
+          </button>
+          <button className={chip(pendingOnly)} onClick={() => setPendingOnly(v => !v)}>
+            Pending ({pendingCount})
+          </button>
+          <button className={chip(sort === 'newest')} onClick={() => setSort('newest')}>Newest first</button>
+          <button className={chip(sort === 'most')} onClick={() => setSort('most')}>Most files</button>
         </div>
       </div>
+
+      {/* Accordion list */}
+      {filtered.length === 0 ? (
+        <p className="text-xs text-muted-foreground py-6 text-center">No matching senders or files</p>
+      ) : (
+        <div className="space-y-3 max-h-[520px] overflow-y-auto pr-1">
+          {filtered.map((entry) => {
+            const position = ordered.indexOf(entry) + 1;
+            const isOpen = expanded === entry.id;
+            const done = entry.status === 'completed';
+            return (
+              <div
+                key={entry.id}
+                className={`rounded-2xl border overflow-hidden transition-colors ${
+                  isOpen ? 'border-primary/40 bg-card' : 'border-border/60 bg-secondary/20'
+                }`}
+              >
+                <button
+                  onClick={() => setExpanded(isOpen ? null : entry.id)}
+                  className="w-full p-4 flex items-center justify-between gap-3 text-left"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                      done ? 'bg-green-500 text-white'
+                        : isOpen ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                        : 'bg-secondary text-muted-foreground'
+                    }`}>
+                      {done ? <CheckCircle className="h-4 w-4" /> : `#${position}`}
+                    </span>
+                    <div className="min-w-0">
+                      <h4 className="font-semibold text-sm text-foreground truncate">{entry.senderName}</h4>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
+                        <Clock className="h-3 w-3 flex-shrink-0" />
+                        {formatStamp(entry.timestamp)} · {entry.files.length} file{entry.files.length !== 1 ? 's' : ''} · {formatFileSize(totalSize(entry))}
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronRight className={`h-4 w-4 flex-shrink-0 text-muted-foreground transition-transform ${isOpen ? 'rotate-90 text-primary' : ''}`} />
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-3 pb-3">
+                        <div className="flex gap-2 pb-3 border-b border-border/60 mb-2">
+                          <button
+                            onClick={() => downloadEntry(entry.id)}
+                            disabled={entry.status === 'downloading' || done}
+                            className={`flex-1 inline-flex items-center justify-center gap-2 text-xs font-bold py-2 rounded-lg transition-colors ${
+                              done ? 'bg-green-500 text-white' : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                            } disabled:opacity-70`}
+                          >
+                            {entry.status === 'downloading' ? (
+                              <><motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} className="w-3 h-3 border-2 border-current border-t-transparent rounded-full" /> Saving</>
+                            ) : done ? (
+                              <><CheckCircle className="h-3.5 w-3.5" /> Done</>
+                            ) : (
+                              <><Download className="h-3.5 w-3.5" /> Get all files</>
+                            )}
+                          </button>
+                          <button
+                            onClick={() => { removeFromQueue(entry.id); toast.info("Removed"); }}
+                            className="px-3 rounded-lg text-destructive hover:bg-destructive/10 transition-colors"
+                            title="Remove from queue"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+
+                        <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
+                          {entry.files.map((file, i) => {
+                            const issue = getFileSecurityIssue({ name: file.name, type: file.type });
+                            return (
+                              <div key={i} className="flex items-center gap-3 p-2.5 rounded-xl bg-secondary/30 hover:bg-primary/5 transition-colors">
+                                <div className={`w-10 h-10 flex-shrink-0 rounded-lg flex items-center justify-center border border-border/60 bg-background ${issue ? 'text-destructive' : 'text-primary'}`}>
+                                  {issue ? <ShieldAlert className="h-5 w-5" /> : <FileIcon className="h-5 w-5" />}
+                                </div>
+                                <button
+                                  onClick={() => openPreview(file, entry.senderName)}
+                                  className="flex-1 min-w-0 text-left"
+                                >
+                                  <p className="text-sm font-medium text-foreground truncate">{file.name}</p>
+                                  <span className="text-[10px] uppercase font-bold tracking-wide text-muted-foreground">
+                                    {formatFileSize(file.size)} · {issue ? <span className="text-destructive">Blocked</span> : <span className="text-primary">Waiting</span>}
+                                  </span>
+                                </button>
+                                <button
+                                  onClick={() => openPreview(file, entry.senderName)}
+                                  className="p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10"
+                                  title="Preview"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </button>
+                                <button
+                                  onClick={() => downloadSingleFile(file, entry.senderName)}
+                                  disabled={!!issue}
+                                  className="p-2 rounded-lg text-primary hover:bg-primary/10 disabled:opacity-30"
+                                  title="Download"
+                                >
+                                  <Download className="h-4 w-4" />
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
