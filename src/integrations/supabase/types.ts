@@ -98,6 +98,27 @@ export type Database = {
         }
         Relationships: []
       }
+      system_heartbeat: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          source: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          source?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          source?: string
+        }
+        Relationships: []
+      }
       transfer_events: {
         Row: {
           created_at: string
@@ -160,6 +181,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      keep_backend_awake: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "editor"
