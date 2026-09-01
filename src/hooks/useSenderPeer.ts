@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getFileSecurityIssue } from "@/utils/fileTransfer.utils";
 import { sendTransferEvent, sendFailedTransferEvent } from "@/lib/servicenow";
+import { withRetry, ensureBackendAwake } from "@/lib/keepalive";
 
 interface TransferProgress {
   active: boolean;
@@ -43,6 +44,12 @@ export const useSenderPeer = () => {
     });
 
     try {
+      // Wake the backend first: a cold/idle backend surfaces as "Failed to fetch".
+      const awake = await ensureBackendAwake();
+      if (!awake) {
+        throw new Error("Backend is waking up. Please retry in a few seconds.");
+      }
+
       setTransferProgress({
         active: true,
         progress: 0,
@@ -101,12 +108,19 @@ export const useSenderPeer = () => {
 
             // Upload file to Supabase Storage
             console.log(`Uploading file: ${file.name} to path: ${storagePath}`);
-            const { data: uploadData, error: uploadError } = await supabase.storage
-              .from('pending-files')
-              .upload(storagePath, file, {
-                cacheControl: '3600',
-                upsert: false
-              });
+            const { data: uploadData, error: uploadError } = await withRetry(async () => {
+              const res = await supabase.storage
+                .from('pending-files')
+                .upload(storagePath, file, {
+                  cacheControl: '3600',
+                  upsert: false
+                });
+              // Let withRetry see transient network errors so it can back off and retry.
+              if (res.error && /failed to fetch|network|timeout|load failed/i.test(res.error.message)) {
+                throw res.error;
+              }
+              return res;
+            });
 
             if (uploadError) {
               console.error('Upload error details:', JSON.stringify(uploadError, null, 2));
@@ -117,7 +131,7 @@ export const useSenderPeer = () => {
 
             // Create pending transfer record
             console.log('Creating pending transfer record...');
-            const { data: insertData, error: insertError } = await supabase
+            const { data: insertData, error: insertError } = await withRetry(async () => await supabase
               .from('pending_transfers')
               .insert({
                 sender_name: name.trim(),
@@ -127,7 +141,7 @@ export const useSenderPeer = () => {
                 storage_path: storagePath
               })
               .select()
-              .single();
+              .single());
 
             if (insertError) {
               console.error('Insert error details:', JSON.stringify(insertError, null, 2));
