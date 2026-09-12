@@ -9,18 +9,24 @@ import { AnalyticsBar } from "../components/AnalyticsBar";
 const Index: React.FC = () => {
   return (
     <QueueProvider>
-      <div className="min-h-screen bg-background relative selection:bg-primary/20">
+      <div className="min-h-screen bg-background selection:bg-primary/20 xl:pl-60">
         <Header />
 
-        <main className="container max-w-3xl mx-auto px-4 pt-28 pb-16">
-          <div className="flex flex-col items-center gap-10">
-            <HeroSection />
-
-            <AnalyticsBar />
-
-            <div className="w-full rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-6 shadow-sm">
-              <MainTabs />
+        <main className="mx-auto max-w-7xl px-4 pb-12 pt-24 sm:px-6 xl:px-10 xl:pt-10">
+          <div className="mb-6 flex items-center justify-between">
+            <div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Transfer workspace</p><p className="mt-1 text-xs text-muted-foreground">Live status and secure delivery</p></div>
+            <div className="ember-rail h-1 w-24 rounded-full bg-secondary" />
+          </div>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+            <section className="min-h-[380px] border border-border bg-card p-7 lg:col-span-7 lg:p-10">
+              <HeroSection />
+            </section>
+            <div className="lg:col-span-5">
+              <AnalyticsBar />
             </div>
+            <section className="border border-border bg-card p-5 sm:p-7 lg:col-span-12">
+              <MainTabs />
+            </section>
           </div>
         </main>
 
