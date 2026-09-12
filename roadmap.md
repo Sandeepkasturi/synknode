@@ -5,4 +5,4 @@
 - [x] Apply Charcoal & Ember tokens and selected typography
 - [x] Rebuild navigation, home bento workspace, analytics, transfer panel, and footer
 - [x] Verify desktop and mobile layouts
-- [ ] Align secondary pages with the new application shell
+- [x] Align secondary pages with the new application shell

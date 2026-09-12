@@ -3,9 +3,9 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
 const Terms: React.FC = () => (
-  <div className="min-h-screen bg-background">
+  <div className="min-h-screen bg-background xl:pl-60">
     <Header />
-    <main className="container max-w-3xl mx-auto px-4 pt-28 pb-16">
+    <main className="container max-w-3xl mx-auto px-4 pt-24 pb-16 xl:pt-12">
       <h1 className="text-3xl font-display font-bold mb-6 text-foreground">Terms & Conditions</h1>
       <div className="prose prose-sm max-w-none text-muted-foreground space-y-4">
         <p>By using SynkNode you agree to use the service responsibly and in accordance with all applicable laws.</p>

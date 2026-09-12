@@ -3,9 +3,9 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
 const Privacy: React.FC = () => (
-  <div className="min-h-screen bg-background">
+  <div className="min-h-screen bg-background xl:pl-60">
     <Header />
-    <main className="container max-w-3xl mx-auto px-4 pt-28 pb-16">
+    <main className="container max-w-3xl mx-auto px-4 pt-24 pb-16 xl:pt-12">
       <h1 className="text-3xl font-display font-bold mb-6 text-foreground">Privacy Policy</h1>
       <div className="prose prose-sm max-w-none text-muted-foreground space-y-4">
         <p>SynkNode is designed with privacy as a first principle. We do not sell, share, or retain your files after they are delivered to the intended receiver.</p>
