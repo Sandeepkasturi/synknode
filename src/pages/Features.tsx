@@ -49,9 +49,9 @@ const features = [
 
 const Features: React.FC = () => {
   return (
-    <div className="min-h-screen bg-background relative selection:bg-primary/20">
+    <div className="min-h-screen bg-background relative selection:bg-primary/20 xl:pl-60">
       <Header />
-      <main className="container max-w-4xl mx-auto px-4 pt-28 pb-16">
+      <main className="container max-w-4xl mx-auto px-4 pt-24 pb-16 xl:pt-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

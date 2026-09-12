@@ -8,8 +8,9 @@ export const MainTabs: React.FC = () => {
   return (
     <div className="w-full">
       <Tabs defaultValue="send" className="w-full">
-        <div className="flex justify-center mb-6">
-          <TabsList className="grid w-full max-w-xs grid-cols-2 p-1 bg-secondary/60 rounded-lg">
+        <div className="mb-7 flex items-center justify-between gap-4 border-b border-border pb-4">
+          <div><h2 className="font-display text-xl font-bold">Transfer console</h2><p className="mt-1 text-xs text-muted-foreground">Choose a direction to begin</p></div>
+          <TabsList className="grid w-full max-w-xs grid-cols-2 rounded-md bg-secondary p-1">
             <TabsTrigger
               value="send"
               className="flex items-center justify-center gap-2 rounded-md py-2 text-sm font-medium transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"

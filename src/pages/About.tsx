@@ -7,9 +7,9 @@ import logo from '@/assets/logo.png';
 
 const About: React.FC = () => {
   return (
-    <div className="min-h-screen bg-background relative selection:bg-primary/20">
+    <div className="min-h-screen bg-background relative selection:bg-primary/20 xl:pl-60">
       <Header />
-      <main className="container max-w-2xl mx-auto px-4 pt-28 pb-16">
+      <main className="container max-w-2xl mx-auto px-4 pt-24 pb-16 xl:pt-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

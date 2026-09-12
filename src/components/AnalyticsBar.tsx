@@ -60,7 +60,7 @@ export const AnalyticsBar: React.FC = () => {
 
   return (
     <section aria-label="Live site analytics" className="w-full">
-      <div className="flex items-center justify-between mb-3 px-1">
+      <div className="mb-3 flex items-center justify-between border border-border bg-card px-4 py-3">
         <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
           <span className={`w-1.5 h-1.5 rounded-full bg-primary ${pulse ? "animate-ping" : "animate-pulse"}`} />
           Live Analytics
@@ -68,19 +68,19 @@ export const AnalyticsBar: React.FC = () => {
         <Activity className="w-3.5 h-3.5 text-muted-foreground" />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-2">
         {items.map((it) => {
           const Icon = it.icon;
           return (
             <div
               key={it.label}
-              className="group relative rounded-xl border border-border/60 bg-card/70 backdrop-blur-sm p-4 hover:border-primary/40 hover:shadow-md transition-all"
+              className="group relative min-h-36 border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/50"
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{it.label}</span>
                 <Icon className="w-3.5 h-3.5 text-primary/70" />
               </div>
-              <div className={`font-display text-2xl md:text-3xl font-bold text-foreground leading-none transition-transform ${pulse ? "scale-[1.03]" : ""}`}>
+               <div className={`font-display text-2xl font-bold text-foreground leading-none transition-transform sm:text-3xl ${pulse ? "scale-[1.03]" : ""}`}>
                 {it.value}
               </div>
               <p className="text-[10px] text-muted-foreground mt-1.5">{it.sub}</p>

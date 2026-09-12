@@ -144,7 +144,7 @@ export const SenderForm: React.FC = () => {
       </div>
 
       {/* Receiver Code */}
-      <div className="p-3 rounded-lg bg-primary/5 border border-primary/15">
+      <div className="border border-primary/20 bg-primary/5 p-4">
         <p className="text-xs text-muted-foreground mb-0.5">Sending to:</p>
         <p className="text-xl font-bold tracking-widest text-primary font-display">SRGEC</p>
       </div>
@@ -152,7 +152,7 @@ export const SenderForm: React.FC = () => {
       {/* File Drop Zone */}
       <div
         {...getRootProps()}
-        className={`relative p-6 border-2 border-dashed rounded-xl transition-all duration-200 cursor-pointer
+        className={`relative p-8 border-2 border-dashed rounded-md transition-all duration-200 cursor-pointer
           ${isDragActive
             ? "border-primary bg-primary/5"
             : "border-border hover:border-primary/40 hover:bg-secondary/30"
@@ -164,8 +164,8 @@ export const SenderForm: React.FC = () => {
         
         {selectedFiles.length === 0 ? (
           <div className="text-center">
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center">
-              <Upload className="h-5 w-5 text-primary" />
+            <div className="mx-auto mb-4 flex h-12 w-12 rotate-45 items-center justify-center border border-primary/30 bg-primary/10">
+              <Upload className="h-5 w-5 -rotate-45 text-primary" />
             </div>
             <p className="text-sm text-foreground font-medium">
               Drop files here or click to browse

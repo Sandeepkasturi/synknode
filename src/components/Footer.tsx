@@ -1,20 +1,18 @@
 import React from 'react';
 import { Github, Globe, Mail, ExternalLink, Linkedin, Shield, FileText, Sparkles, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import logo from '@/assets/logo.png';
 import skavtechLogo from '@/assets/skavtech-logo.png';
+import { BrandMark } from '@/components/BrandMark';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="border-t border-border/40 mt-16 bg-gradient-to-b from-transparent to-secondary/30" id="about">
-      <div className="container max-w-6xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
+    <footer className="mt-4 border-t border-border bg-card xl:ml-60" id="about">
+      <div className="mx-auto max-w-7xl px-6 py-10 xl:px-10">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           {/* LEFT: SynkNode / Developer / Product Links */}
           <div className="space-y-5">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl overflow-hidden ring-1 ring-primary/20 shadow-sm">
-                <img src={logo} alt="SynkNode" className="w-full h-full object-cover" />
-              </div>
+              <BrandMark />
               <div>
                 <h3 className="font-display font-bold text-lg text-foreground leading-none">SynkNode</h3>
                 <p className="text-[11px] text-muted-foreground mt-1">Secure, instant file transfer</p>
@@ -73,11 +71,10 @@ export const Footer: React.FC = () => {
 
           {/* RIGHT: Company panel — themed */}
           <div className="relative">
-            <div className="rounded-2xl bg-card p-6 md:p-7 border border-border shadow-md overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
+            <div className="relative overflow-hidden border border-border bg-secondary/40 p-6 md:p-7">
 
               <div className="relative flex items-center gap-4">
-                <div className="w-20 h-20 md:w-24 md:h-24 flex-shrink-0 rounded-xl bg-white p-2 flex items-center justify-center ring-1 ring-border shadow-sm">
+                <div className="flex h-20 w-28 flex-shrink-0 items-center justify-center border border-border bg-card p-2 md:h-24 md:w-32">
                   <img
                     src={skavtechLogo}
                     alt="SKAV TECH — AI Innovation Lab"
@@ -100,22 +97,22 @@ export const Footer: React.FC = () => {
                 <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3">Company Links</p>
                 <div className="grid grid-cols-2 gap-2">
                   <a href="https://skavtechs.vercel.app" target="_blank" rel="noopener noreferrer"
-                    className="group inline-flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-secondary/60 hover:bg-secondary border border-border text-xs text-foreground transition">
+                    className="group inline-flex items-center justify-between gap-2 rounded-md border border-border bg-card px-3 py-2 text-xs text-foreground transition hover:border-primary/40">
                     <span className="inline-flex items-center gap-1.5"><Globe className="w-3 h-3" /> Website</span>
                     <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
                   </a>
                   <a href="https://github.com/sandeepkasturi" target="_blank" rel="noopener noreferrer"
-                    className="group inline-flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-secondary/60 hover:bg-secondary border border-border text-xs text-foreground transition">
+                    className="group inline-flex items-center justify-between gap-2 rounded-md border border-border bg-card px-3 py-2 text-xs text-foreground transition hover:border-primary/40">
                     <span className="inline-flex items-center gap-1.5"><Github className="w-3 h-3" /> GitHub</span>
                     <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
                   </a>
                   <a href="https://linkedin.com/in/sandeepkasturi9" target="_blank" rel="noopener noreferrer"
-                    className="group inline-flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-secondary/60 hover:bg-secondary border border-border text-xs text-foreground transition">
+                    className="group inline-flex items-center justify-between gap-2 rounded-md border border-border bg-card px-3 py-2 text-xs text-foreground transition hover:border-primary/40">
                     <span className="inline-flex items-center gap-1.5"><Linkedin className="w-3 h-3" /> LinkedIn</span>
                     <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
                   </a>
                   <a href="mailto:skavtech.in@gmail.com"
-                    className="group col-span-2 inline-flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 border border-primary/20 text-xs text-foreground transition">
+                    className="group col-span-2 inline-flex items-center justify-between gap-2 rounded-md border border-primary/20 bg-primary/10 px-3 py-2 text-xs text-foreground transition hover:bg-primary/20">
                     <span className="inline-flex items-center gap-1.5"><Mail className="w-3 h-3" /> skavtech.in@gmail.com</span>
                     <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
                   </a>
