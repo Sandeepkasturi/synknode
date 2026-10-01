@@ -77,6 +77,60 @@ export type Database = {
         }
         Relationships: []
       }
+      sender_feedback_responses: {
+        Row: {
+          accounts_opinion: string
+          additional_comments: string | null
+          age: number
+          campaign_key: string
+          created_at: string
+          daily_helpfulness: string
+          favorite_feature: string
+          gender: string
+          gender_detail: string | null
+          id: string
+          most_wanted_improvement: string
+          pricing_preference: string
+          respondent_name: string
+          usage_frequency: string
+          wants_upgrade: string
+        }
+        Insert: {
+          accounts_opinion: string
+          additional_comments?: string | null
+          age: number
+          campaign_key?: string
+          created_at?: string
+          daily_helpfulness: string
+          favorite_feature: string
+          gender: string
+          gender_detail?: string | null
+          id?: string
+          most_wanted_improvement: string
+          pricing_preference: string
+          respondent_name: string
+          usage_frequency: string
+          wants_upgrade: string
+        }
+        Update: {
+          accounts_opinion?: string
+          additional_comments?: string | null
+          age?: number
+          campaign_key?: string
+          created_at?: string
+          daily_helpfulness?: string
+          favorite_feature?: string
+          gender?: string
+          gender_detail?: string | null
+          id?: string
+          most_wanted_improvement?: string
+          pricing_preference?: string
+          respondent_name?: string
+          usage_frequency?: string
+          wants_upgrade?: string
+        }
+        Relationships: []
+      }
       site_visits: {
         Row: {
           created_at: string
