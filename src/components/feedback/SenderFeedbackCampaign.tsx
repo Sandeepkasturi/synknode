@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { CalendarDays, CheckCircle2, MessageSquareText, Sparkles } from 'lucide-react';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -37,6 +38,7 @@ const surveySchema = z.object({
 });
 
 type Answers = Record<string, string>;
+type FeedbackInsert = Database['public']['Tables']['sender_feedback_responses']['Insert'];
 
 const initialAnswers: Answers = {
   respondent_name: '', age: '', gender: '', gender_detail: '', daily_helpfulness: '',
@@ -93,12 +95,21 @@ export const SenderFeedbackCampaign = () => {
       return;
     }
     setSubmitting(true);
-    const payload = {
-      ...parsed.data,
+    const payload: FeedbackInsert = {
+      respondent_name: parsed.data.respondent_name,
+      age: parsed.data.age,
+      gender: parsed.data.gender,
       gender_detail: parsed.data.gender_detail || null,
+      daily_helpfulness: parsed.data.daily_helpfulness,
       daily_helpfulness_detail: parsed.data.daily_helpfulness_detail || null,
+      favorite_feature: parsed.data.favorite_feature,
       favorite_feature_detail: parsed.data.favorite_feature_detail || null,
+      wants_upgrade: parsed.data.wants_upgrade,
       wants_upgrade_detail: parsed.data.wants_upgrade_detail || null,
+      accounts_opinion: parsed.data.accounts_opinion,
+      pricing_preference: parsed.data.pricing_preference,
+      usage_frequency: parsed.data.usage_frequency,
+      most_wanted_improvement: parsed.data.most_wanted_improvement,
       additional_comments: parsed.data.additional_comments || null,
     };
     const { error } = await supabase.from('sender_feedback_responses').insert(payload);
