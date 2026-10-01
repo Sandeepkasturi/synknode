@@ -85,7 +85,9 @@ export type Database = {
           campaign_key: string
           created_at: string
           daily_helpfulness: string
+          daily_helpfulness_detail: string | null
           favorite_feature: string
+          favorite_feature_detail: string | null
           gender: string
           gender_detail: string | null
           id: string
@@ -94,6 +96,7 @@ export type Database = {
           respondent_name: string
           usage_frequency: string
           wants_upgrade: string
+          wants_upgrade_detail: string | null
         }
         Insert: {
           accounts_opinion: string
@@ -102,7 +105,9 @@ export type Database = {
           campaign_key?: string
           created_at?: string
           daily_helpfulness: string
+          daily_helpfulness_detail?: string | null
           favorite_feature: string
+          favorite_feature_detail?: string | null
           gender: string
           gender_detail?: string | null
           id?: string
@@ -111,6 +116,7 @@ export type Database = {
           respondent_name: string
           usage_frequency: string
           wants_upgrade: string
+          wants_upgrade_detail?: string | null
         }
         Update: {
           accounts_opinion?: string
@@ -119,7 +125,9 @@ export type Database = {
           campaign_key?: string
           created_at?: string
           daily_helpfulness?: string
+          daily_helpfulness_detail?: string | null
           favorite_feature?: string
+          favorite_feature_detail?: string | null
           gender?: string
           gender_detail?: string | null
           id?: string
@@ -128,6 +136,7 @@ export type Database = {
           respondent_name?: string
           usage_frequency?: string
           wants_upgrade?: string
+          wants_upgrade_detail?: string | null
         }
         Relationships: []
       }
