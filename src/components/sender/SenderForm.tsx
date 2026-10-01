@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { OrbitalAnimation } from "@/components/OrbitalAnimation";
 import { SenderQueue } from "./SenderQueue";
 import { validateFiles, registerUserForHour, getRemainingHourlySlots } from "@/utils/fileTransfer.utils";
+import { SenderFeedbackCampaign } from "@/components/feedback/SenderFeedbackCampaign";
 
 export const SenderForm: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -128,6 +129,7 @@ export const SenderForm: React.FC = () => {
 
   return (
     <div className="space-y-5">
+      <SenderFeedbackCampaign />
       {/* Name Input */}
       <div className="space-y-1.5">
         <label className="text-sm font-medium text-foreground flex items-center gap-2">
