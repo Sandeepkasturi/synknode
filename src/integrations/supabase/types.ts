@@ -77,6 +77,69 @@ export type Database = {
         }
         Relationships: []
       }
+      sender_feedback_responses: {
+        Row: {
+          accounts_opinion: string
+          additional_comments: string | null
+          age: number
+          campaign_key: string
+          created_at: string
+          daily_helpfulness: string
+          daily_helpfulness_detail: string | null
+          favorite_feature: string
+          favorite_feature_detail: string | null
+          gender: string
+          gender_detail: string | null
+          id: string
+          most_wanted_improvement: string
+          pricing_preference: string
+          respondent_name: string
+          usage_frequency: string
+          wants_upgrade: string
+          wants_upgrade_detail: string | null
+        }
+        Insert: {
+          accounts_opinion: string
+          additional_comments?: string | null
+          age: number
+          campaign_key?: string
+          created_at?: string
+          daily_helpfulness: string
+          daily_helpfulness_detail?: string | null
+          favorite_feature: string
+          favorite_feature_detail?: string | null
+          gender: string
+          gender_detail?: string | null
+          id?: string
+          most_wanted_improvement: string
+          pricing_preference: string
+          respondent_name: string
+          usage_frequency: string
+          wants_upgrade: string
+          wants_upgrade_detail?: string | null
+        }
+        Update: {
+          accounts_opinion?: string
+          additional_comments?: string | null
+          age?: number
+          campaign_key?: string
+          created_at?: string
+          daily_helpfulness?: string
+          daily_helpfulness_detail?: string | null
+          favorite_feature?: string
+          favorite_feature_detail?: string | null
+          gender?: string
+          gender_detail?: string | null
+          id?: string
+          most_wanted_improvement?: string
+          pricing_preference?: string
+          respondent_name?: string
+          usage_frequency?: string
+          wants_upgrade?: string
+          wants_upgrade_detail?: string | null
+        }
+        Relationships: []
+      }
       site_visits: {
         Row: {
           created_at: string
