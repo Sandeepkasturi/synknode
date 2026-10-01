@@ -12,5 +12,5 @@
 - [x] Add sender-only feedback announcement and survey
 - [x] Collect demographic and product feedback safely
 - [x] Run campaign from October 1–10, 2026
-- [ ] Deliver a consolidated insights email after the campaign
+- [ ] Deliver a consolidated insights email after the campaign — blocked until a sender email domain is connected
 - [x] Verify submission, visibility, and responsive layout
