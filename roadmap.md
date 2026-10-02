@@ -14,3 +14,6 @@
 - [x] Run campaign from October 1–10, 2026
 - [ ] Deliver a consolidated insights email after the campaign — blocked until a sender email domain is connected
 - [x] Verify submission, visibility, and responsive layout
+
+## Vercel build fix (Oct 2)
+- [x] Regenerate pnpm-lock.yaml so Vercel's frozen-lockfile install passes (drizzle-kit, drizzle-orm, postgres were missing)
