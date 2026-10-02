@@ -16,4 +16,4 @@
 - [x] Verify submission, visibility, and responsive layout
 
 ## Vercel build fix (Oct 2)
-- [ ] Regenerate pnpm-lock.yaml so Vercel's frozen-lockfile install passes (drizzle-kit, drizzle-orm, postgres were missing)
+- [x] Regenerate pnpm-lock.yaml so Vercel's frozen-lockfile install passes (drizzle-kit, drizzle-orm, postgres were missing)
