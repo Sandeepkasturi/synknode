@@ -54,11 +54,6 @@ async function sendToServiceNowWithRetry(payload: any): Promise<boolean> {
     const { url, username, password, scope } = getSnConfig();
     
     if (!url || !username || !password) {
-        console.warn('ServiceNow credentials are not fully configured. Event skipped.', {
-            VITE_SN_INSTANCE_URL: !!url,
-            VITE_SN_USERNAME: !!username,
-            VITE_SN_PASSWORD: !!password
-        });
         return false;
     }
 
@@ -87,7 +82,10 @@ async function sendToServiceNowWithRetry(payload: any): Promise<boolean> {
             if (response.status === 201 || response.status === 200) {
                 return true;
             } else {
-                console.error(`ServiceNow API returned error status ${response.status}: ${response.statusText}`);
+                    if (response.status >= 500) {
+                    console.warn(`ServiceNow telemetry unavailable (${response.status}); event will be skipped.`);
+                }
+                return false;
             }
         } catch (error) {
             // Browser CORS/network failures cannot succeed by retrying the same
@@ -102,7 +100,6 @@ async function sendToServiceNowWithRetry(payload: any): Promise<boolean> {
 
         if (attempt < maxRetries) {
             const ms = backoffs[attempt];
-            console.log(`Retrying in ${ms}ms...`);
             await delay(ms);
         }
     }
@@ -115,12 +112,10 @@ async function flushQueue() {
     if (queue.length === 0) return;
 
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
-        console.log('ServiceNow client is offline, queueing events.');
         return;
     }
 
     isFlushing = true;
-    console.log(`Flushing ${queue.length} pending events to ServiceNow...`);
 
     while (queue.length > 0) {
         const entry = queue[0];
@@ -128,8 +123,8 @@ async function flushQueue() {
         if (success) {
             queue.shift(); // Remove on successful post
         } else {
-            console.warn('Failed to send queued event after maximum retries. Keeping in queue.');
-            break; // Stop flushing to prevent infinite loops, keep entries
+            queue.shift();
+            break; // Drop failed telemetry; never block later events or transfers
         }
     }
     isFlushing = false;
@@ -138,19 +133,20 @@ async function flushQueue() {
 // Register offline listener to auto-flush when back online
 if (typeof window !== 'undefined') {
     window.addEventListener('online', () => {
-        console.log('Network status: ONLINE. Flushing ServiceNow queue.');
-        flushQueue();
+        void flushQueue();
     });
 }
 
 // Helper to queue or send
 function dispatchEvent(payload: any) {
-    if (typeof navigator !== 'undefined' && !navigator.onLine) {
-        console.log('Offline: Event queued for ServiceNow.');
-        queue.push({ payload, timestamp: Date.now() });
-    } else {
-        queue.push({ payload, timestamp: Date.now() });
-        flushQueue();
+    const { url, username, password } = getSnConfig();
+    // Telemetry must never create an in-memory retry loop when disabled or
+    // misconfigured. Uploads and transfers remain independent of analytics.
+    if (!url || !username || !password) return;
+
+    queue.push({ payload, timestamp: Date.now() });
+    if (typeof navigator === 'undefined' || navigator.onLine) {
+        void flushQueue();
     }
 }
 
