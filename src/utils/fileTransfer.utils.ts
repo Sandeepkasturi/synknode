@@ -59,9 +59,15 @@ export const inspectFileSafety = async (file: File): Promise<string | null> => {
 const getHourlyUserData = (): { users: string[]; hour: string } => {
   const stored = localStorage.getItem('hourly_user_count');
   if (stored) {
-    const parsed = JSON.parse(stored);
-    const currentHour = new Date().toISOString().slice(0, 13); // YYYY-MM-DDTHH
-    if (parsed.hour === currentHour) return parsed;
+    try {
+      const parsed = JSON.parse(stored);
+      const currentHour = new Date().toISOString().slice(0, 13); // YYYY-MM-DDTHH
+      if (parsed?.hour === currentHour && Array.isArray(parsed?.users)) {
+        return parsed;
+      }
+    } catch {
+      localStorage.removeItem('hourly_user_count');
+    }
   }
   return { users: [], hour: new Date().toISOString().slice(0, 13) };
 };

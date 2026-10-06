@@ -832,8 +832,9 @@ const Hyperspeed = ({ effectOptions = defaultOptions }: HyperspeedProps) => {
       fogUniforms: any;
       clock: THREE.Clock;
       assets: any;
-      disposed: boolean;
-      road: Road;
+  disposed: boolean;
+  animationFrameId: number | null;
+  road: Road;
       leftCarLights: CarLights;
       rightCarLights: CarLights;
       leftSticks: LightsSticks;
@@ -883,9 +884,10 @@ const Hyperspeed = ({ effectOptions = defaultOptions }: HyperspeedProps) => {
         };
         this.clock = new THREE.Clock();
         this.assets = {};
-        this.disposed = false;
-
-        this.road = new Road(this, options);
+  this.disposed = false;
+  this.animationFrameId = null;
+  
+  this.road = new Road(this, options);
         this.leftCarLights = new CarLights(
           this,
           options,
@@ -1073,10 +1075,14 @@ const Hyperspeed = ({ effectOptions = defaultOptions }: HyperspeedProps) => {
         this.composer.render(delta);
       }
 
-      dispose() {
-        this.disposed = true;
+  dispose() {
+    this.disposed = true;
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
 
-        if (this.renderer) {
+    if (this.renderer) {
           this.renderer.dispose();
         }
         if (this.composer) {
@@ -1113,7 +1119,7 @@ const Hyperspeed = ({ effectOptions = defaultOptions }: HyperspeedProps) => {
         const delta = this.clock.getDelta();
         this.render(delta);
         this.update(delta);
-        requestAnimationFrame(this.tick);
+        this.animationFrameId = requestAnimationFrame(this.tick);
       }
     }
 
@@ -1124,7 +1130,9 @@ const Hyperspeed = ({ effectOptions = defaultOptions }: HyperspeedProps) => {
 
       const myApp = new App(container, options);
       appRef.current = myApp;
-      myApp.loadAssets().then(myApp.init);
+      myApp.loadAssets().then(() => {
+        if (!myApp.disposed) myApp.init();
+      });
     }
 
     return () => {
