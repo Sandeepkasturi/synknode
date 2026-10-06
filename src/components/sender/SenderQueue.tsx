@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Clock, FileIcon, FolderOpen, Hash } from "lucide-react";
+import { User, Clock, FileIcon, FolderOpen, Hash, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface PendingFile {
@@ -12,7 +13,8 @@ interface PendingFile {
   created_at: string;
 }
 
-export const SenderQueue: React.FC = () => {
+export const SenderQueue: React.FC<{ searchable?: boolean }> = ({ searchable = false }) => {
+  const [search, setSearch] = useState("");
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
 
   const fetchPendingFiles = async () => {
@@ -44,7 +46,7 @@ export const SenderQueue: React.FC = () => {
   };
 
   const formatTime = (timestamp: string) => {
-    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return new Date(timestamp).toLocaleString([], { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
   };
 
   const groupedBySender = pendingFiles.reduce((acc, file) => {
@@ -54,6 +56,7 @@ export const SenderQueue: React.FC = () => {
   }, {} as Record<string, PendingFile[]>);
 
   const senderEntries = Object.entries(groupedBySender);
+  const visibleEntries = senderEntries.filter(([name, files]) => name.toLowerCase().includes(search.toLowerCase()) || files.some(f => f.file_name.toLowerCase().includes(search.toLowerCase())));
 
   if (senderEntries.length === 0) {
     return (
@@ -77,28 +80,30 @@ export const SenderQueue: React.FC = () => {
         </span>
       </div>
 
+      {searchable && <div className="relative"><Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" /><Input className="pl-9" aria-label="Search activity" placeholder="Search files or senders…" value={search} onChange={e => setSearch(e.target.value)} /></div>}
+      {visibleEntries.length === 0 && <p className="py-6 text-center text-sm text-muted-foreground">No matching transfers</p>}
       <AnimatePresence>
-        {senderEntries.map(([senderName, files], queueIndex) => (
+        {visibleEntries.map(([senderName, files]) => (
           <motion.div
             key={senderName}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, x: -30 }}
-            transition={{ delay: queueIndex * 0.04 }}
+            transition={{ duration: 0.2 }}
             className="p-3 rounded-lg border border-border/50 bg-secondary/20"
           >
             <div className="flex items-start gap-3">
               <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
                 <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-primary-foreground">#{queueIndex + 1}</span>
+                  <span className="text-[10px] font-bold text-primary-foreground">#{senderEntries.findIndex(([n]) => n === senderName) + 1}</span>
                 </div>
                 <span className="text-[9px] text-muted-foreground">of {senderEntries.length}</span>
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1.5">
+                <div className="flex flex-wrap items-center gap-2 mb-1.5">
                   <User className="h-3 w-3 text-primary" />
-                  <span className="font-medium text-sm text-foreground">{senderName}</span>
+                  <span className="font-medium text-sm text-foreground truncate">{senderName}</span>
                   <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                     <Clock className="h-2.5 w-2.5" />
                     {formatTime(files[0].created_at)}

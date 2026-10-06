@@ -52,32 +52,32 @@ export const AnalyticsBar: React.FC = () => {
   }, []);
 
   const items = [
-    { label: "Total Transfers", icon: ArrowUpRight, value: compact(stats?.total_transfers ?? 0), sub: `${compact(stats?.active_transfers ?? 0)} live` },
-    { label: "Data Transferred", icon: Database, value: formatBytes(stats?.total_bytes ?? 0), sub: `${compact(stats?.total_downloaded ?? 0)} delivered` },
-    { label: "Total Usage", icon: Files, value: compact((stats?.total_transfers ?? 0) + (stats?.total_visits ?? 0)), sub: "events + visits" },
-    { label: "Visitors", icon: Users, value: compact(stats?.unique_visitors ?? 0), sub: `${compact(stats?.visitors_24h ?? 0)} today` },
+    { label: "Total Transfers", icon: ArrowUpRight, value: stats ? compact(stats.total_transfers) : "—", sub: `${compact(stats?.active_transfers ?? 0)} live` },
+    { label: "Data Transferred", icon: Database, value: stats ? formatBytes(stats.total_bytes) : "—", sub: `${compact(stats?.total_downloaded ?? 0)} delivered` },
+    { label: "Total Usage", icon: Files, value: stats ? compact(stats.total_transfers + stats.total_visits) : "—", sub: "events + visits" },
+    { label: "Visitors", icon: Users, value: stats ? compact(stats.unique_visitors) : "—", sub: `${compact(stats?.visitors_24h ?? 0)} today` },
   ];
 
   return (
     <section aria-label="Live site analytics" className="w-full">
-      <div className="mb-3 flex items-center justify-between border border-border bg-card px-4 py-3">
-        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-[11px]  text-muted-foreground">
           <span className={`w-1.5 h-1.5 rounded-full bg-primary ${pulse ? "animate-ping" : "animate-pulse"}`} />
           Live Analytics
         </div>
         <Activity className="w-3.5 h-3.5 text-muted-foreground" />
       </div>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-2">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {items.map((it) => {
           const Icon = it.icon;
           return (
             <div
               key={it.label}
-              className="group relative min-h-36 border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/50"
+              className="group relative min-h-32 rounded-lg border border-border bg-card p-4 transition-all hover:-translate-y-0.5 hover:border-primary/50"
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{it.label}</span>
+                <span className="text-[10px]  text-muted-foreground">{it.label}</span>
                 <Icon className="w-3.5 h-3.5 text-primary/70" />
               </div>
                <div className={`font-display text-2xl font-bold text-foreground leading-none transition-transform sm:text-3xl ${pulse ? "scale-[1.03]" : ""}`}>
