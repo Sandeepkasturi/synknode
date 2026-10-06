@@ -68,7 +68,12 @@ const Question = ({ number, title, value, options, onChange }: QuestionProps) =>
   </fieldset>
 );
 
-export const SenderFeedbackCampaign = () => {
+type Props = {
+  /** Increments each time the sender completes a transfer — reveals and opens the survey. */
+  completedTransfers: number;
+};
+
+export const SenderFeedbackCampaign = ({ completedTransfers }: Props) => {
   const now = new Date();
   const active = now >= START && now <= END;
   const [open, setOpen] = useState(false);
@@ -76,16 +81,18 @@ export const SenderFeedbackCampaign = () => {
   const [answers, setAnswers] = useState<Answers>(initialAnswers);
   const [submitting, setSubmitting] = useState(false);
 
+  // Show the survey only after the user has actually used the platform (finished a send).
   useEffect(() => {
-    if (!active || submitted || sessionStorage.getItem(`${STORAGE_KEY}-seen`)) return;
+    if (!active || submitted || completedTransfers === 0) return;
+    if (sessionStorage.getItem(`${STORAGE_KEY}-seen`)) return;
     const timer = window.setTimeout(() => {
       setOpen(true);
       sessionStorage.setItem(`${STORAGE_KEY}-seen`, 'true');
-    }, 1200);
+    }, 800);
     return () => window.clearTimeout(timer);
-  }, [active, submitted]);
+  }, [active, submitted, completedTransfers]);
 
-  if (!active) return null;
+  if (!active || completedTransfers === 0) return null;
   const update = (key: string, value: string) => setAnswers(previous => ({ ...previous, [key]: value }));
 
   const submit = async () => {
