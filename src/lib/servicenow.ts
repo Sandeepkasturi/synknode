@@ -90,6 +90,13 @@ async function sendToServiceNowWithRetry(payload: any): Promise<boolean> {
                 console.error(`ServiceNow API returned error status ${response.status}: ${response.statusText}`);
             }
         } catch (error) {
+            // Browser CORS/network failures cannot succeed by retrying the same
+            // client-side request. Keep telemetry best-effort and let uploads
+            // continue without filling the console or queue with duplicates.
+            if (error instanceof TypeError) {
+                console.warn('ServiceNow telemetry unavailable; skipping this event.');
+                return false;
+            }
             console.error(`ServiceNow event transmission failed (attempt ${attempt + 1}/${maxRetries + 1}):`, error);
         }
 
