@@ -60,8 +60,9 @@ export default {
         },
         success: {
           DEFAULT: "hsl(var(--success))",
-          foreground: "#ffffff",
+          foreground: "hsl(var(--success-foreground))",
         },
+        "logo-surface": "hsl(var(--logo-surface))",
       },
       borderRadius: {
         lg: "var(--radius)",
