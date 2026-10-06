@@ -93,6 +93,7 @@ export const SenderForm: React.FC = () => {
     try {
       await sendFiles(selectedFiles, name);
       setSelectedFiles([]);
+      setCompletedTransfers(count => count + 1);
     } catch (error) {
       console.error('Send failed:', error);
     }
@@ -130,7 +131,7 @@ export const SenderForm: React.FC = () => {
 
   return (
     <div className="space-y-5">
-      <SenderFeedbackCampaign />
+      <SenderFeedbackCampaign completedTransfers={completedTransfers} />
       {/* Name Input */}
       <div className="space-y-1.5">
         <label className="text-sm font-medium text-foreground flex items-center gap-2">
