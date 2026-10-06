@@ -90,7 +90,14 @@ export const useSenderPeer = () => {
             }
 
             const fileId = crypto.randomUUID();
-            const storagePath = `${fileId}/${file.name}`;
+            // Storage keys only allow a conservative filename alphabet. Keep the
+            // original name in the database, but use a safe key for the object.
+            const safeFileName = file.name
+              .normalize('NFKD')
+              .replace(/[^a-zA-Z0-9._-]/g, '_')
+              .replace(/\.{2,}/g, '.')
+              .replace(/^\.+|\.+$/g, '') || `file-${fileId}`;
+            const storagePath = `${fileId}/${safeFileName}`;
 
             setTransferProgress({
               active: true,
