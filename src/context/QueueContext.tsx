@@ -62,7 +62,8 @@ export const QueueProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       }
     });
 
-    setQueue(Object.values(grouped));
+    // Strict FIFO: earliest submission timestamp first
+    setQueue(Object.values(grouped).sort((a, b) => a.timestamp - b.timestamp));
   }, []);
 
   React.useEffect(() => {

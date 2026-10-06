@@ -1,20 +1,18 @@
 import React from 'react';
-import { Github, Globe, Mail, ExternalLink, Linkedin, Twitter, Shield, FileText, Sparkles, Info } from 'lucide-react';
+import { Github, Globe, Mail, ExternalLink, Linkedin, Shield, FileText, Sparkles, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import logo from '@/assets/logo.png';
 import skavtechLogo from '@/assets/skavtech-logo.png';
+import { BrandMark } from '@/components/BrandMark';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="border-t border-border/40 mt-16 bg-gradient-to-b from-transparent to-secondary/30" id="about">
-      <div className="container max-w-6xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
+    <footer className="mt-4 border-t border-border bg-background app-footer" id="about">
+      <div className="mx-auto max-w-7xl px-6 py-10 xl:px-10">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           {/* LEFT: SynkNode / Developer / Product Links */}
           <div className="space-y-5">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl overflow-hidden ring-1 ring-primary/20 shadow-sm">
-                <img src={logo} alt="SynkNode" className="w-full h-full object-cover" />
-              </div>
+              <BrandMark />
               <div>
                 <h3 className="font-display font-bold text-lg text-foreground leading-none">SynkNode</h3>
                 <p className="text-[11px] text-muted-foreground mt-1">Secure, instant file transfer</p>
@@ -73,52 +71,51 @@ export const Footer: React.FC = () => {
 
           {/* RIGHT: Company panel — themed */}
           <div className="relative">
-            <div className="rounded-2xl bg-gradient-to-br from-card to-card/80 p-4 md:p-5 border border-border/60 shadow-lg overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-transparent pointer-events-none" />
+            <div className="relative overflow-hidden company-details p-0">
 
-              <div className="relative space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-16 h-16 md:w-20 md:h-20 flex-shrink-0 rounded-lg bg-gradient-to-br from-white to-blue-50 p-1.5 flex items-center justify-center ring-2 ring-primary/20 shadow-md">
-                    <img
-                      src={skavtechLogo}
-                      alt="SKAV TECH — AI Innovation Lab"
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[9px] uppercase tracking-[0.2em] text-primary/70 mb-1">Powered By</p>
-                    <h3 className="font-display font-bold text-lg md:text-xl text-foreground leading-tight">SKAV TECH</h3>
-                    <p className="text-xs text-muted-foreground/90 mt-0.5">AI Innovation</p>
-                  </div>
+              <div className="relative flex items-center gap-4">
+                <div className="flex h-20 w-28 flex-shrink-0 items-center justify-center border border-border bg-logo-surface p-2 md:h-24 md:w-32">
+                  <img
+                    src={skavtechLogo}
+                    alt="SKAV TECH — AI Innovation Lab"
+                    className="w-full h-full object-contain"
+                  />
                 </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-primary/80 mb-1">A Project By</p>
+                  <h3 className="font-display font-bold text-xl md:text-2xl text-foreground leading-tight">SKAV TECH</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">AI Innovation Lab</p>
+                </div>
+              </div>
 
-                <p className="relative text-[11px] text-muted-foreground/80 leading-relaxed">
-                  Privacy-first tools for modern creators.
-                </p>
+              <p className="relative text-xs text-muted-foreground leading-relaxed mt-5">
+                We build intelligent, privacy-first tools for creators and teams —
+                combining thoughtful design with modern AI infrastructure.
+              </p>
 
-                <div className="relative pt-3 border-t border-border/40">
-                  <div className="flex items-center gap-1.5">
-                    <a href="https://skavtechs.vercel.app" target="_blank" rel="noopener noreferrer"
-                      className="w-7 h-7 flex items-center justify-center rounded-md bg-secondary/50 hover:bg-primary/20 border border-border/50 text-muted-foreground hover:text-primary transition" title="Website">
-                      <Globe className="w-3 h-3" />
-                    </a>
-                    <a href="https://github.com/sandeepkasturi" target="_blank" rel="noopener noreferrer"
-                      className="w-7 h-7 flex items-center justify-center rounded-md bg-secondary/50 hover:bg-primary/20 border border-border/50 text-muted-foreground hover:text-primary transition" title="GitHub">
-                      <Github className="w-3 h-3" />
-                    </a>
-                    <a href="https://www.linkedin.com/in/sandeepkasturi/" target="_blank" rel="noopener noreferrer"
-                      className="w-7 h-7 flex items-center justify-center rounded-md bg-secondary/50 hover:bg-primary/20 border border-border/50 text-muted-foreground hover:text-primary transition" title="LinkedIn">
-                      <Linkedin className="w-3 h-3" />
-                    </a>
-                    <a href="https://twitter.com/skavtech" target="_blank" rel="noopener noreferrer"
-                      className="w-7 h-7 flex items-center justify-center rounded-md bg-secondary/50 hover:bg-primary/20 border border-border/50 text-muted-foreground hover:text-primary transition" title="Twitter">
-                      <Twitter className="w-3 h-3" />
-                    </a>
-                    <a href="mailto:skavtech.in@gmail.com"
-                      className="w-7 h-7 flex items-center justify-center rounded-md bg-primary/10 hover:bg-primary/20 border border-primary/20 text-muted-foreground hover:text-primary transition" title="Email">
-                      <Mail className="w-3 h-3" />
-                    </a>
-                  </div>
+              <div className="relative mt-5 pt-5 border-t border-border">
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3">Company Links</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <a href="https://skavtechs.vercel.app" target="_blank" rel="noopener noreferrer"
+                    className="group inline-flex items-center justify-between gap-2 rounded-md border border-border bg-card px-3 py-2 text-xs text-foreground transition hover:border-primary/40">
+                    <span className="inline-flex items-center gap-1.5"><Globe className="w-3 h-3" /> Website</span>
+                    <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
+                  </a>
+                  <a href="https://github.com/sandeepkasturi" target="_blank" rel="noopener noreferrer"
+                    className="group inline-flex items-center justify-between gap-2 rounded-md border border-border bg-card px-3 py-2 text-xs text-foreground transition hover:border-primary/40">
+                    <span className="inline-flex items-center gap-1.5"><Github className="w-3 h-3" /> GitHub</span>
+                    <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
+                  </a>
+                  <a href="https://linkedin.com/in/sandeepkasturi9" target="_blank" rel="noopener noreferrer"
+                    className="group inline-flex items-center justify-between gap-2 rounded-md border border-border bg-card px-3 py-2 text-xs text-foreground transition hover:border-primary/40">
+                    <span className="inline-flex items-center gap-1.5"><Linkedin className="w-3 h-3" /> LinkedIn</span>
+                    <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
+                  </a>
+                  <a href="mailto:skavtech.in@gmail.com"
+                    className="group col-span-2 inline-flex items-center justify-between gap-2 rounded-md border border-primary/20 bg-primary/10 px-3 py-2 text-xs text-foreground transition hover:bg-primary/20">
+                    <span className="inline-flex items-center gap-1.5"><Mail className="w-3 h-3" /> skavtech.in@gmail.com</span>
+                    <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
+                  </a>
                 </div>
               </div>
             </div>

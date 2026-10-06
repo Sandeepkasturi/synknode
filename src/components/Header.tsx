@@ -1,114 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { Moon, Sun, Menu, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { Moon, Sun, Menu, X, Send, ListChecks, ChartNoAxesColumn, Settings, ShieldCheck, Home, MoreHorizontal, Sparkles, Info } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { Link, useLocation } from 'react-router-dom';
-import logo from '@/assets/logo.png';
+import { BrandMark } from '@/components/BrandMark';
 
 export const Header: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
-  const { pathname } = useLocation();
-  const [scrolled, setScrolled] = useState(false);
+  const { pathname, search } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
+  const view = new URLSearchParams(search).get('view') || 'transfer';
   const nav = [
-    { to: '/', label: 'Home' },
-    { to: '/features', label: 'Features' },
-    { to: '/about', label: 'About' },
+    { to: '/', label: 'Transfer', mobile: 'Home', icon: Send, mobileIcon: Home, key: 'transfer' },
+    { to: '/?view=activity', label: 'Activity', mobile: 'Activity', icon: ListChecks, mobileIcon: ListChecks, key: 'activity' },
+    { to: '/?view=analytics', label: 'Analytics', mobile: 'Analytics', icon: ChartNoAxesColumn, mobileIcon: ChartNoAxesColumn, key: 'analytics' },
+    { to: '/?view=settings', label: 'Settings', mobile: 'More', icon: Settings, mobileIcon: MoreHorizontal, key: 'settings' },
   ];
-
-  return (
-    <header className="fixed top-0 left-0 right-0 z-50 pt-3 px-3">
-      <div
-        className={`container max-w-5xl mx-auto rounded-2xl border transition-all duration-300 ${
-          scrolled
-            ? 'bg-background/80 backdrop-blur-xl border-border/60 shadow-[0_8px_30px_-12px_hsl(var(--primary)/0.25)]'
-            : 'bg-background/50 backdrop-blur-md border-border/30'
-        }`}
-      >
-        <div className="flex items-center justify-between px-4 py-2.5">
-          {/* Brand */}
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="relative">
-              <div className="absolute inset-0 rounded-lg bg-primary/30 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="relative w-9 h-9 rounded-lg overflow-hidden ring-1 ring-primary/20 shadow-sm">
-                <img src={logo} alt="SynkNode" className="w-full h-full object-cover" />
-              </div>
-            </div>
-            <div className="leading-none">
-              <h1 className="text-base font-bold tracking-tight text-foreground font-display">SynkNode</h1>
-              <p className="text-[10px] text-muted-foreground mt-0.5 tracking-wide uppercase">Secure Transfer</p>
-            </div>
-          </Link>
-
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1 p-1 rounded-full bg-secondary/40 border border-border/40">
-            {nav.map((item) => {
-              const active = pathname === item.to;
-              return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  className={`relative px-3.5 py-1.5 text-xs font-medium rounded-full transition-colors ${
-                    active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {active && (
-                    <span className="absolute inset-0 rounded-full bg-primary shadow-[0_4px_14px_-4px_hsl(var(--primary)/0.6)]" />
-                  )}
-                  <span className="relative">{item.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="flex items-center gap-1.5">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="rounded-full w-9 h-9 hover:bg-primary/10"
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setMobileOpen(v => !v)}
-              className="md:hidden rounded-full w-9 h-9"
-              aria-label="Menu"
-            >
-              {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-            </Button>
-          </div>
-        </div>
-
-        {/* Mobile nav */}
-        {mobileOpen && (
-          <div className="md:hidden border-t border-border/40 p-2 flex flex-col">
-            {nav.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                onClick={() => setMobileOpen(false)}
-                className={`px-3 py-2 rounded-lg text-sm ${
-                  pathname === item.to ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-secondary/60'
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
+  const links = (mobile = false) => nav.map(item => {
+    const Icon = mobile ? item.mobileIcon : item.icon;
+    const active = pathname === '/' && view === item.key;
+    return <Button key={item.key} asChild variant="ghost" className={`${mobile ? 'bottom-nav-link' : 'rail-link'} ${active ? 'is-active' : ''}`}><Link to={item.to} onClick={() => setMobileOpen(false)} aria-current={active ? 'page' : undefined}><Icon className="h-4 w-4" /><span>{mobile ? item.mobile : item.label}</span></Link></Button>;
+  });
+  return <>
+    <header className="app-header">
+      <Link to="/" className="flex items-center gap-2" aria-label="SynkNode home"><BrandMark /><div><p className="text-base font-bold leading-tight">SynkNode</p><p className="brand-caption">Secure transfer</p></div></Link>
+      <nav className="desktop-navigation" aria-label="Primary navigation">{links()}</nav>
+      <div className="rail-protection"><ShieldCheck className="h-5 w-5 text-success" /><div><p className="text-xs font-semibold">Protected transfers</p><p className="mt-1 text-[10px] text-muted-foreground">File safety checks</p></div></div>
+      <Button variant="ghost" onClick={toggleTheme} className="rail-theme" aria-label="Toggle theme">{theme === 'dark' ? <Moon /> : <Sun />}<span>{theme === 'dark' ? 'Dark theme' : 'Light theme'}</span><span className={`theme-indicator ${theme === 'dark' ? 'is-on' : ''}`} /></Button>
+      <Button variant="secondary" size="icon" className="mobile-menu" onClick={() => setMobileOpen(v => !v)} aria-label={mobileOpen ? 'Close menu' : 'Open menu'}>{mobileOpen ? <X /> : <Menu />}</Button>
+      {mobileOpen && <nav className="mobile-drawer" aria-label="Mobile menu">{links()}<div className="border-t border-border pt-3"><Button asChild variant="ghost"><Link to="/features"><Sparkles />Features</Link></Button><Button asChild variant="ghost"><Link to="/about"><Info />About</Link></Button><Button variant="ghost" onClick={toggleTheme}>{theme === 'dark' ? <Moon /> : <Sun />} {theme === 'dark' ? 'Dark theme' : 'Light theme'}</Button></div></nav>}
     </header>
-  );
+    <nav className="bottom-navigation" aria-label="Mobile primary navigation">{links(true)}</nav>
+  </>;
 };

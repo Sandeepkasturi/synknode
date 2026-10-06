@@ -8,6 +8,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { AuthProvider } from "@/context/AuthContext";
 import { sendVisitEvent } from "@/lib/servicenow";
 import { trackVisit, runExpirationSweep } from "@/lib/analytics";
+import { startKeepAlive } from "@/lib/keepalive";
 import Index from "./pages/Index";
 import Features from "./pages/Features";
 import About from "./pages/About";
@@ -22,8 +23,12 @@ const App = () => {
     sendVisitEvent();
     trackVisit();
     runExpirationSweep();
+    const stopKeepAlive = startKeepAlive();
     const iv = setInterval(runExpirationSweep, 15 * 60 * 1000);
-    return () => clearInterval(iv);
+    return () => {
+      clearInterval(iv);
+      stopKeepAlive();
+    };
   }, []);
 
   return (

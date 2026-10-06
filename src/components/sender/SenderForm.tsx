@@ -1,39 +1,78 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, File, X, Send, User } from "lucide-react";
+import { CloudUpload, File, X, Send, User, Plus, Building2, ShieldCheck, LockKeyhole, CheckCircle2, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useSenderPeer } from "@/hooks/useSenderPeer";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { OrbitalAnimation } from "@/components/OrbitalAnimation";
-import { SenderQueue } from "./SenderQueue";
-import { ShareNotification } from "@/components/ShareNotification";
-import { validateFiles, registerUserForHour, getRemainingHourlySlots } from "@/utils/fileTransfer.utils";
+import { Link } from "react-router-dom";
+import { validateFiles, registerUserForHour } from "@/utils/fileTransfer.utils";
+import { SenderFeedbackCampaign } from "@/components/feedback/SenderFeedbackCampaign";
 
 export const SenderForm: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [name, setName] = useState<string>(() => localStorage.getItem('sender_name') || '');
-  const [showNotification, setShowNotification] = useState(false);
-  const [notificationData, setNotificationData] = useState({ fileCount: 0, senderName: '' });
+  const [checkingName, setCheckingName] = useState(false);
+  const [completedTransfers, setCompletedTransfers] = useState(0);
   const { sendFiles, transferProgress } = useSenderPeer();
+  const [receipt, setReceipt] = useState<{ files: File[]; date: Date } | null>(null);
+  useEffect(() => {
+    if (transferProgress.status !== 'completed') return;
+    setReceipt({ files: selectedFiles, date: new Date() });
+    setSelectedFiles([]);
+    setCompletedTransfers(count => count + 1);
+  }, [transferProgress.status]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const validFiles = await validateFiles(acceptedFiles);
-    if (validFiles.length > 0) {
-      setSelectedFiles(prev => [...prev, ...validFiles]);
-      toast.success(`${validFiles.length} file(s) added`);
-    }
+    if (validFiles.length === 0) return;
+
+    setSelectedFiles(prev => {
+      const seen = new Set(prev.map(f => `${f.name}|${f.size}|${f.lastModified}`));
+      const fresh = validFiles.filter(f => !seen.has(`${f.name}|${f.size}|${f.lastModified}`));
+      const skipped = validFiles.length - fresh.length;
+
+      if (fresh.length > 0) toast.success(`${fresh.length} file(s) added`);
+      if (skipped > 0) toast.info(`${skipped} file(s) already in your list`);
+
+      return [...prev, ...fresh];
+    });
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
-    multiple: true
+    multiple: true,
+    noClick: false
   });
 
   const removeFile = (index: number) => {
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Returns true when the name is free (or already owned by this device)
+  const isUsernameAvailable = async (candidate: string) => {
+    const ownName = localStorage.getItem('sender_name');
+    if (ownName && ownName.toLowerCase() === candidate.toLowerCase()) return true;
+
+    const { data, error } = await supabase
+      .from('pending_transfers')
+      .select('sender_name')
+      .ilike('sender_name', candidate)
+      .eq('downloaded', false)
+      .limit(1);
+
+    if (error) return true; // don't block on lookup failure
+    if (data && data.length > 0) {
+      const suggestion = `${candidate}_${Math.floor(Math.random() * 90 + 10)}`;
+      toast.error(`Username "${candidate}" already exists`, {
+        description: `Someone is already in the queue with this name. Try something different — for example "${suggestion}".`
+      });
+      return false;
+    }
+    return true;
   };
 
   const handleSend = async () => {
@@ -46,6 +85,11 @@ export const SenderForm: React.FC = () => {
       return;
     }
 
+    setCheckingName(true);
+    const available = await isUsernameAvailable(name.trim());
+    setCheckingName(false);
+    if (!available) return;
+
     if (!registerUserForHour(name.trim())) {
       return;
     }
@@ -53,18 +97,13 @@ export const SenderForm: React.FC = () => {
     localStorage.setItem('sender_name', name.trim());
 
     try {
-      const fileCount = selectedFiles.length;
       await sendFiles(selectedFiles, name);
-      
-      // Show notification
-      setNotificationData({ fileCount, senderName: name.trim() });
-      setShowNotification(true);
-      
-      setSelectedFiles([]);
+
     } catch (error) {
       console.error('Send failed:', error);
     }
   };
+
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B';
@@ -75,150 +114,38 @@ export const SenderForm: React.FC = () => {
 
   const totalSize = selectedFiles.reduce((sum, f) => sum + f.size, 0);
 
-  if (transferProgress.active && transferProgress.status === 'transferring') {
-    return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col items-center justify-center py-10 space-y-6"
-      >
-        <OrbitalAnimation isTransferring={true} size="lg" />
-        <div className="text-center space-y-1">
-          <p className="text-base font-medium text-foreground">Sending files…</p>
-          <p className="text-sm text-muted-foreground">{transferProgress.currentFile}</p>
-        </div>
-        <div className="w-full max-w-xs space-y-2">
-          <Progress value={transferProgress.progress} className="h-1.5" />
-          <p className="text-center text-xs text-primary font-medium">{transferProgress.progress}%</p>
-        </div>
-      </motion.div>
-    );
-  }
+  const busy = transferProgress.active && transferProgress.status !== 'completed';
+  const safety = <div className="transfer-safety"><span><LockKeyhole />Encrypted in transit</span><span><ShieldCheck />File safety checks</span><span><CheckCircle2 />No account required</span></div>;
 
-  return (
-    <div className="space-y-5">
-      <ShareNotification
-        isOpen={showNotification}
-        onClose={() => setShowNotification(false)}
-        senderName={notificationData.senderName}
-        fileCount={notificationData.fileCount}
-      />
-
-      {/* Name Input */}
-      <div className="space-y-1.5">
-        <label className="text-sm font-medium text-foreground flex items-center gap-2">
-          <User className="h-3.5 w-3.5 text-primary" />
-          Your Name
-        </label>
-        <Input
-          placeholder="Enter your name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="bg-secondary/40 border-border focus:border-primary"
-          disabled={transferProgress.active}
-        />
+  return <div className="sender-form">
+    <SenderFeedbackCampaign completedTransfers={completedTransfers} />
+    {busy ? <div className="upload-view">
+      <h2 className="text-2xl font-bold">{transferProgress.status === 'connecting' ? 'Connecting…' : 'Uploading files…'}</h2>
+      <p className="mt-2 text-sm text-muted-foreground">Your files are being transferred to SRGEC.</p>
+      <div className="mt-6 space-y-2">{selectedFiles.map(file => <div className="upload-file-row" key={file.name}><span className="file-type-icon"><File /></span><div className="min-w-0 flex-1"><p className="truncate text-sm">{file.name}</p><p className="mt-1 text-xs text-muted-foreground">{formatFileSize(file.size)}</p></div></div>)}</div>
+      <div className="mt-5 flex items-center justify-between gap-4 text-xs"><span className="truncate text-muted-foreground">{transferProgress.currentFile || 'Preparing your transfer'}</span><span className="text-primary">{transferProgress.progress}%</span></div>
+      <Progress value={transferProgress.progress} className="mt-2 h-2" />
+      <div className="protection-panel"><ShieldCheck className="h-8 w-8 text-success" /><div><p className="font-semibold text-sm">Your files are protected</p><p className="mt-2 text-xs text-muted-foreground">Encrypted in transit · Risky file types filtered</p></div></div>
+    </div> : receipt ? <div className="completion-view">
+      <CheckCircle2 className="completion-icon" />
+      <h2 className="mt-5 text-2xl font-bold text-success">Transfer complete!</h2><p className="mt-2 text-sm text-muted-foreground">Your files have been sent to SRGEC.</p>
+      <div className="receipt-details"><div><p>Files</p><strong>{receipt.files.length} files · {formatFileSize(receipt.files.reduce((sum, f) => sum + f.size, 0))}</strong></div><div><p>Destination</p><strong>SRGEC</strong></div><div><p>Sent at</p><strong>{receipt.date.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</strong></div></div>
+      <div className="completion-actions"><Button onClick={() => setReceipt(null)} disabled={transferProgress.active}><Send />Send more files</Button><Button asChild variant="outline"><Link to="/?view=activity"><ListChecks />View in Activity</Link></Button></div>
+    </div> : <>
+      <div className="sender-fields">
+        <div className="space-y-2"><label htmlFor="sender-name" className="field-label"><User />Your name</label><div className="relative"><User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" /><Input id="sender-name" placeholder="Enter your name" value={name} onChange={e => setName(e.target.value)} className="pl-9 bg-secondary/40" disabled={busy} /></div><p className="text-[11px] text-muted-foreground">This name will be visible to the receiver.</p></div>
+        <div className="space-y-2"><p className="field-label"><Building2 />Destination</p><div className="destination-panel"><Building2 className="h-7 w-7 shrink-0 text-muted-foreground" /><div className="min-w-0"><p className="text-sm font-bold">SRGEC</p><p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">Seshadri Rao Gudlavalleru<br />Engineering College</p></div><span className="secure-badge"><ShieldCheck />Secure</span></div></div>
       </div>
-
-      {/* Receiver Code */}
-      <div className="p-3 rounded-lg bg-primary/5 border border-primary/15">
-        <p className="text-xs text-muted-foreground mb-0.5">Sending to:</p>
-        <p className="text-xl font-bold tracking-widest text-primary font-display">SRGEC</p>
+      <div {...getRootProps()} className={`file-dropzone ${isDragActive ? 'is-dragging' : ''}`}>
+        <input {...getInputProps()} aria-label="Select files" disabled={busy} />
+        <CloudUpload className="mx-auto mb-3 h-9 w-9 text-primary" /><p className="text-sm font-semibold">Drop files here</p><p className="mt-1 text-xs text-muted-foreground">or click to browse</p><p className="mt-3 text-[10px] text-muted-foreground">50 MB per file · Up to 5 GB total · Multiple files allowed</p>
       </div>
-
-      {/* File Drop Zone */}
-      <div
-        {...getRootProps()}
-        className={`relative p-6 border-2 border-dashed rounded-xl transition-all duration-200 cursor-pointer
-          ${isDragActive
-            ? "border-primary bg-primary/5"
-            : "border-border hover:border-primary/40 hover:bg-secondary/30"
-          }
-          ${transferProgress.active ? "pointer-events-none opacity-50" : ""}
-        `}
-      >
-        <input {...getInputProps()} disabled={transferProgress.active} />
-        
-        {selectedFiles.length === 0 ? (
-          <div className="text-center">
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center">
-              <Upload className="h-5 w-5 text-primary" />
-            </div>
-            <p className="text-sm text-foreground font-medium">
-              Drop files here or click to browse
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Up to 5GB total · {getRemainingHourlySlots()} user slots this hour
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <AnimatePresence>
-              {selectedFiles.map((file, index) => (
-                <motion.div
-                  key={`${file.name}-${index}`}
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="flex items-center justify-between p-2.5 bg-secondary/40 rounded-lg border border-border/50"
-                >
-                  <div className="flex items-center gap-2.5 overflow-hidden">
-                    <div className="w-7 h-7 rounded bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <File className="h-3.5 w-3.5 text-primary" />
-                    </div>
-                    <div className="overflow-hidden">
-                      <p className="text-sm text-foreground truncate">{file.name}</p>
-                      <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); removeFile(index); }}
-                    className="p-1 hover:bg-destructive/10 rounded-full transition-colors"
-                    disabled={transferProgress.active}
-                  >
-                    <X className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
-                  </button>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-            <div className="flex items-center justify-between pt-1">
-              <p className="text-xs text-muted-foreground">Click or drag to add more</p>
-              <p className="text-xs font-medium text-primary">{formatFileSize(totalSize)} total</p>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Connecting state */}
-      {transferProgress.active && transferProgress.status === 'connecting' && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="p-3 rounded-lg bg-secondary/50 border border-border/50 flex items-center gap-3"
-        >
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full"
-          />
-          <span className="text-sm text-foreground">Connecting…</span>
-        </motion.div>
-      )}
-
-      {/* Send Button */}
-      <Button
-        onClick={handleSend}
-        disabled={selectedFiles.length === 0 || !name.trim() || transferProgress.active}
-        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-        size="lg"
-      >
-        <Send className="h-4 w-4 mr-2" />
-        {transferProgress.active ? 'Sending…' : `Send ${selectedFiles.length} File(s)`}
-      </Button>
-
-      {/* Queue */}
-      <div className="pt-5 border-t border-border/50">
-        <SenderQueue />
-      </div>
-    </div>
-  );
+      {selectedFiles.length > 0 && <>
+        <div className="selected-summary"><span>{selectedFiles.length} files selected</span><Button variant="ghost" size="sm" onClick={() => setSelectedFiles([])} className="text-primary">Clear all</Button></div>
+        <div className="selected-file-grid"><AnimatePresence>{selectedFiles.map((file, index) => <motion.div key={`${file.name}-${file.lastModified}`} initial={{opacity:0,y:6}} animate={{opacity:1,y:0}} exit={{opacity:0}} className="selected-file"><span className="file-type-icon"><File /></span><div className="min-w-0 flex-1"><p className="truncate text-xs font-medium">{file.name}</p><p className="mt-1 text-[10px] text-muted-foreground">{formatFileSize(file.size)}</p></div><Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => removeFile(index)} aria-label={`Remove ${file.name}`} title="Remove file"><X /></Button></motion.div>)}</AnimatePresence></div>
+      </>}
+      <div className="send-action-row"><div>{selectedFiles.length > 0 ? <><p className="text-xs text-muted-foreground">{selectedFiles.length} files · {formatFileSize(totalSize)}</p><Button variant="ghost" size="sm" onClick={open} className="mt-1 h-7 px-0 text-primary"><Plus />Add more files</Button></> : null}</div><Button onClick={handleSend} disabled={selectedFiles.length === 0 || !name.trim() || checkingName} className="send-action"><Send />{checkingName ? 'Checking name…' : selectedFiles.length ? `Send ${selectedFiles.length} files` : 'Send files'}</Button></div>
+      {safety}
+    </>}
+  </div>;
 };
