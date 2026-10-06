@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Moon, Sun, Menu, X, Home, Sparkles, Info, ShieldCheck } from 'lucide-react';
+import { Moon, Sun, Menu, X, Send, ListChecks, ChartNoAxesColumn, Settings, ShieldCheck, Home, MoreHorizontal, Sparkles, Info } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { Link, useLocation } from 'react-router-dom';
@@ -7,93 +7,29 @@ import { BrandMark } from '@/components/BrandMark';
 
 export const Header: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-
+  const view = new URLSearchParams(search).get('view') || 'transfer';
   const nav = [
-    { to: '/', label: 'Home', icon: Home },
-    { to: '/features', label: 'Features', icon: Sparkles },
-    { to: '/about', label: 'About', icon: Info },
+    { to: '/', label: 'Transfer', mobile: 'Home', icon: Send, mobileIcon: Home, key: 'transfer' },
+    { to: '/?view=activity', label: 'Activity', mobile: 'Activity', icon: ListChecks, mobileIcon: ListChecks, key: 'activity' },
+    { to: '/?view=analytics', label: 'Analytics', mobile: 'Analytics', icon: ChartNoAxesColumn, mobileIcon: ChartNoAxesColumn, key: 'analytics' },
+    { to: '/?view=settings', label: 'Settings', mobile: 'More', icon: Settings, mobileIcon: MoreHorizontal, key: 'settings' },
   ];
-
-  return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-card/95 xl:inset-y-0 xl:right-auto xl:w-60 xl:border-b-0 xl:border-r">
-      <div className="flex h-16 items-center justify-between px-4 xl:h-full xl:flex-col xl:items-stretch xl:px-5 xl:py-7">
-        <Link to="/" className="group flex items-center gap-3" aria-label="SynkNode home">
-          <BrandMark className="scale-90" />
-          <div className="leading-none">
-            <p className="font-display text-lg font-bold text-foreground">SynkNode</p>
-            <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Secure transfer</p>
-          </div>
-        </Link>
-
-        <nav className="mt-12 hidden flex-1 space-y-1 xl:block" aria-label="Primary navigation">
-            {nav.map((item) => {
-              const active = pathname === item.to;
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold transition-colors ${
-                    active ? 'bg-accent text-primary' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="hidden border-t border-border pt-5 xl:block">
-            <div className="mb-4 flex items-center gap-2 rounded-md bg-secondary px-3 py-2.5">
-              <ShieldCheck className="h-4 w-4 text-primary" />
-              <div><p className="text-xs font-semibold">Protected uploads</p><p className="text-[10px] text-muted-foreground">File safety active</p></div>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleTheme}
-              className="w-full justify-start gap-2"
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-              {theme === 'dark' ? 'Dark theme' : 'Light theme'}
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-1 xl:hidden">
-            <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
-              {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setMobileOpen(v => !v)}
-              className="rounded-md"
-              aria-label="Menu"
-            >
-              {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-            </Button>
-          </div>
-        {mobileOpen && (
-          <nav className="absolute inset-x-0 top-16 flex flex-col border-b border-border bg-card p-3 shadow-lg xl:hidden">
-            {nav.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                onClick={() => setMobileOpen(false)}
-                className={`rounded-md px-3 py-3 text-sm font-semibold ${
-                  pathname === item.to ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-secondary/60'
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        )}
-      </div>
+  const links = (mobile = false) => nav.map(item => {
+    const Icon = mobile ? item.mobileIcon : item.icon;
+    const active = pathname === '/' && view === item.key;
+    return <Button key={item.key} asChild variant="ghost" className={`${mobile ? 'bottom-nav-link' : 'rail-link'} ${active ? 'is-active' : ''}`}><Link to={item.to} onClick={() => setMobileOpen(false)} aria-current={active ? 'page' : undefined}><Icon className="h-4 w-4" /><span>{mobile ? item.mobile : item.label}</span></Link></Button>;
+  });
+  return <>
+    <header className="app-header">
+      <Link to="/" className="flex items-center gap-2" aria-label="SynkNode home"><BrandMark /><div><p className="text-base font-bold leading-tight">SynkNode</p><p className="brand-caption">Secure transfer</p></div></Link>
+      <nav className="desktop-navigation" aria-label="Primary navigation">{links()}</nav>
+      <div className="rail-protection"><ShieldCheck className="h-5 w-5 text-success" /><div><p className="text-xs font-semibold">Protected transfers</p><p className="mt-1 text-[10px] text-muted-foreground">File safety checks</p></div></div>
+      <Button variant="ghost" onClick={toggleTheme} className="rail-theme" aria-label="Toggle theme">{theme === 'dark' ? <Moon /> : <Sun />}<span>{theme === 'dark' ? 'Dark theme' : 'Light theme'}</span><span className={`theme-indicator ${theme === 'dark' ? 'is-on' : ''}`} /></Button>
+      <Button variant="secondary" size="icon" className="mobile-menu" onClick={() => setMobileOpen(v => !v)} aria-label={mobileOpen ? 'Close menu' : 'Open menu'}>{mobileOpen ? <X /> : <Menu />}</Button>
+      {mobileOpen && <nav className="mobile-drawer" aria-label="Mobile menu">{links()}<div className="border-t border-border pt-3"><Button asChild variant="ghost"><Link to="/features"><Sparkles />Features</Link></Button><Button asChild variant="ghost"><Link to="/about"><Info />About</Link></Button><Button variant="ghost" onClick={toggleTheme}>{theme === 'dark' ? <Moon /> : <Sun />} {theme === 'dark' ? 'Dark theme' : 'Light theme'}</Button></div></nav>}
     </header>
-  );
+    <nav className="bottom-navigation" aria-label="Mobile primary navigation">{links(true)}</nav>
+  </>;
 };

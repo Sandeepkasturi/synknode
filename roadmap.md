@@ -17,3 +17,8 @@
 
 ## Vercel build fix (Oct 2)
 - [x] Regenerate pnpm-lock.yaml so Vercel's frozen-lockfile install passes (drizzle-kit, drizzle-orm, postgres were missing)
+
+## Device-specific interface (Oct 6)
+- [ ] Match supplied dark desktop workspace and compact mobile transfer designs
+- [ ] Adapt sender, upload completion, receiver queue and navigation without changing transfer behavior
+- [ ] Verify desktop and mobile interactions

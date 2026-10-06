@@ -6,7 +6,7 @@ import { BrandMark } from '@/components/BrandMark';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="mt-4 border-t border-border bg-card xl:ml-60" id="about">
+    <footer className="mt-4 border-t border-border bg-background app-footer" id="about">
       <div className="mx-auto max-w-7xl px-6 py-10 xl:px-10">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           {/* LEFT: SynkNode / Developer / Product Links */}
@@ -71,10 +71,10 @@ export const Footer: React.FC = () => {
 
           {/* RIGHT: Company panel — themed */}
           <div className="relative">
-            <div className="relative overflow-hidden border border-border bg-secondary/40 p-6 md:p-7">
+            <div className="relative overflow-hidden company-details p-0">
 
               <div className="relative flex items-center gap-4">
-                <div className="flex h-20 w-28 flex-shrink-0 items-center justify-center border border-border bg-card p-2 md:h-24 md:w-32">
+                <div className="flex h-20 w-28 flex-shrink-0 items-center justify-center border border-border bg-logo-surface p-2 md:h-24 md:w-32">
                   <img
                     src={skavtechLogo}
                     alt="SKAV TECH — AI Innovation Lab"
