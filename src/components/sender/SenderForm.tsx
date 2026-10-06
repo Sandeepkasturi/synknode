@@ -17,6 +17,7 @@ export const SenderForm: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [name, setName] = useState<string>(() => localStorage.getItem('sender_name') || '');
   const [checkingName, setCheckingName] = useState(false);
+  const [completedTransfers, setCompletedTransfers] = useState(0);
   const { sendFiles, transferProgress } = useSenderPeer();
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
