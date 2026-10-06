@@ -96,24 +96,14 @@ export const Footer: React.FC = () => {
               <div className="relative mt-5 pt-5 border-t border-border">
                 <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3">Company Links</p>
                 <div className="grid grid-cols-2 gap-2">
-                  <a href="https://skavtechs.vercel.app" target="_blank" rel="noopener noreferrer"
-                    className="group inline-flex items-center justify-between gap-2 rounded-md border border-border bg-card px-3 py-2 text-xs text-foreground transition hover:border-primary/40">
-                    <span className="inline-flex items-center gap-1.5"><Globe className="w-3 h-3" /> Website</span>
-                    <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
-                  </a>
-                  <a href="https://github.com/sandeepkasturi" target="_blank" rel="noopener noreferrer"
-                    className="group inline-flex items-center justify-between gap-2 rounded-md border border-border bg-card px-3 py-2 text-xs text-foreground transition hover:border-primary/40">
-                    <span className="inline-flex items-center gap-1.5"><Github className="w-3 h-3" /> GitHub</span>
-                    <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
-                  </a>
                   <a href="https://linkedin.com/in/sandeepkasturi9" target="_blank" rel="noopener noreferrer"
                     className="group inline-flex items-center justify-between gap-2 rounded-md border border-border bg-card px-3 py-2 text-xs text-foreground transition hover:border-primary/40">
                     <span className="inline-flex items-center gap-1.5"><Linkedin className="w-3 h-3" /> LinkedIn</span>
                     <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
                   </a>
-                  <a href="mailto:skavtech.in@gmail.com"
-                    className="group col-span-2 inline-flex items-center justify-between gap-2 rounded-md border border-primary/20 bg-primary/10 px-3 py-2 text-xs text-foreground transition hover:bg-primary/20">
-                    <span className="inline-flex items-center gap-1.5"><Mail className="w-3 h-3" /> skavtech.in@gmail.com</span>
+                  <a href="https://skavtechs.vercel.app" target="_blank" rel="noopener noreferrer"
+                    className="group inline-flex items-center justify-between gap-2 rounded-md border border-border bg-card px-3 py-2 text-xs text-foreground transition hover:border-primary/40">
+                    <span className="inline-flex items-center gap-1.5"><Globe className="w-3 h-3" /> Website</span>
                     <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
                   </a>
                 </div>

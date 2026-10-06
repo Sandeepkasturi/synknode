@@ -97,14 +97,13 @@ export const useSenderPeer = () => {
             }
 
             const fileId = crypto.randomUUID();
-            // Storage keys only allow a conservative filename alphabet. Keep the
-            // original name in the database, but use a safe key for the object.
-            const safeFileName = file.name
-              .normalize('NFKD')
-              .replace(/[^a-zA-Z0-9._-]/g, '_')
-              .replace(/\.{2,}/g, '.')
-              .replace(/^\.+|\.+$/g, '') || `file-${fileId}`;
-            const storagePath = `${fileId}/${safeFileName}`;
+            // Keep user filenames in the database only. Storage receives a
+            // conservative ASCII key so characters such as ~ never reach the API.
+            const storageExtension = file.name.includes('.')
+              ? file.name.slice(file.name.lastIndexOf('.') + 1).toLowerCase().replace(/[^a-z0-9]/g, '')
+              : '';
+            const storageFileName = storageExtension ? `${fileId}.${storageExtension}` : fileId;
+            const storagePath = `${fileId}/${storageFileName}`;
 
             setTransferProgress({
               active: true,
