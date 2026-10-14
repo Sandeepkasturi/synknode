@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useQueue } from "@/context/QueueContext";
-import { supabase } from "@/integrations/supabase/client";
+import { downloadReceiverFile } from "@/lib/downloadReceiverFile";
+import { Button } from "@/components/ui/button";
 import {
   Download, Clock, FileIcon, Trash2, FolderOpen, CheckCircle,
   Eye, ShieldAlert, ChevronRight, Search, X, SlidersHorizontal,
@@ -14,7 +15,7 @@ import { getFileSecurityIssue } from "@/utils/fileTransfer.utils";
 type SortKey = "fifo" | "newest" | "most";
 
 export const LiveQueue: React.FC = () => {
-  const { queue, removeFromQueue, updateEntryStatus } = useQueue();
+  const { queue, removeFromQueue, updateEntryStatus, refreshQueue } = useQueue();
   const [expanded, setExpanded] = useState<string | null>(null);
   const [previewFile, setPreviewFile] = useState<QueueFile | null>(null);
   const [previewSender, setPreviewSender] = useState("");
@@ -40,73 +41,29 @@ export const LiveQueue: React.FC = () => {
   const formatStamp = (ts: number) =>
     new Date(ts).toLocaleString([], { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 
-  const downloadFile = (blob: Blob, fileName: string, senderName: string) => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${senderName}_${fileName}`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
   const downloadEntry = async (entryId: string) => {
     const entry = queue.find(e => e.id === entryId);
     if (!entry) return;
-    const unsafe = entry.files.find(f => getFileSecurityIssue({ name: f.name, type: f.type }));
-    if (unsafe) { toast.error(`Blocked unsafe file: ${unsafe.name}`); return; }
-
+    if (entry.files.some(f => getFileSecurityIssue(f))) { toast.error('Blocked unsafe file'); return; }
     updateEntryStatus(entryId, 'downloading');
     try {
-      for (const file of entry.files) {
-        if (file.blob) downloadFile(file.blob, file.name, entry.senderName);
-        else if (file.storagePath) {
-          const { data, error } = await supabase.storage.from('pending-files').download(file.storagePath);
-          if (error) throw error;
-          if (data) downloadFile(data, file.name, entry.senderName);
-        }
-        await new Promise(r => setTimeout(r, 300));
-      }
-      for (const file of entry.files) {
-        if (file.dbId) {
-          await supabase.from('pending_transfers').update({ downloaded: true }).eq('id', file.dbId);
-          if (file.storagePath) await supabase.storage.from('pending-files').remove([file.storagePath]);
-          await supabase.from('pending_transfers').delete().eq('id', file.dbId);
-          void import('@/lib/analytics').then(m => m.trackTransferDownloaded({
-            sender_name: entry.senderName,
-            file_name: file.name,
-            file_size: file.size ?? 0,
-            file_type: file.type ?? null,
-          }));
-        }
-      }
-      updateEntryStatus(entryId, 'completed');
+      for (const file of entry.files) await downloadReceiverFile(file, entry.senderName);
       toast.success(`Downloaded ${entry.files.length} file(s) from ${entry.senderName}`);
-      setTimeout(() => removeFromQueue(entryId), 2000);
     } catch (err) {
-      console.error(err);
-      toast.error('Failed to download files');
-      updateEntryStatus(entryId, 'waiting');
+      toast.error(err instanceof Error ? err.message : 'Download failed');
+    } finally {
+      await refreshQueue();
     }
   };
 
   const downloadSingleFile = async (file: QueueFile, senderName: string) => {
-    if (getFileSecurityIssue({ name: file.name, type: file.type })) {
-      toast.error(`Blocked unsafe file: ${file.name}`);
-      return;
-    }
     try {
-      if (file.blob) downloadFile(file.blob, file.name, senderName);
-      else if (file.storagePath) {
-        const { data, error } = await supabase.storage.from('pending-files').download(file.storagePath);
-        if (error) throw error;
-        if (data) downloadFile(data, file.name, senderName);
-      }
+      await downloadReceiverFile(file, senderName);
       toast.success(`Downloaded ${file.name}`);
     } catch (err) {
-      console.error(err);
-      toast.error('Download failed');
+      toast.error(err instanceof Error ? err.message : 'Download failed');
+    } finally {
+      await refreshQueue();
     }
   };
 
@@ -162,7 +119,7 @@ export const LiveQueue: React.FC = () => {
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="font-serif text-2xl leading-none text-primary">Queue</h3>
+          <h3 className="text-xl font-bold leading-none text-foreground">Incoming files</h3>
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground mt-1">
             {totalFiles} files · {queue.length} users
           </p>
@@ -179,28 +136,28 @@ export const LiveQueue: React.FC = () => {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search users or files..."
-            className="w-full bg-secondary/40 border border-border/60 rounded-xl py-2.5 pl-10 pr-9 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+            aria-label="Search incoming files" placeholder="Search users or files..."
+            className="w-full bg-secondary/40 border border-border/60 rounded-md py-2.5 pl-10 pr-9 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
           />
           {search && (
-            <button
+            <Button variant="ghost"
               onClick={() => setSearch("")}
               className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded text-muted-foreground hover:text-foreground"
               title="Clear"
             >
               <X className="h-3.5 w-3.5" />
-            </button>
+            </Button>
           )}
         </div>
         <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-          <button className={chip(sort === 'fifo' && !pendingOnly)} onClick={() => { setSort('fifo'); setPendingOnly(false); }}>
+          <Button variant="ghost" className={chip(sort === 'fifo' && !pendingOnly)} onClick={() => { setSort('fifo'); setPendingOnly(false); }}>
             All senders · FIFO
-          </button>
-          <button className={chip(pendingOnly)} onClick={() => setPendingOnly(v => !v)}>
+          </Button>
+          <Button variant="ghost" className={chip(pendingOnly)} onClick={() => setPendingOnly(v => !v)}>
             Pending ({pendingCount})
-          </button>
-          <button className={chip(sort === 'newest')} onClick={() => setSort('newest')}>Newest first</button>
-          <button className={chip(sort === 'most')} onClick={() => setSort('most')}>Most files</button>
+          </Button>
+          <Button variant="ghost" className={chip(sort === 'newest')} onClick={() => setSort('newest')}>Newest first</Button>
+          <Button variant="ghost" className={chip(sort === 'most')} onClick={() => setSort('most')}>Most files</Button>
         </div>
       </div>
 
@@ -216,17 +173,17 @@ export const LiveQueue: React.FC = () => {
             return (
               <div
                 key={entry.id}
-                className={`rounded-2xl border overflow-hidden transition-colors ${
+                className={`rounded-lg border overflow-hidden transition-colors ${
                   isOpen ? 'border-primary/40 bg-card' : 'border-border/60 bg-secondary/20'
                 }`}
               >
-                <button
+                <Button variant="ghost"
                   onClick={() => setExpanded(isOpen ? null : entry.id)}
-                  className="w-full p-4 flex items-center justify-between gap-3 text-left"
+                  className="h-auto w-full p-4 flex items-center justify-between gap-3 text-left"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <span className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
-                      done ? 'bg-green-500 text-white'
+                      done ? 'bg-success text-success-foreground'
                         : isOpen ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
                         : 'bg-secondary text-muted-foreground'
                     }`}>
@@ -241,7 +198,7 @@ export const LiveQueue: React.FC = () => {
                     </div>
                   </div>
                   <ChevronRight className={`h-4 w-4 flex-shrink-0 text-muted-foreground transition-transform ${isOpen ? 'rotate-90 text-primary' : ''}`} />
-                </button>
+                </Button>
 
                 <AnimatePresence initial={false}>
                   {isOpen && (
@@ -254,11 +211,11 @@ export const LiveQueue: React.FC = () => {
                     >
                       <div className="px-3 pb-3">
                         <div className="flex gap-2 pb-3 border-b border-border/60 mb-2">
-                          <button
+                          <Button variant="ghost"
                             onClick={() => downloadEntry(entry.id)}
                             disabled={entry.status === 'downloading' || done}
                             className={`flex-1 inline-flex items-center justify-center gap-2 text-xs font-bold py-2 rounded-lg transition-colors ${
-                              done ? 'bg-green-500 text-white' : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                              done ? 'bg-success text-success-foreground' : 'bg-primary text-primary-foreground hover:bg-primary/90'
                             } disabled:opacity-70`}
                           >
                             {entry.status === 'downloading' ? (
@@ -268,48 +225,48 @@ export const LiveQueue: React.FC = () => {
                             ) : (
                               <><Download className="h-3.5 w-3.5" /> Get all files</>
                             )}
-                          </button>
-                          <button
+                          </Button>
+                          <Button variant="ghost"
                             onClick={() => { removeFromQueue(entry.id); toast.info("Removed"); }}
                             className="px-3 rounded-lg text-destructive hover:bg-destructive/10 transition-colors"
                             title="Remove from queue"
                           >
                             <Trash2 className="h-4 w-4" />
-                          </button>
+                          </Button>
                         </div>
 
                         <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
                           {entry.files.map((file, i) => {
                             const issue = getFileSecurityIssue({ name: file.name, type: file.type });
                             return (
-                              <div key={i} className="flex items-center gap-3 p-2.5 rounded-xl bg-secondary/30 hover:bg-primary/5 transition-colors">
+                              <div key={i} className="flex items-center gap-3 p-2.5 rounded-md bg-secondary/30 hover:bg-primary/5 transition-colors">
                                 <div className={`w-10 h-10 flex-shrink-0 rounded-lg flex items-center justify-center border border-border/60 bg-background ${issue ? 'text-destructive' : 'text-primary'}`}>
                                   {issue ? <ShieldAlert className="h-5 w-5" /> : <FileIcon className="h-5 w-5" />}
                                 </div>
-                                <button
+                                <Button variant="ghost"
                                   onClick={() => openPreview(file, entry.senderName)}
-                                  className="flex-1 min-w-0 text-left"
+                                  className="h-auto flex-1 min-w-0 flex-col items-start gap-0 overflow-hidden px-1 text-left"
                                 >
-                                  <p className="text-sm font-medium text-foreground truncate">{file.name}</p>
+                                  <p className="max-w-full text-sm font-medium text-foreground truncate">{file.name}</p>
                                   <span className="text-[10px] uppercase font-bold tracking-wide text-muted-foreground">
                                     {formatFileSize(file.size)} · {issue ? <span className="text-destructive">Blocked</span> : <span className="text-primary">Waiting</span>}
                                   </span>
-                                </button>
-                                <button
+                                </Button>
+                                <Button variant="ghost"
                                   onClick={() => openPreview(file, entry.senderName)}
                                   className="p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10"
                                   title="Preview"
                                 >
                                   <Eye className="h-4 w-4" />
-                                </button>
-                                <button
+                                </Button>
+                                <Button variant="ghost"
                                   onClick={() => downloadSingleFile(file, entry.senderName)}
                                   disabled={!!issue}
                                   className="p-2 rounded-lg text-primary hover:bg-primary/10 disabled:opacity-30"
                                   title="Download"
                                 >
                                   <Download className="h-4 w-4" />
-                                </button>
+                                </Button>
                               </div>
                             );
                           })}

@@ -4,6 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { FileIcon, Download, Loader2, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { QueueFile } from "@/types/queue.types";
+import { downloadReceiverFile } from "@/lib/downloadReceiverFile";
+import { useQueue } from "@/context/QueueContext";
+import { toast } from "sonner";
 import { getFileSecurityIssue } from "@/utils/fileTransfer.utils";
 
 interface FilePreviewProps {
@@ -33,6 +36,9 @@ const getFileCategory = (type: string, name: string): 'image' | 'pdf' | 'video' 
 };
 
 export const FilePreview: React.FC<FilePreviewProps> = ({ file, senderName, open, onOpenChange }) => {
+  const { refreshQueue } = useQueue();
+  const [downloading, setDownloading] = useState(false);
+  const [loadedBlob, setLoadedBlob] = useState<Blob | null>(null);
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [textContent, setTextContent] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -40,6 +46,7 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, senderName, open
 
   useEffect(() => {
     if (!open || !file) {
+      setLoadedBlob(null);
       setBlobUrl(null);
       setTextContent(null);
       setError(null);
@@ -74,6 +81,7 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, senderName, open
           return;
         }
 
+        setLoadedBlob(blob);
         const category = getFileCategory(file.type, file.name);
 
         if (category === 'text') {
@@ -103,16 +111,19 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, senderName, open
   const category = getFileCategory(file.type, file.name);
   const securityIssue = getFileSecurityIssue({ name: file.name, type: file.type });
 
-  const handleDownload = () => {
-    if (!blobUrl && !textContent) return;
-    const url = blobUrl || URL.createObjectURL(new Blob([textContent || '']));
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${senderName}_${file.name}`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    if (!blobUrl) URL.revokeObjectURL(url);
+  const handleDownload = async () => {
+    if (!loadedBlob || downloading) return;
+    setDownloading(true);
+    try {
+      await downloadReceiverFile({ ...file, blob: loadedBlob }, senderName);
+      toast.success(`Downloaded ${file.name}`);
+      onOpenChange(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Download failed');
+    } finally {
+      setDownloading(false);
+      await refreshQueue();
+    }
   };
 
   return (
@@ -125,7 +136,7 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, senderName, open
               <FileIcon className="h-4 w-4 text-primary flex-shrink-0" />
               <span className="truncate">{file.name}</span>
             </DialogTitle>
-            <Button size="sm" variant="ghost" onClick={handleDownload} disabled={!!securityIssue} className="flex-shrink-0 text-xs">
+            <Button size="sm" variant="ghost" onClick={handleDownload} disabled={!!securityIssue || !loadedBlob || downloading} className="flex-shrink-0 text-xs">
               <Download className="h-3.5 w-3.5 mr-1" />
               Download
             </Button>
@@ -164,7 +175,7 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, senderName, open
               title={file.name}
             />
           ) : category === 'video' && blobUrl ? (
-            <div className="flex items-center justify-center p-4 bg-black/5">
+            <div className="flex items-center justify-center p-4 bg-secondary/20">
               <video
                 src={blobUrl}
                 controls
