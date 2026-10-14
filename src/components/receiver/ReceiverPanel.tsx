@@ -2,15 +2,20 @@ import React, { useState } from "react";
 import { useReceiverPeer } from "@/hooks/useReceiverPeer";
 import { LiveQueue } from "./LiveQueue";
 import { Button } from "@/components/ui/button";
-import { Radio, Power, Wifi, WifiOff, Lock, LogIn, Settings } from "lucide-react";
+import { Radio, Power, Wifi, WifiOff, Lock, LogIn, Settings, Copy, Share2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { OrbitalAnimation } from "@/components/OrbitalAnimation";
+import { useQueue } from "@/context/QueueContext";
+import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { LoginDialog } from "@/components/auth/LoginDialog";
 import { ManageReceiversDialog } from "@/components/auth/ManageReceiversDialog";
 
 export const ReceiverPanel: React.FC = () => {
   const { isConnected, isReceiver, startReceiver, stopReceiver, receiverCode } = useReceiverPeer();
+  const { queue } = useQueue();
+  const bytes = queue.reduce((s, e) => s + e.files.reduce((n, f) => n + f.size, 0), 0);
+  const copyCode = async () => { try { await navigator.clipboard.writeText("SRGEC"); toast.success("Receiver code copied"); } catch { toast.error("Unable to copy code"); } };
+  const shareCode = async () => { try { if (navigator.share) await navigator.share({ title: "SynkNode", text: "Send files to SRGEC", url: window.location.origin }); else await copyCode(); } catch { /* Share cancelled */ } };
   const { user, isPrimaryAdmin, signOut } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [showManageReceivers, setShowManageReceivers] = useState(false);
@@ -29,7 +34,7 @@ export const ReceiverPanel: React.FC = () => {
       <ManageReceiversDialog open={showManageReceivers} onOpenChange={setShowManageReceivers} />
 
       {/* Connection Status */}
-      <div className="flex items-center justify-between p-4 rounded-xl bg-secondary/40 border border-border/50">
+      <div className="flex flex-wrap gap-3 items-center justify-between p-4 rounded-lg bg-secondary/40 border border-border/50">
         <div className="flex items-center gap-3">
           {isReceiver ? (
             <motion.div
@@ -88,21 +93,11 @@ export const ReceiverPanel: React.FC = () => {
         </div>
       </div>
 
-      {/* Code Display */}
-      {isReceiver && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-center gap-5 p-5 rounded-xl bg-primary/5 border border-primary/15"
-        >
-          <OrbitalAnimation size="sm" isTransferring={false} />
-          <div className="text-center">
-            <p className="text-xs text-muted-foreground mb-1">Receiver code</p>
-            <p className="text-2xl font-bold tracking-widest text-primary font-display">{receiverCode}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">Share with senders</p>
-          </div>
-        </motion.div>
-      )}
+      <div className="receiver-code-panel">
+        <div><p className="text-xs text-muted-foreground">Your receiver code</p><div className="flex items-center gap-2 mt-2"><span className="receiver-code">SRGEC</span><Button variant="ghost" size="icon" onClick={copyCode} aria-label="Copy receiver code" title="Copy code"><Copy /></Button></div><p className="mt-2 text-[11px] text-muted-foreground">Share this code with senders.</p></div>
+        <div className="receiver-code-actions"><Button variant="outline" size="sm" onClick={copyCode}><Copy />Copy code</Button><Button variant="outline" size="sm" onClick={shareCode}><Share2 />Share</Button></div>
+      </div>
+      {isReceiver && <div className="receiver-stats"><div><strong>{queue.reduce((s, e) => s + e.files.length, 0)}</strong><p>Incoming files</p></div><div><strong>{queue.length}</strong><p>Senders</p></div><div><strong>{bytes < 1048576 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / 1048576).toFixed(1)} MB`}</strong><p>Total size</p></div></div>}
 
       {/* Queue */}
       <div className="border-t border-border/50 pt-5">
