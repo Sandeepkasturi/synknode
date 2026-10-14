@@ -245,9 +245,9 @@ export const LiveQueue: React.FC = () => {
                                 </div>
                                 <Button variant="ghost"
                                   onClick={() => openPreview(file, entry.senderName)}
-                                  className="h-auto flex-1 min-w-0 flex-col items-start gap-0 text-left"
+                                  className="h-auto flex-1 min-w-0 flex-col items-start gap-0 overflow-hidden px-1 text-left"
                                 >
-                                  <p className="text-sm font-medium text-foreground truncate">{file.name}</p>
+                                  <p className="max-w-full text-sm font-medium text-foreground truncate">{file.name}</p>
                                   <span className="text-[10px] uppercase font-bold tracking-wide text-muted-foreground">
                                     {formatFileSize(file.size)} · {issue ? <span className="text-destructive">Blocked</span> : <span className="text-primary">Waiting</span>}
                                   </span>
