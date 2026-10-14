@@ -19,10 +19,10 @@
 - [x] Regenerate pnpm-lock.yaml so Vercel's frozen-lockfile install passes (drizzle-kit, drizzle-orm, postgres were missing)
 
 ## Device-specific interface (Oct 6)
-- [ ] Match supplied dark desktop workspace and compact mobile transfer designs
-- [ ] Adapt sender, upload completion, receiver queue and navigation without changing transfer behavior
-- [ ] Verify desktop and mobile interactions
+- [x] Match supplied dark desktop workspace and compact mobile transfer designs
+- [x] Adapt sender, upload completion, receiver queue and navigation without changing transfer behavior
+- [x] Verify desktop and mobile interactions
 
 ## Receiver download cleanup (Oct 14)
-- [ ] Permanently delete downloaded files from storage and the database after successful receiver download
-- [ ] Verify cleanup and preserve efficient delivery
+- [x] Permanently delete downloaded files from storage and the database after successful receiver download
+- [x] Verify cleanup and preserve efficient delivery
