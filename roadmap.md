@@ -22,3 +22,7 @@
 - [ ] Match supplied dark desktop workspace and compact mobile transfer designs
 - [ ] Adapt sender, upload completion, receiver queue and navigation without changing transfer behavior
 - [ ] Verify desktop and mobile interactions
+
+## Receiver download cleanup (Oct 14)
+- [ ] Permanently delete downloaded files from storage and the database after successful receiver download
+- [ ] Verify cleanup and preserve efficient delivery
