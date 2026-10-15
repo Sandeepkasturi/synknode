@@ -44,6 +44,30 @@ export type Database = {
         }
         Relationships: []
       }
+      device_presence: {
+        Row: {
+          device_label: string
+          id: string
+          last_seen: string
+          owner_id: string
+          peer_code: string
+        }
+        Insert: {
+          device_label: string
+          id?: string
+          last_seen?: string
+          owner_id: string
+          peer_code: string
+        }
+        Update: {
+          device_label?: string
+          id?: string
+          last_seen?: string
+          owner_id?: string
+          peer_code?: string
+        }
+        Relationships: []
+      }
       pending_transfers: {
         Row: {
           created_at: string
@@ -52,7 +76,9 @@ export type Database = {
           file_size: number
           file_type: string | null
           id: string
+          owner_id: string | null
           sender_name: string
+          source_file_id: string | null
           storage_path: string
         }
         Insert: {
@@ -62,7 +88,9 @@ export type Database = {
           file_size: number
           file_type?: string | null
           id?: string
+          owner_id?: string | null
           sender_name: string
+          source_file_id?: string | null
           storage_path: string
         }
         Update: {
@@ -72,8 +100,28 @@ export type Database = {
           file_size?: number
           file_type?: string | null
           id?: string
+          owner_id?: string | null
           sender_name?: string
+          source_file_id?: string | null
           storage_path?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
         }
         Relationships: []
       }
@@ -209,6 +257,36 @@ export type Database = {
           id?: string
           sender_name?: string
           status?: string
+        }
+        Relationships: []
+      }
+      user_files: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_size: number
+          file_type: string | null
+          id: string
+          owner_id: string
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_size: number
+          file_type?: string | null
+          id?: string
+          owner_id: string
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_size?: number
+          file_type?: string | null
+          id?: string
+          owner_id?: string
+          storage_path?: string
         }
         Relationships: []
       }
