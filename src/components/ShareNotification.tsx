@@ -69,7 +69,7 @@ export const ShareNotification: React.FC<ShareNotificationProps> = ({
                   <span className="font-medium">Download Window: 60 Hours</span>
                 </div>
                 <p className="text-xs text-muted-foreground pl-5.5">
-                  Recipients have 60 hours to download the files before they expire.
+                  Recipients have 3 days to download the files before they expire.
                 </p>
               </div>
 

@@ -15,6 +15,13 @@
       "when": 1790845092033,
       "tag": "0001_add_sender_feedback_other_details",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792051159541,
+      "tag": "0002_expire_after_3_days",
+      "breakpoints": true
     }
   ]
 }

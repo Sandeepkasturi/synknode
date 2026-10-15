@@ -1,4 +1,4 @@
-// Scheduled cleanup: removes pending transfers older than 60 hours that were
+// Scheduled cleanup: removes pending transfers older than 3 days (72 hours) that were
 // never downloaded, and prunes their storage objects.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    const cutoff = new Date(Date.now() - 60 * 60 * 60 * 1000).toISOString();
+    const cutoff = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
 
     const { data: stale, error: selErr } = await supabase
       .from("pending_transfers")

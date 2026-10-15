@@ -55,7 +55,7 @@ export const trackTransferDownloaded = async (params: {
   }
 };
 
-/** Client-side fallback cleanup for stale pending transfers (>60h, undownloaded). */
+/** Client-side fallback cleanup for stale pending transfers (>3 days). */
 export const runExpirationSweep = async () => {
   try {
     await supabase.rpc("expire_stale_transfers");
