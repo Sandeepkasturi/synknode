@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "bun:test";
 import { fitsQuota, isTransferExpired, USER_SPACE_QUOTA_BYTES } from "./quota";
 
 describe("user space quota", () => {

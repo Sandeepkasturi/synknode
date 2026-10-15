@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "test": "bun test src/lib/receiverDownload.test.ts",
+    "test": "bun test src/lib",
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
