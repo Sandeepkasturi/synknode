@@ -1,7 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
 import { getFileSecurityIssue } from "@/utils/fileTransfer.utils";
 
-export const USER_SPACE_QUOTA_BYTES = 2 * 1024 * 1024 * 1024; // 2 GB per user
+import { USER_SPACE_QUOTA_BYTES } from "@/lib/quota";
+export { USER_SPACE_QUOTA_BYTES };
 
 export interface UserFile {
   id: string;
@@ -14,7 +15,6 @@ export interface UserFile {
 }
 
 export const remainingQuota = (usedBytes: number) => Math.max(0, USER_SPACE_QUOTA_BYTES - usedBytes);
-export const fitsQuota = (usedBytes: number, incomingBytes: number) => usedBytes + incomingBytes <= USER_SPACE_QUOTA_BYTES;
 
 const safeKey = (name: string) => {
   const ext = name.includes(".") ? name.slice(name.lastIndexOf(".") + 1).toLowerCase().replace(/[^a-z0-9]/g, "") : "";
