@@ -40,5 +40,5 @@ sw.addEventListener("fetch", (event: any) => {
 });
 
 cleanupOutdatedCaches();
-precacheAndRoute((sw.__WB_MANIFEST || []).filter((entry: any) => !String(typeof entry === "string" ? entry : entry.url).endsWith(".html")));
+precacheAndRoute((self.__WB_MANIFEST || []).filter((entry: any) => !String(typeof entry === "string" ? entry : entry.url).endsWith(".html")));
 registerRoute(new NavigationRoute(new NetworkFirst({ cacheName: "pages", networkTimeoutSeconds: 5 }), { denylist: [/^\/~oauth/, /^\/share-target/] }));

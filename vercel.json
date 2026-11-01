@@ -1,0 +1,15 @@
+{
+  "rewrites": [
+    { "source": "/share-target", "destination": "/index.html" },
+    { "source": "/incoming-shares", "destination": "/index.html" },
+    { "source": "/share", "destination": "/index.html" },
+    { "source": "/space", "destination": "/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/sw.js",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }]
+    }
+  ]
+}
