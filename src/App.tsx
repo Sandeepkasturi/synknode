@@ -15,6 +15,8 @@ import About from "./pages/About";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
+import MySpace from "./pages/MySpace";
+import Share from "./pages/Share";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +46,9 @@ const App = () => {
                 <Route path="/about" element={<About />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
+                <Route path="/space" element={<MySpace />} />
+                <Route path="/share" element={<Share />} />
+                <Route path="/direct" element={<Index />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
