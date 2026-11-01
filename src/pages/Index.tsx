@@ -7,7 +7,7 @@ import { Header } from '@/components/Header';
 import { AnalyticsBar } from '@/components/AnalyticsBar';
 import { SenderQueue } from '@/components/sender/SenderQueue';
 import { Button } from '@/components/ui/button';
-import { useTheme } from '@/context/ThemeContext';
+import { BrandMark } from '@/components/BrandMark';
 import { Moon, Sun, Info, Sparkles, Shield, FileText } from 'lucide-react';
 
 const Index: React.FC = () => {
