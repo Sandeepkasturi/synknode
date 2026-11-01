@@ -48,6 +48,7 @@ const App = () => {
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/space" element={<MySpace />} />
                 <Route path="/share" element={<Share />} />
+                <Route path="/incoming-shares" element={<Share />} />
                 <Route path="/direct" element={<Index />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

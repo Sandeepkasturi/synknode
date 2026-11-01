@@ -15,10 +15,19 @@
     "action": "/share-target",
     "method": "POST",
     "enctype": "multipart/form-data",
-    "params": { "files": "files" }
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": {
+        "name": "files",
+        "accept": ["*/*", "image/*", "video/*", "audio/*", "text/*", "application/pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".zip", ".csv"]
+      }
+    }
   },
   "shortcuts": [
     { "name": "Send files", "short_name": "Send", "url": "/?view=transfer" },
+    { "name": "Incoming shares", "short_name": "Incoming", "url": "/incoming-shares" },
     { "name": "My Space", "short_name": "Storage", "url": "/space" }
   ]
 }
