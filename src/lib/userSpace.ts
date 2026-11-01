@@ -22,10 +22,17 @@ const safeKey = (name: string) => {
   return ext ? `${id}.${ext}` : id;
 };
 
+const FILE_RETENTION_MS = 3 * 24 * 60 * 60 * 1000;
+
 export async function listUserFiles(): Promise<UserFile[]> {
   const { data, error } = await supabase.from("user_files").select("*").order("created_at", { ascending: false });
   if (error) throw error;
-  return (data ?? []) as UserFile[];
+  const files = (data ?? []) as UserFile[];
+  const expired = files.filter(file => Date.now() - new Date(file.created_at).getTime() >= FILE_RETENTION_MS);
+  if (expired.length) {
+    await Promise.allSettled(expired.map(deleteUserFile));
+  }
+  return files.filter(file => !expired.some(expiredFile => expiredFile.id === file.id));
 }
 
 export async function saveToUserSpace(ownerId: string, file: File) {
