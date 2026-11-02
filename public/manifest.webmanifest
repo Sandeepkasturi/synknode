@@ -18,10 +18,12 @@
       "title": "title",
       "text": "text",
       "url": "url",
-      "files": {
-        "name": "files",
-        "accept": ["*/*", "image/*", "video/*", "audio/*", "text/*", "application/pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".zip", ".csv"]
-      }
+      "files": [
+        {
+          "name": "files",
+          "accept": ["*/*", "image/*", "video/*", "audio/*", "text/*", "application/pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".zip", ".csv"]
+        }
+      ]
     }
   },
   "shortcuts": [
