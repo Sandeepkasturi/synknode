@@ -19,7 +19,7 @@ export function registerAppServiceWorker() {
     void unregisterAppWorkers();
     return;
   }
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(e => console.warn("SW registration failed", e));
-  });
+  void navigator.serviceWorker.register("/sw.js", { scope: "/" })
+    .then(registration => registration.update())
+    .catch(e => console.warn("SW registration failed", e));
 }
