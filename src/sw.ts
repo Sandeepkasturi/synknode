@@ -26,7 +26,8 @@ sw.addEventListener("fetch", (event: any) => {
     const receivedAt = Date.now();
     const shareId = createId();
     const form = await event.request.formData();
-    const files = form.getAll("files").filter((value: unknown) => value instanceof File).slice(0, MAX_FILES) as File[];
+    const fileValues = [...form.values()].filter((value: FormDataEntryValue): value is File => typeof File !== "undefined" && value instanceof File);
+    const files = fileValues.slice(0, MAX_FILES);
     const validFiles = files.filter(file => file.size > 0 && file.size <= MAX_FILE_BYTES && file.name.length <= 255);
     const existing = ((await get(INBOX_KEY)) as any[]) || [];
     const items = validFiles.map(file => ({ id: createId(), shareId, name: file.name || "shared-file", type: file.type || "application/octet-stream", size: file.size, lastModified: file.lastModified || receivedAt, blob: file, status: "pending" }));
