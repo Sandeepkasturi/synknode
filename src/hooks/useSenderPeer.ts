@@ -31,7 +31,7 @@ export const useSenderPeer = () => {
   const sendFiles = useCallback(async (files: File[], name: string) => {
     if (!name.trim()) {
       toast.error("Please enter your name first");
-      return;
+      return false;
     }
 
     updateSenderName(name);
@@ -224,12 +224,14 @@ export const useSenderPeer = () => {
         setTransferProgress({ active: false, progress: 0, status: 'idle' });
         setIsConnected(false);
       }, 3000);
+      return true;
 
     } catch (error) {
       console.error('Transfer error:', error);
       toast.error(error instanceof Error ? error.message : "Error during file transfer");
       setTransferProgress({ active: false, progress: 0, status: 'error' });
       setIsConnected(false);
+      return false;
     }
   }, [updateSenderName]);
 

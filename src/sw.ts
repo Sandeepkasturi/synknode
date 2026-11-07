@@ -4,7 +4,9 @@ import { registerRoute, NavigationRoute } from "workbox-routing";
 import { NetworkFirst } from "workbox-strategies";
 import { get, set } from "idb-keyval";
 
-const sw = self as any;
+type PrecacheEntry = string | { url: string };
+type ShareServiceWorker = ServiceWorkerGlobalScope & { __WB_MANIFEST?: PrecacheEntry[] };
+const sw = self as ShareServiceWorker;
 const INBOX_KEY = "share-inbox-v2";
 const EXPIRY_MS = 24 * 60 * 60 * 1000;
 const MAX_FILE_BYTES = 5 * 1024 * 1024 * 1024;
@@ -44,5 +46,6 @@ sw.addEventListener("fetch", (event: any) => {
 });
 
 cleanupOutdatedCaches();
-precacheAndRoute((self.__WB_MANIFEST || []).filter((entry: any) => !String(typeof entry === "string" ? entry : entry.url).endsWith(".html")));
+const precacheManifest = (self.__WB_MANIFEST ?? []) as PrecacheEntry[];
+precacheAndRoute(precacheManifest.filter(entry => !String(typeof entry === "string" ? entry : entry.url).endsWith(".html")));
 registerRoute(new NavigationRoute(new NetworkFirst({ cacheName: "pages", networkTimeoutSeconds: 5 }), { denylist: [/^\/~oauth/, /^\/share-target/] }));
