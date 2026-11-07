@@ -1,54 +1,88 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FileText, Image as ImageIcon, Loader2, Trash2, UploadCloud } from "lucide-react";
+import { FileText, Image as ImageIcon, Loader2, Trash2, UploadCloud, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/context/AuthContext";
 import { formatBytes, saveToUserSpace } from "@/lib/userSpace";
-import { associateIncomingShares, IncomingShare, readIncomingShares, removeIncomingItem, updateIncomingItem } from "@/lib/shareInbox";
+import { addIncomingShare, associateIncomingShares, IncomingShare, readIncomingShares, removeIncomingItem, updateIncomingItem } from "@/lib/shareInbox";
+import { getFileSecurityIssue } from "@/utils/fileTransfer.utils";
+import { useSenderPeer } from "@/hooks/useSenderPeer";
 
 const fileIcon = (type: string) => type.startsWith("image/") ? <ImageIcon className="text-primary" aria-hidden="true" /> : <FileText className="text-primary" aria-hidden="true" />;
 
 export default function Share() {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
+  const { sendFiles, transferProgress } = useSenderPeer();
   const [shares, setShares] = useState<IncomingShare[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [uploading, setUploading] = useState(false);
+  const [senderName, setSenderName] = useState(() => localStorage.getItem("sender_name") || "");
+  const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/i.test(navigator.userAgent);
 
   const refresh = useCallback(async () => setShares(await readIncomingShares()), []);
   useEffect(() => { refresh().catch(() => toast.error("Could not read incoming shares")); }, [refresh]);
   useEffect(() => { if (user) associateIncomingShares(user.id).then(refresh); }, [user, refresh]);
+  useEffect(() => { const handler = (event: Event) => { event.preventDefault(); setInstallEvent(event as BeforeInstallPromptEvent); }; window.addEventListener("beforeinstallprompt", handler); return () => window.removeEventListener("beforeinstallprompt", handler); }, []);
 
   const pending = useMemo(() => shares.flatMap(share => share.items.filter(item => item.status !== "uploaded").map(item => ({ share, item }))), [shares]);
+  const selectedPending = useMemo(() => pending.filter(({ item }) => selected.has(item.id)), [pending, selected]);
 
-  const uploadItems = async (ids?: Set<string>) => {
-    if (!user) { toast.message("Sign in to upload shared files", { description: "Your files are safely preserved on this device." }); navigate("/"); return; }
+  const uploadToMySpace = async (ids?: Set<string>) => {
+    if (!user) { toast.message("Sign in to save files to My Space"); navigate("/"); return; }
     const targets = pending.filter(({ item }) => !ids || ids.has(item.id));
-    if (!targets.length) return;
     setUploading(true);
     for (const { share, item } of targets) {
       try {
         await updateIncomingItem(share.id, item.id, { status: "uploading", error: undefined });
         await saveToUserSpace(user.id, new File([item.blob], item.name, { type: item.type, lastModified: item.lastModified }));
         await updateIncomingItem(share.id, item.id, { status: "uploaded" });
-      } catch (error) {
-        await updateIncomingItem(share.id, item.id, { status: "failed", error: error instanceof Error ? error.message : "Upload failed" });
-      }
+      } catch (error) { await updateIncomingItem(share.id, item.id, { status: "failed", error: error instanceof Error ? error.message : "Upload failed" }); }
     }
-    await refresh();
-    setUploading(false);
-    toast.success("Share processing complete");
+    await refresh(); setUploading(false); toast.success("Saved to My Space");
   };
 
-  const remove = async (shareId: string, itemId: string) => { await removeIncomingItem(shareId, itemId); await refresh(); };
+  const sendToSRGEC = async (ids?: Set<string>) => {
+    const name = senderName.trim();
+    if (!name) { toast.error("Enter your name before sending to SRGEC"); return; }
+    const targets = pending.filter(({ item }) => !ids || ids.has(item.id));
+    if (!targets.length) return;
+    const invalid = targets.find(({ item }) => getFileSecurityIssue({ name: item.name, type: item.type }));
+    if (invalid) { toast.error(`This file type cannot be sent: ${invalid.item.name}`); return; }
+    localStorage.setItem("sender_name", name);
+    setUploading(true);
+    const succeeded = await sendFiles(targets.map(({ item }) => new File([item.blob], item.name, { type: item.type, lastModified: item.lastModified })), name);
+    if (succeeded) {
+      await Promise.all(targets.map(({ share, item }) => updateIncomingItem(share.id, item.id, { status: "uploaded" })));
+      await refresh();
+    }
+    setUploading(false);
+  };
+
+  const addFiles = async (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    const valid = files.filter(file => !getFileSecurityIssue(file));
+    if (valid.length !== files.length) toast.error("One or more files were blocked by safety checks");
+    if (valid.length) { await addIncomingShare({ items: valid.map(file => ({ id: crypto.randomUUID(), shareId: "", name: file.name, type: file.type || "application/octet-stream", size: file.size, lastModified: file.lastModified, blob: file, status: "pending" })) }); await refresh(); toast.success(`${valid.length} file${valid.length > 1 ? "s" : ""} added`); }
+    event.target.value = "";
+  };
+
+  const install = async () => { if (!installEvent) return; await installEvent.prompt(); setInstallEvent(null); };
 
   return <div className="app-shell min-h-screen bg-background"><Header /><main className="app-workspace"><section className="glass-card mx-auto max-w-2xl p-5 sm:p-7">
-    <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Incoming shares</p><h1 className="mt-2 text-3xl font-bold">Ready to send</h1><p className="mt-2 text-sm text-muted-foreground">Files shared from another app stay on this device until you upload them.</p></div><UploadCloud className="text-primary" aria-hidden="true" /></div>
-    {!isLoading && !user && pending.length > 0 && <div className="mt-5 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm">Sign in from the home screen to upload these files. They will remain available here after authentication.</div>}
-    <div className="mt-6 flex flex-col gap-3">{pending.map(({ share, item }) => <article key={item.id} className="glass-card flex items-center gap-3 p-3"><input type="checkbox" checked={selected.has(item.id)} onChange={() => setSelected(current => { const next = new Set(current); next.has(item.id) ? next.delete(item.id) : next.add(item.id); return next; })} aria-label={`Select ${item.name}`} /><div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">{fileIcon(item.type)}</div><div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold">{item.name}</p><p className="text-xs text-muted-foreground">{formatBytes(item.size)} · {item.status === "failed" ? item.error : item.status}</p></div>{item.status === "uploading" ? <Loader2 className="animate-spin text-primary" aria-label="Uploading" /> : <Button variant="ghost" size="icon" aria-label={`Remove ${item.name}`} onClick={() => remove(share.id, item.id)}><Trash2 /></Button>}</article>)}</div>
+    <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Incoming shares</p><h1 className="mt-2 text-3xl font-bold">Ready to send</h1><p className="mt-2 text-sm text-muted-foreground">Review files shared from your phone, then send them to SRGEC or save them privately.</p></div><UploadCloud className="text-primary" aria-hidden="true" /></div>
+    {(isAndroid || isIOS) && <div className="mt-5 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm"><div className="flex gap-3"><Smartphone className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" /><div><p className="font-semibold">{isIOS ? "iPhone file sharing" : "Install SynkNode for faster sharing"}</p><p className="mt-1 text-muted-foreground">{isIOS ? "iOS does not receive files through the Web Share Target API. Use the picker below to add files directly." : "Install SynkNode to send files directly from your Android Share menu."}</p>{installEvent && <Button size="sm" className="mt-3" onClick={install}>Install SynkNode</Button>}</div></div></div>}
+    {!isLoading && !user && pending.length > 0 && <div className="mt-5 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm">You can send to SRGEC without an account. Sign in only when you want to save files to My Space.</div>}
+    <div className="mt-6 flex flex-col gap-3">{pending.map(({ share, item }) => <article key={item.id} className="glass-card flex items-center gap-3 p-3"><input type="checkbox" checked={selected.has(item.id)} onChange={() => setSelected(current => { const next = new Set(current); next.has(item.id) ? next.delete(item.id) : next.add(item.id); return next; })} aria-label={`Select ${item.name}`} /><div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">{fileIcon(item.type)}</div><div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold">{item.name}</p><p className="text-xs text-muted-foreground">{formatBytes(item.size)} · {item.status === "failed" ? item.error : item.status}</p>{item.status === "uploading" && <Progress value={transferProgress.progress} className="mt-2 h-1.5" />}</div>{item.status === "uploading" ? <Loader2 className="animate-spin text-primary" aria-label="Uploading" /> : <Button variant="ghost" size="icon" aria-label={`Remove ${item.name}`} onClick={() => removeIncomingItem(share.id, item.id).then(refresh)}><Trash2 /></Button>}</article>)}</div>
     {!pending.length && <p className="mt-7 rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">No incoming shares are waiting.</p>}
-    <div className="mt-6 flex flex-col gap-2 sm:flex-row"><Button className="flex-1" disabled={uploading || !pending.length} onClick={() => uploadItems()}>{uploading ? "Uploading…" : "Upload all"}</Button><Button variant="outline" className="flex-1" disabled={uploading || !selected.size} onClick={() => uploadItems(selected)}>Upload selected ({selected.size})</Button></div>
+    <div className="mt-6 grid gap-2 sm:grid-cols-2"><Button variant="outline" asChild><label htmlFor="share-file-picker" className="cursor-pointer">Add more files<input id="share-file-picker" type="file" multiple className="sr-only" onChange={addFiles} /></label></Button><Button disabled={uploading || !pending.length} onClick={() => sendToSRGEC()}>{uploading ? "Sending…" : "Send all to SRGEC"}</Button><Button variant="outline" disabled={uploading || !selectedPending.length} onClick={() => sendToSRGEC(selected)}>{`Send selected (${selectedPending.length})`}</Button><Button variant="secondary" disabled={uploading || !user || !pending.length} onClick={() => uploadToMySpace()}>{user ? "Save all to My Space" : "Sign in to save privately"}</Button></div>
   </section></main></div>;
 }
+
+type BeforeInstallPromptEvent = Event & { prompt: () => Promise<void>; userChoice?: Promise<{ outcome: "accepted" | "dismissed" }> };

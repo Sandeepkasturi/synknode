@@ -63,7 +63,14 @@ export async function readIncomingShares() {
 export async function addIncomingShare(input: Omit<IncomingShare, "id" | "receivedAt" | "expiresAt">) {
   const shares = await readIncomingShares();
   const receivedAt = Date.now();
-  const share: IncomingShare = { ...input, id: createId(), receivedAt, expiresAt: receivedAt + EXPIRY_MS };
+  const id = createId();
+  const share: IncomingShare = {
+    ...input,
+    id,
+    receivedAt,
+    expiresAt: receivedAt + EXPIRY_MS,
+    items: input.items.map(item => ({ ...item, shareId: id })),
+  };
   await set(INBOX_KEY, [...shares, share]);
   return share;
 }
