@@ -18,6 +18,7 @@ export default defineConfig(({ mode }) => ({
       filename: "sw.ts",
       injectRegister: false,
       registerType: "autoUpdate",
+      injectManifest: { injectionPoint: "sw.__WB_MANIFEST" },
       manifest: false,
       devOptions: { enabled: false },
     }),

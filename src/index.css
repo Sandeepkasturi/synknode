@@ -363,6 +363,30 @@
 .app-footer { border-top: 0 !important; background: transparent !important; }
 .app-footer .brand-mark { transform: scale(.7); transform-origin: left center; margin-right: -12px; }
 .app-footer h3 { font-size: 16px; }
+
+.install-prompt {
+  position: fixed;
+  z-index: 60;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: min(420px, calc(100vw - 32px));
+  padding: 16px;
+  animation: fade-up .25s ease-out;
+}
+.install-prompt-icon { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: 12px; color: hsl(var(--primary)); background: hsl(var(--primary) / .12); }
+.install-prompt-icon svg { width: 20px; height: 20px; }
+.install-prompt-copy { min-width: 0; flex: 1; }
+.install-prompt-title { font-size: 13px; font-weight: 700; }
+.install-prompt-description, .install-prompt-instructions { margin-top: 4px; color: hsl(var(--muted-foreground)); font-size: 11px; line-height: 1.5; }
+.install-prompt-instructions { margin-top: 8px; padding-top: 8px; border-top: 1px solid hsl(var(--border)); }
+.install-prompt-action { margin-top: 10px; height: 34px; font-size: 11px; }
+.install-prompt-action svg { width: 14px; height: 14px; }
+.install-prompt-close { width: 30px; height: 30px; flex: none; }
+.install-prompt-close svg { width: 16px; height: 16px; }
+
 .company-details {
   border-radius: 20px; padding: 22px;
   background: hsl(var(--glass-bg));
@@ -410,6 +434,8 @@
 /* ============ Mobile ============ */
 @media (max-width: 767px) {
   .app-shell { padding-left: 0; padding-bottom: 96px; }
+
+  .install-prompt { right: 12px; bottom: 100px; width: calc(100vw - 24px); padding: 13px; }
 
   .app-header { inset: 0 0 auto; width: auto; height: 64px; padding: 10px 16px; flex-direction: row; align-items: center; justify-content: space-between; border-right: 0; border-bottom: 1px solid hsl(var(--glass-border)); }
   .desktop-navigation, .rail-protection, .rail-theme { display: none; }

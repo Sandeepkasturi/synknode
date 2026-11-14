@@ -17,6 +17,7 @@ import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 import MySpace from "./pages/MySpace";
 import Share from "./pages/Share";
+import { InstallPrompt } from "@/components/InstallPrompt";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => {
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>
             <Toaster richColors closeButton position="top-right" />
+            <InstallPrompt />
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />

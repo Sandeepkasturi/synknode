@@ -26,3 +26,8 @@
 ## Receiver download cleanup (Oct 14)
 - [x] Permanently delete downloaded files from storage and the database after successful receiver download
 - [x] Verify cleanup and preserve efficient delivery
+
+## Android sharing and install guidance (Nov 14)
+- [x] Restore Android shared-file intake and show actionable receive errors
+- [x] Prompt visitors to install SynkNode with platform-specific guidance
+- [ ] Verify share intake limits, preview routes, and current build diagnostics
