@@ -6,6 +6,7 @@ import { get, set } from "idb-keyval";
 import { partitionSharedFiles } from "./lib/shareIntake";
 
 type PrecacheEntry = string | { url: string };
+declare const self: ServiceWorkerGlobalScope & { __WB_MANIFEST: PrecacheEntry[] };
 type WorkerLifecycleEvent = Event & { waitUntil(promise: Promise<unknown>): void };
 type WorkerFetchEvent = Event & { request: Request; respondWith(response: Promise<Response> | Response): void };
 type ServiceWorkerRuntime = {
@@ -67,6 +68,6 @@ sw.addEventListener("fetch", event => {
 });
 
 cleanupOutdatedCaches();
-const precacheManifest = sw.__WB_MANIFEST ?? [];
+const precacheManifest = self.__WB_MANIFEST;
 precacheAndRoute(precacheManifest.filter(entry => !String(typeof entry === "string" ? entry : entry.url).endsWith(".html")));
 registerRoute(new NavigationRoute(new NetworkFirst({ cacheName: "pages", networkTimeoutSeconds: 5 }), { denylist: [/^\/~oauth/, /^\/share-target/] }));
