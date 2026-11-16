@@ -31,3 +31,9 @@
 - [x] Restore Android shared-file intake and show actionable receive errors
 - [x] Prompt visitors to install SynkNode with platform-specific guidance
 - [ ] Verify share intake limits, preview routes, and current build diagnostics
+
+## Warm responsive UI repair (Nov 16)
+- [ ] Identify and fix the desktop layout collapse while preserving app workflows
+- [ ] Match the supplied mobile reference and adapt its hierarchy for desktop
+- [ ] Apply the requested warm, light palette across desktop and mobile
+- [ ] Verify key screens at desktop and mobile sizes
