@@ -9,13 +9,13 @@ import { SenderQueue } from '@/components/sender/SenderQueue';
 import { Button } from '@/components/ui/button';
 import { BrandMark } from '@/components/BrandMark';
 import { useTheme } from '@/context/ThemeContext';
-import { Moon, Sun, Info, Sparkles, Shield, FileText } from 'lucide-react';
+import { Moon, Sun, Info, Sparkles, Shield, FileText, Zap, Users } from 'lucide-react';
 
 const Index: React.FC = () => {
   const [params] = useSearchParams();
   const view = params.get('view') || 'transfer';
   const { theme, toggleTheme } = useTheme();
-  return <QueueProvider><div className="app-shell min-h-screen bg-background"><Header /><main className={`app-workspace ${view === 'transfer' ? 'transfer-workspace' : ''}`}>
+  return <QueueProvider><div className="app-shell min-h-screen bg-background"><Header />{view === 'transfer' && <section className="desktop-hero" aria-label="SynkNode benefits"><div><p>Transfer Smarter.<br />Share Better.</p><span>Secure transfers designed for every device.</span></div><div className="desktop-hero-badges"><span><Shield />End-to-end encrypted</span><span><Zap />Blazing fast P2P</span><span><Users />Built for everyone</span></div></section>}<main className={`app-workspace ${view === 'transfer' ? 'transfer-workspace' : ''}`}>
     <div className={view === 'transfer' ? '' : 'hidden'}><MainTabs /></div>
     {view === 'activity' && <><div className="workspace-heading"><h1>Transfer Activity</h1><p>Live files awaiting delivery to SRGEC.</p></div><SenderQueue searchable /></>}
     {view === 'analytics' && <><div className="workspace-heading"><h1>Transfer Analytics</h1><p>Live platform totals.</p></div><AnalyticsBar /></>}
