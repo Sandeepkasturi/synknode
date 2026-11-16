@@ -78,7 +78,7 @@ export async function sendUserFileToReceiver(f: UserFile, senderName: string) {
     await supabase.storage.from("pending-files").remove([path]);
     throw new Error(error.message);
   }
-  void import("@/lib/analytics").then(m => m.trackTransferUploaded({
+  await import("@/lib/analytics").then(m => m.trackTransferUploaded({
     sender_name: senderName.trim(), file_name: f.file_name, file_size: f.file_size, file_type: f.file_type || "application/octet-stream",
   }));
 }

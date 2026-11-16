@@ -11,6 +11,8 @@ import { useAccount } from "@/context/AccountContext";
 import { USER_SPACE_QUOTA_BYTES, fitsQuota } from "@/lib/quota";
 import { UserFile, listUserFiles, saveToUserSpace, deleteUserFile, getUserFileBlob, sendUserFileToReceiver, formatBytes } from "@/lib/userSpace";
 import { setOutbox } from "@/lib/shareInbox";
+import { supabase } from "@/integrations/supabase/client";
+import { LIMITS, validateTransferBatch } from "@/lib/transferLimits";
 
 const MySpace: React.FC = () => {
   const { account, loading, signOut } = useAccount();
@@ -50,13 +52,29 @@ const MySpace: React.FC = () => {
     setBusy(null); refresh(); toast.success("Saved to My Space");
   };
 
-  const toggle = (id: string) => setSelected(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const toggle = (id: string) => setSelected(s => {
+    const next = new Set(s);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    return next;
+  });
 
   const sendToReceiver = async () => {
     if (!senderName.trim()) { toast.error("Enter your name first"); return; }
+    const validation = validateTransferBatch(chosen.map(file => ({ name: file.file_name, size: file.file_size })));
+    if (!validation.valid) { validation.errors.forEach(message => toast.error(message)); return; }
     localStorage.setItem("sender_name", senderName.trim());
     setBusy("send");
     try {
+      const { data: quota, error: quotaError } = await supabase.rpc("check_sender_daily_quota", {
+        p_sender_name: senderName.trim(),
+        p_new_bytes: validation.totalBytes,
+        p_daily_limit_gb: LIMITS.DEFAULT_DAILY_LIMIT_GB,
+      });
+      if (quotaError) throw new Error("Could not verify your rolling 24-hour transfer quota. Please retry after the quota service is available.");
+      if (!quota || typeof quota !== "object" || !("allowed" in quota) || quota.allowed !== true) {
+        throw new Error("This transfer exceeds your rolling 24-hour allowance.");
+      }
       for (const f of chosen) await sendUserFileToReceiver(f, senderName);
       toast.success(`Sent ${chosen.length} file(s) to SRGEC`);
       setSelected(new Set());
