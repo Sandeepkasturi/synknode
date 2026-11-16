@@ -132,20 +132,22 @@ export const SenderForm: React.FC = () => {
       <div className="receipt-details"><div><p>Files</p><strong>{receipt.files.length} files · {formatFileSize(receipt.files.reduce((sum, f) => sum + f.size, 0))}</strong></div><div><p>Destination</p><strong>SRGEC</strong></div><div><p>Sent at</p><strong>{receipt.date.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</strong></div></div>
       <div className="completion-actions"><Button onClick={() => setReceipt(null)} disabled={transferProgress.active}><Send />Send more files</Button><Button asChild variant="outline"><Link to="/?view=activity"><ListChecks />View in Activity</Link></Button></div>
     </div> : <>
-      <div className="sender-fields">
+      <section className="sender-fields sender-info-panel" aria-label="Sender and destination">
         <div className="space-y-2"><label htmlFor="sender-name" className="field-label"><User />Your name</label><div className="relative"><User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" /><Input id="sender-name" placeholder="Enter your name" value={name} onChange={e => setName(e.target.value)} className="pl-9 bg-secondary/40" disabled={busy} /></div><p className="text-[11px] text-muted-foreground">This name will be visible to the receiver.</p></div>
-        <div className="space-y-2"><p className="field-label"><Building2 />Destination</p><div className="destination-panel"><Building2 className="h-7 w-7 shrink-0 text-muted-foreground" /><div className="min-w-0"><p className="text-sm font-bold">SRGEC</p><p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">Seshadri Rao Gudlavalleru<br />Engineering College</p></div><span className="secure-badge"><ShieldCheck />Secure</span></div></div>
-      </div>
-      <div {...getRootProps()} className={`file-dropzone ${isDragActive ? 'is-dragging' : ''}`}>
-        <input {...getInputProps()} aria-label="Select files" disabled={busy} />
-        <CloudUpload className="mx-auto mb-3 h-9 w-9 text-primary" /><p className="text-sm font-semibold">Drop files here</p><p className="mt-1 text-xs text-muted-foreground">or click to browse</p><p className="mt-3 text-[10px] text-muted-foreground">50 MB per file · Up to 5 GB total · Multiple files allowed</p>
-      </div>
-      {selectedFiles.length > 0 && <>
-        <div className="selected-summary"><span>{selectedFiles.length} files selected</span><Button variant="ghost" size="sm" onClick={() => setSelectedFiles([])} className="text-primary">Clear all</Button></div>
-        <div className="selected-file-grid"><AnimatePresence>{selectedFiles.map((file, index) => <motion.div key={`${file.name}-${file.lastModified}`} initial={{opacity:0,y:6}} animate={{opacity:1,y:0}} exit={{opacity:0}} className="selected-file"><span className="file-type-icon"><File /></span><div className="min-w-0 flex-1"><p className="truncate text-xs font-medium">{file.name}</p><p className="mt-1 text-[10px] text-muted-foreground">{formatFileSize(file.size)}</p></div><Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => removeFile(index)} aria-label={`Remove ${file.name}`} title="Remove file"><X /></Button></motion.div>)}</AnimatePresence></div>
-      </>}
-      <div className="send-action-row"><div>{selectedFiles.length > 0 ? <><p className="text-xs text-muted-foreground">{selectedFiles.length} files · {formatFileSize(totalSize)}</p><Button variant="ghost" size="sm" onClick={open} className="mt-1 h-7 px-0 text-primary"><Plus />Add more files</Button></> : null}</div><Button onClick={handleSend} disabled={selectedFiles.length === 0 || !name.trim() || checkingName} className="send-action"><Send />{checkingName ? 'Checking name…' : selectedFiles.length ? `Send ${selectedFiles.length} files` : 'Send files'}</Button></div>
-      {safety}
+        <div className="space-y-2"><p className="field-label"><Building2 />Destination</p><div className="destination-panel"><Building2 className="h-7 w-7 shrink-0 text-primary" /><div className="min-w-0"><p className="text-sm font-bold">SRGEC</p><p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">Seshadri Rao Gudlavalleru<br />Engineering College</p></div><span className="secure-badge"><ShieldCheck />Verified</span></div></div>
+        {safety}
+      </section>
+      <section className="sender-upload-panel" aria-label="Choose files to send">
+        <div {...getRootProps()} className={`file-dropzone ${isDragActive ? 'is-dragging' : ''}`}>
+          <input {...getInputProps()} aria-label="Select files" disabled={busy} />
+          <CloudUpload className="mx-auto mb-3 h-9 w-9 text-primary" /><p className="text-sm font-semibold">Drop files here</p><p className="mt-1 text-xs text-muted-foreground">or click to browse</p><div className="file-type-badges" aria-label="Supported file types"><span>PDF</span><span>DOCX</span><span>PPT</span><span>Images</span></div><p className="mt-3 text-[10px] text-muted-foreground">50 MB per file · Up to 5 GB total · Multiple files allowed</p>
+        </div>
+        {selectedFiles.length > 0 && <>
+          <div className="selected-summary"><span>{selectedFiles.length} files selected</span><Button variant="ghost" size="sm" onClick={() => setSelectedFiles([])} className="text-primary">Clear all</Button></div>
+          <div className="selected-file-grid"><AnimatePresence>{selectedFiles.map((file, index) => <motion.div key={`${file.name}-${file.lastModified}`} initial={{opacity:0,y:6}} animate={{opacity:1,y:0}} exit={{opacity:0}} className="selected-file"><span className="file-type-icon"><File /></span><div className="min-w-0 flex-1"><p className="truncate text-xs font-medium">{file.name}</p><p className="mt-1 text-[10px] text-muted-foreground">{formatFileSize(file.size)}</p></div><Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => removeFile(index)} aria-label={`Remove ${file.name}`} title="Remove file"><X /></Button></motion.div>)}</AnimatePresence></div>
+        </>}
+        <div className="send-action-row"><div>{selectedFiles.length > 0 ? <><p className="text-xs text-muted-foreground">{selectedFiles.length} files · {formatFileSize(totalSize)}</p><Button variant="ghost" size="sm" onClick={open} className="mt-1 h-7 px-0 text-primary"><Plus />Add more files</Button></> : null}</div><Button onClick={handleSend} disabled={selectedFiles.length === 0 || !name.trim() || checkingName} className="send-action"><Send />{checkingName ? 'Checking name…' : selectedFiles.length ? `Send ${selectedFiles.length} files` : 'Send files'}</Button></div>
+      </section>
     </>}
   </div>;
 };

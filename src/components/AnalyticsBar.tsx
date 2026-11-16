@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowUpRight, Database, Files, Users, Send } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -28,9 +28,10 @@ export const AnalyticsBar: React.FC = () => {
   const [stats, setStats] = useState<Stats | null>(null);
   const [trend, setTrend] = useState<TrendPoint[]>([]);
   const [pulse, setPulse] = useState(false);
+  const [range, setRange] = useState<7 | 30 | 90>(7);
 
-  const loadTrend = async () => {
-    const since = new Date(Date.now() - 6 * 24 * 3600 * 1000);
+  const loadTrend = useCallback(async (days: 7 | 30 | 90) => {
+    const since = new Date(Date.now() - (days - 1) * 24 * 3600 * 1000);
     since.setHours(0, 0, 0, 0);
     const { data } = await supabase
       .from("transfer_events")
@@ -38,7 +39,7 @@ export const AnalyticsBar: React.FC = () => {
       .gte("created_at", since.toISOString());
     if (!data) return;
     const counts = new Map<string, number>();
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < days; i++) {
       const d = new Date(since.getTime() + i * 24 * 3600 * 1000);
       counts.set(d.toISOString().slice(0, 10), 0);
     }
@@ -47,10 +48,10 @@ export const AnalyticsBar: React.FC = () => {
       if (counts.has(key)) counts.set(key, (counts.get(key) || 0) + 1);
     }
     setTrend([...counts.entries()].map(([date, transfers]) => ({
-      day: new Date(`${date}T00:00:00`).toLocaleDateString("en", { weekday: "short" }),
+      day: new Date(`${date}T00:00:00`).toLocaleDateString("en", days === 7 ? { weekday: "short" } : { month: "short", day: "numeric" }),
       transfers,
     })));
-  };
+  }, []);
 
   const load = async () => {
     const { data } = await supabase.rpc("get_site_analytics");
@@ -63,7 +64,6 @@ export const AnalyticsBar: React.FC = () => {
 
   useEffect(() => {
     load();
-    loadTrend();
     const iv = setInterval(load, 15000);
 
     const channel = supabase
@@ -78,6 +78,10 @@ export const AnalyticsBar: React.FC = () => {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  useEffect(() => {
+    void loadTrend(range);
+  }, [loadTrend, range]);
 
   const items = [
     { label: "Total Transfers", icon: ArrowUpRight, value: stats ? compact(stats.total_transfers) : "—", sub: `${compact(stats?.active_transfers ?? 0)} live` },
@@ -110,12 +114,17 @@ export const AnalyticsBar: React.FC = () => {
       </div>
 
       <div className="glass-card p-5">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
           <h3 className="text-sm font-semibold text-foreground">Transfer Trend</h3>
+          <div className="flex items-center gap-2">
+            <div className="analytics-range" role="group" aria-label="Trend time range">
+              {([7, 30, 90] as const).map(days => <button key={days} type="button" aria-pressed={range === days} onClick={() => setRange(days)}>{days}D</button>)}
+            </div>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 text-success border border-success/15 px-2.5 py-1 text-[10px] font-semibold">
             <span className={`w-1.5 h-1.5 rounded-full bg-success ${pulse ? "animate-ping" : "animate-pulse"}`} />
             Live
           </span>
+          </div>
         </div>
         {hasTrend ? (
           <div className="h-44">

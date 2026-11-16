@@ -81,15 +81,6 @@ export const SenderQueue: React.FC<{ searchable?: boolean }> = ({ searchable = f
   const senderEntries = Object.entries(groupedBySender);
   const visibleEntries = senderEntries.filter(([name, files]) => name.toLowerCase().includes(search.toLowerCase()) || files.some(f => f.file_name.toLowerCase().includes(search.toLowerCase())));
 
-  if (activeFiles.length === 0) {
-    return (
-      <div className="glass-card text-center py-10">
-        <FolderOpen className="h-8 w-8 mx-auto mb-2 text-muted-foreground/40" />
-        <p className="text-sm text-muted-foreground">{tab === 'queue' ? 'Queue is empty' : 'No completed transfers yet'}</p>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-3">
       {searchable && (
@@ -108,7 +99,7 @@ export const SenderQueue: React.FC<{ searchable?: boolean }> = ({ searchable = f
           </div>
         </div>
       )}
-      {visibleEntries.length === 0 && <p className="py-6 text-center text-sm text-muted-foreground">No matching transfers</p>}
+      {visibleEntries.length === 0 && <div className="glass-card py-10 text-center"><FolderOpen className="mx-auto mb-2 h-8 w-8 text-muted-foreground/40" /><p className="text-sm text-muted-foreground">{activeFiles.length === 0 ? (tab === 'queue' ? 'Queue is empty' : 'No completed transfers yet') : 'No matching transfers'}</p></div>}
       <AnimatePresence>
         {visibleEntries.map(([senderName, files]) => (
           <motion.div
@@ -122,7 +113,7 @@ export const SenderQueue: React.FC<{ searchable?: boolean }> = ({ searchable = f
             <div className="flex items-start gap-3">
               <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
                 <div className="w-8 h-8 rounded-full primary-gradient flex items-center justify-center shadow-[var(--transfer-glow)]">
-                  <span className="text-[10px] font-bold text-primary-foreground">#{tab === 'queue' ? senderEntries.findIndex(([n]) => n === senderName) + 1 : '✓'}</span>
+                  <span className="text-[10px] font-bold text-primary-foreground">{tab === 'queue' ? senderName.trim().charAt(0).toUpperCase() : '✓'}</span>
                 </div>
                 {tab === 'queue' && <span className="text-[9px] text-muted-foreground">of {senderEntries.length}</span>}
               </div>
@@ -135,8 +126,10 @@ export const SenderQueue: React.FC<{ searchable?: boolean }> = ({ searchable = f
                   <span className="font-medium text-sm text-foreground truncate">{senderName}</span>
                   <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                     <Clock className="h-2.5 w-2.5" />
-                    {formatTime(tab === 'queue' ? files[0].created_at : files[0].created_at)}
+                    {formatTime(files[0].created_at)}
                   </span>
+                  <span className={`queue-status-badge ${tab === 'queue' ? 'is-waiting' : 'is-delivered'}`}>{tab === 'queue' ? 'Waiting' : 'Delivered'}</span>
+                  <span className="ml-auto text-[10px] text-muted-foreground">{files.length} {files.length === 1 ? 'file' : 'files'}</span>
                 </div>
 
                 <div className="space-y-1">
