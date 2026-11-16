@@ -28,9 +28,9 @@ export const AnalyticsBar: React.FC = () => {
   const [stats, setStats] = useState<Stats | null>(null);
   const [trend, setTrend] = useState<TrendPoint[]>([]);
   const [pulse, setPulse] = useState(false);
-  const [range, setRange] = useState<7 | 30 | 90 | 365>(7);
+  const [range, setRange] = useState<7 | 30 | 90>(7);
 
-  const loadTrend = useCallback(async (days: 7 | 30 | 90 | 365) => {
+  const loadTrend = useCallback(async (days: 7 | 30 | 90) => {
     const since = new Date(Date.now() - (days - 1) * 24 * 3600 * 1000);
     since.setHours(0, 0, 0, 0);
     const { data } = await supabase
@@ -118,7 +118,7 @@ export const AnalyticsBar: React.FC = () => {
           <h3 className="text-sm font-semibold text-foreground">Transfer Trend</h3>
           <div className="flex items-center gap-2">
             <div className="analytics-range" role="group" aria-label="Trend time range">
-              {([7, 30, 90, 365] as const).map(days => <button key={days} type="button" aria-pressed={range === days} onClick={() => setRange(days)}>{days === 365 ? '1Y' : `${days}D`}</button>)}
+              {([7, 30, 90] as const).map(days => <button key={days} type="button" aria-pressed={range === days} onClick={() => setRange(days)}>{days}D</button>)}
             </div>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 text-success border border-success/15 px-2.5 py-1 text-[10px] font-semibold">
             <span className={`w-1.5 h-1.5 rounded-full bg-success ${pulse ? "animate-ping" : "animate-pulse"}`} />
@@ -132,8 +132,8 @@ export const AnalyticsBar: React.FC = () => {
               <AreaChart data={trend} margin={{ top: 6, right: 6, left: -22, bottom: 0 }}>
                 <defs>
                   <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(263, 82%, 56%)" stopOpacity={0.45} />
-                    <stop offset="100%" stopColor="hsl(263, 82%, 56%)" stopOpacity={0.02} />
+                    <stop offset="0%" stopColor="hsl(24, 92%, 56%)" stopOpacity={0.45} />
+                    <stop offset="100%" stopColor="hsl(24, 92%, 56%)" stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
@@ -144,7 +144,7 @@ export const AnalyticsBar: React.FC = () => {
                   labelStyle={{ color: "hsl(var(--foreground))", fontWeight: 600 }}
                   formatter={(value: number) => [`${value} transfer${value === 1 ? "" : "s"}`, null]}
                 />
-                <Area type="monotone" dataKey="transfers" stroke="hsl(263, 82%, 56%)" strokeWidth={2.5} fill="url(#trendFill)" dot={{ r: 3, fill: "hsl(263, 82%, 56%)" }} activeDot={{ r: 5 }} />
+                <Area type="monotone" dataKey="transfers" stroke="hsl(24, 92%, 52%)" strokeWidth={2.5} fill="url(#trendFill)" dot={{ r: 3, fill: "hsl(24, 92%, 52%)" }} activeDot={{ r: 5 }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>

@@ -26,38 +26,39 @@
 
 @layer base {
   :root {
-    --background: 228 45% 98%;
-    --foreground: 232 44% 12%;
+    --background: 24 45% 98%;
+    --foreground: 240 12% 14%;
     --card: 0 0% 100%;
-    --card-foreground: 232 44% 12%;
+    --card-foreground: 240 12% 14%;
     --popover: 0 0% 100%;
-    --popover-foreground: 232 44% 12%;
-    --primary: 263 82% 56%;
+    --popover-foreground: 240 12% 14%;
+    --primary: 24 92% 52%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 228 36% 95%;
-    --secondary-foreground: 232 28% 22%;
-    --muted: 228 28% 94%;
-    --muted-foreground: 232 12% 46%;
-    --accent: 263 100% 96%;
-    --accent-foreground: 263 72% 40%;
+    --secondary: 26 30% 95%;
+    --secondary-foreground: 240 10% 22%;
+    --muted: 26 25% 94%;
+    --muted-foreground: 240 6% 46%;
+    --accent: 24 100% 96%;
+    --accent-foreground: 24 80% 38%;
     --destructive: 0 70% 52%;
     --destructive-foreground: 0 0% 100%;
-    --border: 228 25% 89%;
-    --input: 228 25% 89%;
-    --ring: 263 82% 56%;
+    --border: 25 25% 89%;
+    --input: 25 25% 89%;
+    --ring: 24 92% 52%;
     --radius: 1rem;
     --success: 152 62% 38%;
     --success-foreground: 0 0% 100%;
     --logo-surface: 0 0% 100%;
-    --transfer-glow: 0 12px 28px hsl(263 78% 56% / .34);
-    --glass-bg: 0 0% 100% / .62;
-    --glass-border: 0 0% 100% / .78;
-    --glass-shadow: 0 14px 40px hsl(232 45% 35% / .10), inset 0 1px 0 hsl(0 0% 100% / .82);
+    --transfer-glow: 0 12px 28px hsl(24 90% 55% / .35);
+    /* Glassmorphic surfaces */
+    --glass-bg: 0 0% 100% / .78;
+    --glass-border: 0 0% 100% / .88;
+    --glass-shadow: 0 14px 40px hsl(24 45% 35% / .07), inset 0 1px 0 hsl(0 0% 100% / .75);
     --page-gradient:
-      radial-gradient(52rem 36rem at -8% -12%, hsl(263 90% 78% / .34), transparent 62%),
-      radial-gradient(46rem 34rem at 108% 10%, hsl(210 100% 76% / .28), transparent 58%),
-      radial-gradient(44rem 30rem at 55% 118%, hsl(285 90% 82% / .24), transparent 60%),
-      linear-gradient(180deg, hsl(228 65% 97%), hsl(238 50% 98%));
+      radial-gradient(52rem 36rem at -8% -12%, hsl(28 100% 82% / .38), transparent 62%),
+      radial-gradient(46rem 34rem at 108% 10%, hsl(36 100% 78% / .25), transparent 58%),
+      radial-gradient(44rem 30rem at 55% 118%, hsl(18 100% 84% / .24), transparent 60%),
+      linear-gradient(180deg, hsl(28 100% 97%), hsl(38 60% 98%));
   }
 
   .dark {
@@ -67,14 +68,14 @@
     --card-foreground: 0 0% 94%;
     --popover: 232 22% 11%;
     --popover-foreground: 0 0% 94%;
-    --primary: 263 88% 68%;
+    --primary: 24 96% 56%;
     --primary-foreground: 0 0% 100%;
     --secondary: 232 20% 14%;
     --secondary-foreground: 0 0% 94%;
     --muted: 232 20% 14%;
     --muted-foreground: 232 10% 64%;
-    --accent: 263 30% 17%;
-    --accent-foreground: 263 95% 78%;
+    --accent: 24 30% 17%;
+    --accent-foreground: 24 95% 72%;
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 100%;
     --border: 232 16% 19%;
@@ -82,7 +83,7 @@
     --ring: 24 96% 56%;
     --success: 152 70% 48%;
     --logo-surface: 0 0% 100%;
-    --transfer-glow: 0 12px 28px hsl(263 78% 56% / .38);
+    --transfer-glow: 0 12px 28px hsl(24 95% 55% / .35);
     --glass-bg: 232 24% 13% / .55;
     --glass-border: 0 0% 100% / .10;
     --glass-shadow: 0 14px 44px hsl(0 0% 0% / .35), inset 0 1px 0 hsl(0 0% 100% / .06);
@@ -146,7 +147,7 @@
   }
 
   .primary-gradient {
-    background: linear-gradient(135deg, hsl(210 100% 58%), hsl(263 82% 56%) 52%, hsl(290 82% 60%));
+    background: linear-gradient(135deg, hsl(27 100% 60%), hsl(19 92% 49%));
   }
 }
 
@@ -208,13 +209,6 @@
 }
 
 .brand-caption { margin-top: 3px; font-size: 8px; text-transform: uppercase; letter-spacing: .18em; color: hsl(var(--muted-foreground)); }
-.desktop-hero { display: flex; align-items: center; justify-content: space-between; gap: 24px; width: min(1140px, calc(100% - 48px)); margin: 28px auto 0; }
-.desktop-hero > div:first-child { text-align: center; flex: 1; }
-.desktop-hero > div:first-child p { font-size: clamp(28px, 3vw, 42px); line-height: 1.08; font-weight: 800; font-style: italic; letter-spacing: -.04em; background: linear-gradient(100deg, hsl(210 100% 58%), hsl(263 82% 56%) 52%, hsl(290 82% 60%)); background-clip: text; -webkit-text-fill-color: transparent; }
-.desktop-hero > div:first-child span { display: block; margin-top: 8px; color: hsl(var(--muted-foreground)); font-size: 12px; }
-.desktop-hero-badges { display: grid; gap: 8px; }
-.desktop-hero-badges span { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid hsl(var(--glass-border)); border-radius: 999px; background: hsl(var(--glass-bg)); backdrop-filter: blur(20px) saturate(1.5); box-shadow: var(--glass-shadow); color: hsl(var(--foreground)); font-size: 10px; font-weight: 600; white-space: nowrap; }
-.desktop-hero-badges svg { width: 15px; height: 15px; color: hsl(var(--primary)); }
 .app-header .brand-mark { width: 2.2rem; height: 1.75rem; }
 .app-header .brand-mark__node { width: 1.1rem; height: 1.1rem; }
 .app-header .brand-mark__packet { display: none; }
@@ -222,7 +216,7 @@
 .desktop-navigation { display: flex; align-items: center; gap: 4px; }
 .rail-link { justify-content: center; gap: 8px; font-size: 12px; border-radius: 999px; height: 40px; padding-inline: 14px; color: hsl(var(--muted-foreground)); }
 .rail-link:hover { background: hsl(var(--primary) / .08); color: hsl(var(--foreground)); }
-.rail-link.is-active { background: linear-gradient(135deg, hsl(210 100% 58%), hsl(263 82% 56%) 52%, hsl(290 82% 60%)); color: hsl(var(--primary-foreground)); box-shadow: var(--transfer-glow); }
+.rail-link.is-active { background: linear-gradient(135deg, hsl(27 100% 60%), hsl(19 92% 49%)); color: hsl(var(--primary-foreground)); box-shadow: var(--transfer-glow); }
 
 .rail-protection { display: flex; align-items: center; gap: 7px; padding: 8px 11px; border-radius: 999px; background: hsl(var(--success) / .08); border: 1px solid hsl(var(--success) / .18); white-space: nowrap; }
 .rail-protection > div { display: block; }
@@ -257,7 +251,7 @@
   box-shadow: var(--glass-shadow);
 }
 .direction-tabs [role=tab] { gap: 8px; border-radius: 999px; font-size: 13px; height: 38px; color: hsl(var(--muted-foreground)); font-weight: 600; }
-.direction-tabs [role=tab][data-state=active] { background: linear-gradient(135deg, hsl(210 100% 58%), hsl(263 82% 56%) 52%, hsl(290 82% 60%)); color: hsl(var(--primary-foreground)); box-shadow: var(--transfer-glow); }
+.direction-tabs [role=tab][data-state=active] { background: linear-gradient(135deg, hsl(27 100% 60%), hsl(19 92% 49%)); color: hsl(var(--primary-foreground)); box-shadow: var(--transfer-glow); }
 
 /* Sender form */
 .sender-form { width: 100%; display: grid; grid-template-columns: 1fr 1.15fr; align-items: start; gap: 24px; }
@@ -295,8 +289,8 @@
 .file-dropzone {
   padding: 30px 16px; text-align: center; cursor: pointer;
   border-radius: 18px;
-  border: 1.5px dashed hsl(263 78% 70% / .65);
-  background: linear-gradient(160deg, hsl(263 100% 97% / .85), hsl(210 100% 95% / .65));
+  border: 1.5px dashed hsl(24 85% 68% / .8);
+  background: linear-gradient(160deg, hsl(24 100% 96% / .85), hsl(24 100% 92% / .65));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   transition: background .2s, border-color .2s, transform .2s;
@@ -325,7 +319,7 @@
 .send-action-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 20px 0; min-height: 52px; }
 .send-action {
   min-width: 190px; height: 52px; border-radius: 999px; font-size: 15px; font-weight: 600;
-  background: linear-gradient(135deg, hsl(210 100% 58%), hsl(263 82% 56%) 52%, hsl(290 82% 60%));
+  background: linear-gradient(135deg, hsl(27 100% 60%), hsl(19 92% 49%));
   color: hsl(var(--primary-foreground));
   box-shadow: var(--transfer-glow);
 }
@@ -369,10 +363,10 @@
 /* Settings */
 .analytics-range { display: flex; gap: 2px; border-radius: 999px; padding: 3px; background: hsl(var(--muted) / .75); }
 .analytics-range button { min-width: 36px; height: 27px; padding-inline: 7px; border-radius: 999px; color: hsl(var(--muted-foreground)); font-size: 10px; font-weight: 600; transition: background .2s, color .2s; }
-.analytics-range button[aria-pressed="true"] { color: hsl(var(--primary-foreground)); background: linear-gradient(135deg, hsl(210 100% 58%), hsl(263 82% 56%) 52%, hsl(290 82% 60%)); box-shadow: var(--transfer-glow); }
+.analytics-range button[aria-pressed="true"] { color: hsl(var(--primary-foreground)); background: linear-gradient(135deg, hsl(27 100% 60%), hsl(19 92% 49%)); box-shadow: var(--transfer-glow); }
 
 .queue-status-badge { border-radius: 999px; padding: 4px 8px; font-size: 10px; font-weight: 600; white-space: nowrap; }
-.queue-status-badge.is-waiting { color: hsl(263 72% 45%); background: hsl(263 82% 56% / .12); }
+.queue-status-badge.is-waiting { color: hsl(28 85% 42%); background: hsl(28 95% 52% / .12); }
 .queue-status-badge.is-delivered { color: hsl(var(--success)); background: hsl(var(--success) / .12); }
 
 .settings-row {
@@ -460,7 +454,6 @@
 
 /* ============ Mobile ============ */
 @media (max-width: 767px) {
-  .desktop-hero { display: none; }
   .app-shell { padding-bottom: 96px; }
 
   .install-prompt { position: relative; z-index: 1; inset: auto; width: calc(100% - 24px); margin: 10px 12px 0; padding: 12px; }
@@ -471,7 +464,7 @@
   .topbar-icon-button { width: 36px; height: 36px; border-radius: 999px; display: flex; align-items: center; justify-content: center; background: hsl(var(--glass-bg)); border: 1px solid hsl(var(--glass-border)); box-shadow: var(--glass-shadow); color: hsl(var(--foreground)); position: relative; }
   .topbar-icon-button svg { width: 17px; height: 17px; }
   .topbar-notification-dot { position: absolute; top: 7px; right: 8px; width: 7px; height: 7px; border-radius: 999px; background: hsl(var(--primary)); }
-  .topbar-avatar { width: 36px; height: 36px; border-radius: 999px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, hsl(210 100% 58%), hsl(263 82% 56%) 52%, hsl(290 82% 60%)); color: hsl(var(--primary-foreground)); font-size: 13px; font-weight: 700; box-shadow: var(--transfer-glow); }
+  .topbar-avatar { width: 36px; height: 36px; border-radius: 999px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, hsl(27 100% 62%), hsl(19 92% 50%)); color: hsl(var(--primary-foreground)); font-size: 13px; font-weight: 700; box-shadow: var(--transfer-glow); }
 
   .bottom-navigation {
     display: grid; grid-template-columns: repeat(4,minmax(0,1fr));
