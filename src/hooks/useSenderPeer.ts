@@ -1,31 +1,35 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getFileSecurityIssue } from "@/utils/fileTransfer.utils";
 import { sendTransferEvent, sendFailedTransferEvent } from "@/lib/servicenow";
 import { withRetry, ensureBackendAwake } from "@/lib/keepalive";
+import { LIMITS, validateTransferBatch } from "@/lib/transferLimits";
+import { HighSpeedUploadQueue, uploadWithProgress, type BatchProgress, type FileUploadProgress } from "@/lib/uploadEngine";
 
 interface TransferProgress {
   active: boolean;
   progress: number;
-  status: 'idle' | 'connecting' | 'transferring' | 'completed' | 'error';
+  status: "idle" | "connecting" | "transferring" | "completed" | "error";
   currentFile?: string;
+  items: FileUploadProgress[];
+  batch?: BatchProgress;
 }
 
 export const useSenderPeer = () => {
   const [isConnected, setIsConnected] = useState(false);
-  const [senderName, setSenderName] = useState<string>(() => {
-    return localStorage.getItem('sender_name') || '';
-  });
+  const [senderName, setSenderName] = useState<string>(() => localStorage.getItem("sender_name") || "");
   const [transferProgress, setTransferProgress] = useState<TransferProgress>({
     active: false,
     progress: 0,
-    status: 'idle'
+    status: "idle",
+    items: [],
   });
+  const queueRef = useRef<HighSpeedUploadQueue | null>(null);
 
   const updateSenderName = useCallback((name: string) => {
     setSenderName(name);
-    localStorage.setItem('sender_name', name);
+    localStorage.setItem("sender_name", name);
   }, []);
 
   const sendFiles = useCallback(async (files: File[], name: string) => {
@@ -34,212 +38,140 @@ export const useSenderPeer = () => {
       return false;
     }
 
+    const validation = validateTransferBatch(files);
+    if (!validation.valid) {
+      validation.errors.forEach((message) => toast.error(message));
+      return false;
+    }
+
     updateSenderName(name);
     setIsConnected(true);
-
-    setTransferProgress({
-      active: true,
-      progress: 0,
-      status: 'connecting'
-    });
+    setTransferProgress({ active: true, progress: 0, status: "connecting", items: [] });
 
     try {
-      // Wake the backend first: a cold/idle backend surfaces as "Failed to fetch".
       const awake = await ensureBackendAwake();
-      if (!awake) {
-        throw new Error("Backend is waking up. Please retry in a few seconds.");
+      if (!awake) throw new Error("Backend is waking up. Please retry in a few seconds.");
+
+      const { data: quota, error: quotaError } = await supabase.rpc("check_sender_daily_quota", {
+        p_sender_name: name.trim(),
+        p_new_bytes: validation.totalBytes,
+        p_daily_limit_gb: LIMITS.DEFAULT_DAILY_LIMIT_GB,
+      });
+      if (quotaError) throw new Error("Could not verify your rolling 24-hour transfer quota. Please retry after the quota service is available.");
+      if (!quota || typeof quota !== "object" || !("allowed" in quota) || quota.allowed !== true) {
+        const available = quota && typeof quota === "object" && "available_bytes" in quota ? Number(quota.available_bytes) : 0;
+        throw new Error(`This transfer exceeds your rolling 24-hour allowance. Available: ${(available / (1024 ** 3)).toFixed(2)} GB.`);
       }
 
-      setTransferProgress({
-        active: true,
-        progress: 0,
-        status: 'transferring'
-      });
+      const queue = new HighSpeedUploadQueue((items, batch) => {
+        const values = [...items.values()];
+        const activeFile = values.find((item) => item.status === "uploading");
+        setTransferProgress((current) => ({
+          ...current,
+          active: true,
+          status: "transferring",
+          progress: batch.aggregatePercent,
+          currentFile: activeFile?.fileName,
+          items: values,
+          batch,
+        }));
+      }, 4);
+      queueRef.current = queue;
 
-      const totalFiles = files.length;
-      let completedFiles = 0;
-      const batchSize = 3; // Upload 3 files concurrently
+      await queue.uploadBatch(files, async (file, fileId, onBytes, track) => {
+        const fileStartTime = Date.now();
+        const extension = file.name.split(".").pop() || "";
+        try {
+          const securityIssue = getFileSecurityIssue(file);
+          if (securityIssue) throw new Error(`${securityIssue}: ${file.name}`);
 
-      // Process files in batches
-      for (let i = 0; i < files.length; i += batchSize) {
-        const batch = files.slice(i, i + batchSize);
+          const { data: existing } = await supabase
+            .from("pending_transfers")
+            .select("id")
+            .eq("sender_name", name.trim())
+            .eq("file_name", file.name)
+            .eq("file_size", file.size)
+            .eq("downloaded", false)
+            .maybeSingle();
 
-        await Promise.all(batch.map(async (file) => {
-          const fileStartTime = Date.now();
-          const extension = file.name.split('.').pop() || '';
-          
-          try {
-            const securityIssue = getFileSecurityIssue(file);
-            if (securityIssue) {
-              throw new Error(`${securityIssue}: ${file.name}`);
-            }
+          if (existing) return;
 
-            // Check for existing duplicate
-            const { data: existingFiles } = await supabase
-              .from('pending_transfers')
-              .select('id')
-              .eq('sender_name', name.trim())
-              .eq('file_name', file.name)
-              .eq('file_size', file.size)
-              .eq('downloaded', false)
-              .single();
+          const storageExtension = file.name.includes(".")
+            ? file.name.slice(file.name.lastIndexOf(".") + 1).toLowerCase().replace(/[^a-z0-9]/g, "")
+            : "";
+          const storagePath = `${fileId}/${storageExtension ? `${fileId}.${storageExtension}` : fileId}`;
+          const { data: signed, error: signedError } = await supabase.storage
+            .from("pending-files")
+            .createSignedUploadUrl(storagePath, { upsert: false });
+          if (signedError || !signed?.signedUrl) throw new Error(`Could not prepare ${file.name} for upload: ${signedError?.message || "No upload URL returned"}`);
 
-            if (existingFiles) {
-              console.log(`Skipping duplicate file: ${file.name}`);
-              completedFiles++;
-              setTransferProgress({
-                active: true,
-                progress: Math.round((completedFiles / totalFiles) * 100),
-                status: 'transferring',
-                currentFile: `Skipped duplicate: ${file.name}`
-              });
-              return;
-            }
+          const storageUrl = import.meta.env.VITE_SUPABASE_URL as string;
+          const uploadUrl = signed.signedUrl.startsWith("http")
+            ? signed.signedUrl
+            : new URL(`/storage/v1${signed.signedUrl}`, storageUrl).toString();
+          await uploadWithProgress(uploadUrl, file, onBytes, track);
 
-            const fileId = crypto.randomUUID();
-            // Keep user filenames in the database only. Storage receives a
-            // conservative ASCII key so characters such as ~ never reach the API.
-            const storageExtension = file.name.includes('.')
-              ? file.name.slice(file.name.lastIndexOf('.') + 1).toLowerCase().replace(/[^a-z0-9]/g, '')
-              : '';
-            const storageFileName = storageExtension ? `${fileId}.${storageExtension}` : fileId;
-            const storagePath = `${fileId}/${storageFileName}`;
-
-            setTransferProgress({
-              active: true,
-              progress: Math.round((completedFiles / totalFiles) * 100),
-              status: 'transferring',
-              currentFile: `Uploading: ${file.name}`
-            });
-
-            // Upload file to Supabase Storage
-            console.log(`Uploading file: ${file.name} to path: ${storagePath}`);
-            const { data: uploadData, error: uploadError } = await withRetry(async () => {
-              const res = await supabase.storage
-                .from('pending-files')
-                .upload(storagePath, file, {
-                  cacheControl: '3600',
-                  upsert: false
-                });
-              // Let withRetry see transient network errors so it can back off and retry.
-              if (res.error && /failed to fetch|network|timeout|load failed/i.test(res.error.message)) {
-                throw res.error;
-              }
-              return res;
-            });
-
-            if (uploadError) {
-              console.error('Upload error details:', JSON.stringify(uploadError, null, 2));
-              throw new Error(`Failed to upload ${file.name}: ${uploadError.message}`);
-            }
-            
-            console.log('Upload successful:', uploadData);
-
-            // Create pending transfer record
-            console.log('Creating pending transfer record...');
-            const { data: insertData, error: insertError } = await withRetry(async () => await supabase
-              .from('pending_transfers')
-              .insert({
-                sender_name: name.trim(),
-                file_name: file.name,
-                file_type: file.type || 'application/octet-stream',
-                file_size: file.size,
-                storage_path: storagePath
-              })
-              .select()
-              .single());
-
-            if (insertError) {
-              console.error('Insert error details:', JSON.stringify(insertError, null, 2));
-              // Clean up uploaded file if DB insert fails
-              await supabase.storage.from('pending-files').remove([storagePath]);
-              throw new Error(`Failed to register ${file.name}: ${insertError.message}`);
-            }
-            
-            console.log('Transfer record created:', insertData);
-            // Cumulative analytics (survives row deletion after download)
-            void import('@/lib/analytics').then(m => m.trackTransferUploaded({
+          const { error: insertError } = await withRetry(async () => await supabase
+            .from("pending_transfers")
+            .insert({
               sender_name: name.trim(),
               file_name: file.name,
+              file_type: file.type || "application/octet-stream",
               file_size: file.size,
-              file_type: file.type || 'application/octet-stream',
+              storage_path: storagePath,
             }));
 
-            // Fire ServiceNow telemetry on successful transfer
-            sendTransferEvent({
-              sender_id: name.trim(),
-              receiver_id: "SRGEC",
-              file: {
-                name: file.name,
-                type: file.type || 'application/octet-stream',
-                size_bytes: file.size,
-                extension: extension
-              },
-              transfer: {
-                duration_ms: Date.now() - fileStartTime,
-                bytes_transferred: file.size
-              }
-            });
-
-            completedFiles++;
-            setTransferProgress({
-              active: true,
-              progress: Math.round((completedFiles / totalFiles) * 100),
-              status: 'transferring',
-              currentFile: file.name
-            });
-          } catch (fileError: any) {
-            // Fire ServiceNow telemetry on failed transfer
-            sendFailedTransferEvent({
-              sender_id: name.trim(),
-              receiver_id: "SRGEC",
-              file: {
-                name: file.name,
-                type: file.type || 'application/octet-stream',
-                size_bytes: file.size,
-                extension: extension
-              },
-              transfer: {
-                duration_ms: Date.now() - fileStartTime,
-                bytes_transferred: 0,
-                status: 'failed'
-              }
-            }, fileError);
-
-            throw fileError;
+          if (insertError) {
+            await supabase.storage.from("pending-files").remove([storagePath]);
+            throw new Error(`Failed to register ${file.name}: ${insertError.message}`);
           }
-        }));
-      }
 
-      setTransferProgress({
-        active: true,
-        progress: 100,
-        status: 'completed'
+          await import("@/lib/analytics").then((module) => module.trackTransferUploaded({
+            sender_name: name.trim(),
+            file_name: file.name,
+            file_size: file.size,
+            file_type: file.type || "application/octet-stream",
+          }));
+          sendTransferEvent({
+            sender_id: name.trim(),
+            receiver_id: "SRGEC",
+            file: { name: file.name, type: file.type || "application/octet-stream", size_bytes: file.size, extension },
+            transfer: { duration_ms: Date.now() - fileStartTime, bytes_transferred: file.size },
+          });
+        } catch (error) {
+          sendFailedTransferEvent({
+            sender_id: name.trim(),
+            receiver_id: "SRGEC",
+            file: { name: file.name, type: file.type || "application/octet-stream", size_bytes: file.size, extension },
+            transfer: { duration_ms: Date.now() - fileStartTime, bytes_transferred: 0, status: "failed" },
+          }, error);
+          throw error;
+        }
       });
 
+      setTransferProgress((current) => ({ ...current, active: true, progress: 100, status: "completed" }));
       toast.success("Files processed successfully!");
-
-      // Clean up after delay
       setTimeout(() => {
-        setTransferProgress({ active: false, progress: 0, status: 'idle' });
+        setTransferProgress({ active: false, progress: 0, status: "idle", items: [] });
         setIsConnected(false);
+        queueRef.current = null;
       }, 3000);
       return true;
-
     } catch (error) {
-      console.error('Transfer error:', error);
       toast.error(error instanceof Error ? error.message : "Error during file transfer");
-      setTransferProgress({ active: false, progress: 0, status: 'error' });
+      setTransferProgress((current) => ({ ...current, active: false, status: "error" }));
       setIsConnected(false);
+      queueRef.current = null;
       return false;
     }
   }, [updateSenderName]);
 
-  return {
-    isConnected,
-    senderName,
-    updateSenderName,
-    sendFiles,
-    transferProgress
-  };
+  const cancelTransfer = useCallback(() => {
+    queueRef.current?.abortAll();
+    setTransferProgress((current) => ({ ...current, active: false, status: "error" }));
+    setIsConnected(false);
+    toast.info("Upload canceled");
+  }, []);
+
+  return { isConnected, senderName, updateSenderName, sendFiles, transferProgress, cancelTransfer };
 };

@@ -313,8 +313,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      expire_stale_transfers: { Args: never; Returns: number }
-      get_site_analytics: { Args: never; Returns: Json }
+  check_sender_daily_quota: {
+  Args: { p_sender_name: string; p_new_bytes: number; p_daily_limit_gb?: number }
+  Returns: Json
+  }
+  expire_stale_transfers: { Args: never; Returns: number }
+  get_site_analytics: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -1,5 +1,6 @@
 
-import { MAX_FILE_SIZE, MAX_USERS_PER_HOUR } from '../types/fileTransfer.types';
+import { MAX_USERS_PER_HOUR } from '../types/fileTransfer.types';
+import { validateTransferBatch } from '@/lib/transferLimits';
 import { toast } from 'sonner';
 
 const BLOCKED_EXTENSIONS = new Set([
@@ -130,8 +131,14 @@ export const processDirectoryEntry = (entry: FileSystemDirectoryEntry): Promise<
   });
 };
 
-// Validate files against size limit (5GB total per user)
+// Validate file safety and transfer size limits before the upload queue starts.
 export const validateFiles = async (files: File[]): Promise<File[]> => {
+  const batchValidation = validateTransferBatch(files);
+  if (!batchValidation.valid) {
+    batchValidation.errors.forEach((message) => toast.error(message));
+    return [];
+  }
+
   const safeFiles: File[] = [];
 
   for (const file of files) {
@@ -145,9 +152,9 @@ export const validateFiles = async (files: File[]): Promise<File[]> => {
 
   if (safeFiles.length === 0) return [];
 
-  const totalSize = safeFiles.reduce((sum, f) => sum + f.size, 0);
-  if (totalSize > MAX_FILE_SIZE) {
-    toast.error(`Total file size exceeds 5GB limit`);
+  const safeBatch = validateTransferBatch(safeFiles);
+  if (!safeBatch.valid) {
+    safeBatch.errors.forEach((message) => toast.error(message));
     return [];
   }
 

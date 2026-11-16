@@ -17,7 +17,7 @@ export const SenderForm: React.FC = () => {
   const [name, setName] = useState<string>(() => localStorage.getItem('sender_name') || '');
   const [checkingName, setCheckingName] = useState(false);
   const [completedTransfers, setCompletedTransfers] = useState(0);
-  const { sendFiles, transferProgress } = useSenderPeer();
+  const { sendFiles, transferProgress, cancelTransfer } = useSenderPeer();
   const [receipt, setReceipt] = useState<{ files: File[]; date: Date } | null>(null);
   useEffect(() => {
     if (transferProgress.status !== 'completed') return;
@@ -123,8 +123,26 @@ export const SenderForm: React.FC = () => {
       <h2 className="text-2xl font-bold">{transferProgress.status === 'connecting' ? 'Connecting…' : 'Uploading files…'}</h2>
       <p className="mt-2 text-sm text-muted-foreground">Your files are being transferred to SRGEC.</p>
       <div className="mt-6 space-y-2">{selectedFiles.map(file => <div className="upload-file-row" key={file.name}><span className="file-type-icon"><File /></span><div className="min-w-0 flex-1"><p className="truncate text-sm">{file.name}</p><p className="mt-1 text-xs text-muted-foreground">{formatFileSize(file.size)}</p></div></div>)}</div>
-      <div className="mt-5 flex items-center justify-between gap-4 text-xs"><span className="truncate text-muted-foreground">{transferProgress.currentFile || 'Preparing your transfer'}</span><span className="text-primary">{transferProgress.progress}%</span></div>
-      <Progress value={transferProgress.progress} className="mt-2 h-2" />
+      <div className="mt-5 rounded-2xl border border-white/15 bg-background/70 p-4 shadow-xl backdrop-blur-xl">
+        <div className="flex items-center justify-between gap-4 text-xs">
+          <span className="truncate text-muted-foreground">{transferProgress.currentFile || 'Preparing your transfer'}</span>
+          <span className="shrink-0 text-primary">{transferProgress.progress}%</span>
+        </div>
+        <Progress value={transferProgress.progress} className="mt-2 h-2" />
+        {transferProgress.batch && <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+          <span>{formatFileSize(transferProgress.batch.uploadedBytes)} / {formatFileSize(transferProgress.batch.totalBytes)}</span>
+          <span>{(transferProgress.batch.averageSpeedBytesPerSec / (1024 * 1024)).toFixed(2)} MB/s</span>
+          <span>{transferProgress.batch.estimatedRemainingSeconds ? `~${transferProgress.batch.estimatedRemainingSeconds}s left` : 'Calculating ETA'}</span>
+        </div>}
+        <div className="mt-3 flex max-h-48 flex-col gap-2 overflow-y-auto">
+          {transferProgress.items.map((item) => <div key={item.fileId} className="rounded-xl border border-white/10 bg-card/40 p-2.5 text-xs">
+            <div className="flex items-center justify-between gap-3"><span className="min-w-0 truncate font-medium">{item.fileName}</span><span className="shrink-0 font-mono text-muted-foreground">{item.progressPercent}%</span></div>
+            <Progress value={item.progressPercent} className="mt-2 h-1.5" />
+            <div className="mt-1 flex justify-between text-[10px] text-muted-foreground"><span>{formatFileSize(item.uploadedBytes)} / {formatFileSize(item.fileSize)}</span><span>{item.status}</span></div>
+          </div>)}
+        </div>
+        <div className="mt-3 flex justify-end"><Button variant="outline" size="sm" onClick={cancelTransfer} className="text-destructive">Cancel upload</Button></div>
+      </div>
       <div className="protection-panel"><ShieldCheck className="h-8 w-8 text-success" /><div><p className="font-semibold text-sm">Your files are protected</p><p className="mt-2 text-xs text-muted-foreground">Encrypted in transit · Risky file types filtered</p></div></div>
     </div> : receipt ? <div className="completion-view">
       <CheckCircle2 className="completion-icon" />
@@ -140,7 +158,7 @@ export const SenderForm: React.FC = () => {
       <section className="sender-upload-panel" aria-label="Choose files to send">
         <div {...getRootProps()} className={`file-dropzone ${isDragActive ? 'is-dragging' : ''}`}>
           <input {...getInputProps()} aria-label="Select files" disabled={busy} />
-          <CloudUpload className="mx-auto mb-3 h-9 w-9 text-primary" /><p className="text-sm font-semibold">Drop files here</p><p className="mt-1 text-xs text-muted-foreground">or click to browse</p><div className="file-type-badges" aria-label="Supported file types"><span>PDF</span><span>DOCX</span><span>PPT</span><span>Images</span></div><p className="mt-3 text-[10px] text-muted-foreground">50 MB per file · Up to 5 GB total · Multiple files allowed</p>
+          <CloudUpload className="mx-auto mb-3 h-9 w-9 text-primary" /><p className="text-sm font-semibold">Drop files here</p><p className="mt-1 text-xs text-muted-foreground">or click to browse</p><div className="file-type-badges" aria-label="Supported file types"><span>PDF</span><span>DOCX</span><span>PPT</span><span>Images</span></div><p className="mt-3 text-[10px] text-muted-foreground">100 MB per file · Up to 5 GB total · Multiple files allowed</p>
         </div>
         {selectedFiles.length > 0 && <>
           <div className="selected-summary"><span>{selectedFiles.length} files selected</span><Button variant="ghost" size="sm" onClick={() => setSelectedFiles([])} className="text-primary">Clear all</Button></div>
