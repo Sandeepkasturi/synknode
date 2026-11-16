@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 const VISITOR_KEY = "synknode_visitor_id";
 const SESSION_KEY = "synknode_session_logged";
 
-const getOrCreateVisitorId = (): string => {
+export const getOrCreateVisitorId = (): string => {
   let id = localStorage.getItem(VISITOR_KEY);
   if (!id) {
     id = crypto.randomUUID();
@@ -35,7 +35,12 @@ export const trackTransferUploaded = async (params: {
   file_type?: string | null;
 }) => {
   try {
-    await supabase.from("transfer_events").insert({ ...params, status: "uploaded" });
+    const { error } = await supabase.from("transfer_events").insert({
+      ...params,
+      visitor_id: getOrCreateVisitorId(),
+      status: "uploaded",
+    });
+    if (error) throw error;
   } catch (e) {
     console.warn("trackTransferUploaded failed:", e);
   }
