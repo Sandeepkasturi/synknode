@@ -12,6 +12,7 @@ import { USER_SPACE_QUOTA_BYTES, fitsQuota } from "@/lib/quota";
 import { UserFile, listUserFiles, saveToUserSpace, deleteUserFile, getUserFileBlob, sendUserFileToReceiver, formatBytes } from "@/lib/userSpace";
 import { setOutbox } from "@/lib/shareInbox";
 import { supabase } from "@/integrations/supabase/client";
+import { quotaSupabase } from "@/integrations/supabase/quotaClient";
 import { LIMITS, validateTransferBatch } from "@/lib/transferLimits";
 
 const MySpace: React.FC = () => {
@@ -66,7 +67,7 @@ const MySpace: React.FC = () => {
     localStorage.setItem("sender_name", senderName.trim());
     setBusy("send");
     try {
-      const { data: quota, error: quotaError } = await supabase.rpc("check_sender_daily_quota", {
+      const { data: quota, error: quotaError } = await quotaSupabase.rpc("check_sender_daily_quota", {
         p_sender_name: senderName.trim(),
         p_new_bytes: validation.totalBytes,
         p_daily_limit_gb: LIMITS.DEFAULT_DAILY_LIMIT_GB,
