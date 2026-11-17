@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { quotaSupabase } from "@/integrations/supabase/quotaClient";
 import { getFileSecurityIssue } from "@/utils/fileTransfer.utils";
 import { sendTransferEvent, sendFailedTransferEvent } from "@/lib/servicenow";
 import { withRetry, ensureBackendAwake } from "@/lib/keepalive";
@@ -52,7 +53,7 @@ export const useSenderPeer = () => {
       const awake = await ensureBackendAwake();
       if (!awake) throw new Error("Backend is waking up. Please retry in a few seconds.");
 
-      const { data: quota, error: quotaError } = await supabase.rpc("check_sender_daily_quota", {
+      const { data: quota, error: quotaError } = await quotaSupabase.rpc("check_sender_daily_quota", {
         p_sender_name: name.trim(),
         p_new_bytes: validation.totalBytes,
         p_daily_limit_gb: LIMITS.DEFAULT_DAILY_LIMIT_GB,
