@@ -4,9 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getFileSecurityIssue } from "@/utils/fileTransfer.utils";
 import { sendTransferEvent, sendFailedTransferEvent } from "@/lib/servicenow";
 import { withRetry, ensureBackendAwake } from "@/lib/keepalive";
-import { validateTransferBatch } from "@/lib/transferLimits";
-import { ensureTransferQuota } from "@/lib/transferQuota";
-import { getOrCreateVisitorId } from "@/lib/analytics";
+import { LIMITS, validateTransferBatch } from "@/lib/transferLimits";
 import { HighSpeedUploadQueue, uploadWithProgress, type BatchProgress, type FileUploadProgress } from "@/lib/uploadEngine";
 
 interface TransferProgress {
@@ -54,7 +52,16 @@ export const useSenderPeer = () => {
       const awake = await ensureBackendAwake();
       if (!awake) throw new Error("Backend is waking up. Please retry in a few seconds.");
 
-      await ensureTransferQuota(getOrCreateVisitorId(), validation.totalBytes);
+      const { data: quota, error: quotaError } = await supabase.rpc("check_sender_daily_quota", {
+        p_sender_name: name.trim(),
+        p_new_bytes: validation.totalBytes,
+        p_daily_limit_gb: LIMITS.DEFAULT_DAILY_LIMIT_GB,
+      });
+      if (quotaError) throw new Error("Could not verify your rolling 24-hour transfer quota. Please retry after the quota service is available.");
+      if (!quota || typeof quota !== "object" || !("allowed" in quota) || quota.allowed !== true) {
+        const available = quota && typeof quota === "object" && "available_bytes" in quota ? Number(quota.available_bytes) : 0;
+        throw new Error(`This transfer exceeds your rolling 24-hour allowance. Available: ${(available / (1024 ** 3)).toFixed(2)} GB.`);
+      }
 
       const queue = new HighSpeedUploadQueue((items, batch) => {
         const values = [...items.values()];
