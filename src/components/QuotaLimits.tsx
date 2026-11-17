@@ -30,14 +30,19 @@ export function QuotaLimits() {
     staleTime: 30_000,
   });
 
+  const quota = quotaQuery.data;
+  const isQuotaExhausted = Boolean(quota && quota.remaining_bytes <= 0);
+
   useEffect(() => {
+    if (!isQuotaExhausted) return;
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [isQuotaExhausted]);
 
-  const quota = quotaQuery.data;
   const usedPercent = quota ? Math.min(100, (quota.used_bytes / quota.limit_bytes) * 100) : 0;
-  const timeUntilReset = quota?.next_reset_at ? new Date(quota.next_reset_at).getTime() - now : null;
+  const timeUntilReset = isQuotaExhausted && quota?.next_reset_at
+    ? new Date(quota.next_reset_at).getTime() - now
+    : null;
 
   return (
     <Card role="region" aria-labelledby="quota-limits-title" className="glass-card rounded-2xl">
@@ -47,9 +52,9 @@ export function QuotaLimits() {
             <HardDrive className="size-4 text-primary" aria-hidden="true" />
             <CardTitle id="quota-limits-title" className="text-base">Quota and limits</CardTitle>
           </div>
-          <CardDescription className="mt-1">Successful transfers count toward your rolling 24-hour allowance.</CardDescription>
+          <CardDescription className="mt-1">Everyone gets the same 5 GiB allowance. Waiting applies only after it is fully used.</CardDescription>
         </div>
-        <Badge variant="secondary">5 GiB · 24 hours</Badge>
+        <Badge variant="secondary">5 GiB per browser</Badge>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 p-5">
         {quotaQuery.isPending && <Skeleton className="h-16 rounded-xl" aria-label="Loading quota" />}
@@ -81,14 +86,20 @@ export function QuotaLimits() {
           </div>
           <Progress value={usedPercent} className="h-2" aria-label={`${usedPercent.toFixed(0)} percent of transfer quota used`} />
           <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
-            <span>{formatQuotaBytes(quota.limit_bytes)} total rolling capacity</span>
+            <span>{formatQuotaBytes(quota.limit_bytes)} total allowance</span>
             <span className="inline-flex items-center gap-1.5">
-              <Clock3 className="size-4" aria-hidden="true" />
-              {timeUntilReset === null
-                ? "No recent usage is waiting to expire"
-                : timeUntilReset <= 0
-                  ? "Capacity is refreshing"
-                  : `Next capacity release in ${formatCountdown(timeUntilReset)}`}
+              {isQuotaExhausted ? (
+                <>
+                  <Clock3 className="size-4" aria-hidden="true" />
+                  {timeUntilReset === null
+                    ? "Quota is full; next release time is unavailable"
+                    : timeUntilReset <= 0
+                      ? "Capacity is refreshing"
+                      : `Uploads resume in ${formatCountdown(timeUntilReset)}`}
+                </>
+              ) : (
+                "No waiting period while quota remains"
+              )}
             </span>
           </div>
           <p className="text-xs text-muted-foreground">Usage is associated with this browser on this device. Clearing site data or switching browsers creates a new visitor identity.</p>

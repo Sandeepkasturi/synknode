@@ -36,7 +36,7 @@ export async function getVisitorQuota(visitorId: string): Promise<VisitorQuota> 
     p_new_bytes: 0,
     p_daily_limit_gb: 5,
   });
-  if (error) throw new Error("Could not check the rolling 24-hour transfer quota.");
+  if (error) throw new Error("Could not check the transfer quota.");
   return parseQuota(data);
 }
 
@@ -46,11 +46,20 @@ export async function ensureTransferQuota(visitorId: string, requestedBytes: num
     p_new_bytes: requestedBytes,
     p_daily_limit_gb: 5,
   });
-  if (error) throw new Error("Could not verify your 5 GiB rolling 24-hour transfer quota. Please retry shortly.");
+  if (error) throw new Error("Could not verify your 5 GiB transfer allowance. Please retry shortly.");
 
   const quota = parseQuota(data);
   if (!quota.allowed) {
-    throw new Error(`This transfer exceeds your rolling 24-hour allowance. ${formatQuotaBytes(quota.remaining_bytes)} remain.`);
+    if (quota.remaining_bytes <= 0) {
+      const resetAt = quota.next_reset_at ? new Date(quota.next_reset_at) : null;
+      const resetMessage = resetAt && !Number.isNaN(resetAt.getTime())
+        ? ` Your next capacity release is ${resetAt.toLocaleString()}.`
+        : " Capacity will return as earlier transfers age out.";
+      throw new Error(`Your 5 GiB allowance is fully used.${resetMessage}`);
+    }
+    throw new Error(
+      `This transfer would exceed your 5 GiB allowance. ${formatQuotaBytes(quota.remaining_bytes)} remain.`,
+    );
   }
   return quota;
 }
