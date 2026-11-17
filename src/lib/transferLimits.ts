@@ -1,7 +1,7 @@
 export const LIMITS = {
   MAX_FILE_SIZE_BYTES: 100 * 1024 * 1024,
   MAX_BATCH_SIZE_BYTES: 5 * 1024 * 1024 * 1024,
-  DEFAULT_DAILY_LIMIT_GB: 50,
+  DEFAULT_DAILY_LIMIT_GB: 5,
 } as const;
 
 export interface ValidationResult {

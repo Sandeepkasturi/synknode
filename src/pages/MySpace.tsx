@@ -11,8 +11,9 @@ import { useAccount } from "@/context/AccountContext";
 import { USER_SPACE_QUOTA_BYTES, fitsQuota } from "@/lib/quota";
 import { UserFile, listUserFiles, saveToUserSpace, deleteUserFile, getUserFileBlob, sendUserFileToReceiver, formatBytes } from "@/lib/userSpace";
 import { setOutbox } from "@/lib/shareInbox";
-import { supabase } from "@/integrations/supabase/client";
-import { LIMITS, validateTransferBatch } from "@/lib/transferLimits";
+import { validateTransferBatch } from "@/lib/transferLimits";
+import { ensureTransferQuota } from "@/lib/transferQuota";
+import { getOrCreateVisitorId } from "@/lib/analytics";
 
 const MySpace: React.FC = () => {
   const { account, loading, signOut } = useAccount();
@@ -66,15 +67,7 @@ const MySpace: React.FC = () => {
     localStorage.setItem("sender_name", senderName.trim());
     setBusy("send");
     try {
-      const { data: quota, error: quotaError } = await supabase.rpc("check_sender_daily_quota", {
-        p_sender_name: senderName.trim(),
-        p_new_bytes: validation.totalBytes,
-        p_daily_limit_gb: LIMITS.DEFAULT_DAILY_LIMIT_GB,
-      });
-      if (quotaError) throw new Error("Could not verify your rolling 24-hour transfer quota. Please retry after the quota service is available.");
-      if (!quota || typeof quota !== "object" || !("allowed" in quota) || quota.allowed !== true) {
-        throw new Error("This transfer exceeds your rolling 24-hour allowance.");
-      }
+      await ensureTransferQuota(getOrCreateVisitorId(), validation.totalBytes);
       for (const f of chosen) await sendUserFileToReceiver(f, senderName);
       toast.success(`Sent ${chosen.length} file(s) to SRGEC`);
       setSelected(new Set());
